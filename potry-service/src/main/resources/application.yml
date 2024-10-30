@@ -1,0 +1,88 @@
+server:
+  port: 8080
+
+
+spring:
+  profiles:
+    active: dev
+  websocket:
+    stomp:
+      client:
+        library: web-socket-client-spring
+      socket-timeout: 60000
+    sockjs:
+      enabled: true
+      url: /sockjs
+      allowed-origins: "*"
+
+  ai:
+    openai:
+      api-key: sk-V2OAUtxXABjLBBohfFBYQCbmkSXaEn5HxRsCGOjvC6AVwVfA
+      base-url: https://xiaoai.plus
+
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    password: 123456
+    url: jdbc:mysql://localhost:3306
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 2
+
+  mail:
+    host: smtp.qq.com
+    username: 2186256471@qq.com
+    password: nswyisgxoqmyebjh
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enable: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          port: 465
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.fuze.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      fuze:
+        mapper: trace
+        service: info
+        controller: info
+
+sky:
+  jwt:
+    admin-secret-key: hivtestnhky
+    admin-ttl: 119200000
+    admin-token-name: token
+    userSecretKey: poemuserkey
+    userTtl: 119200000
+    userTokenName: token
+
+  alioss:
+    endpoint: ${sky.alioss.endpoint}
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
