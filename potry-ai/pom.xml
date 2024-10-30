@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.nhky</groupId>
+        <artifactId>tt1</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.fuze</groupId>
+    <artifactId>potry-ai</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jackson.version>2.12.7.1</jackson.version>
+        <retrofit.version>2.9.0</retrofit.version>
+        <rxjava2.version>2.0.0</rxjava2.version>
+        <okhttp3-version>3.14.9</okhttp3-version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.volcengine</groupId>
+            <artifactId>volcengine-java-sdk-vpc</artifactId>
+            <version>0.1.129</version>
+        </dependency>
+        <dependency>
+            <groupId>com.volcengine</groupId>
+            <artifactId>volcengine-java-sdk-ecs</artifactId>
+            <version>0.1.129</version>
+        </dependency>
+        <dependency>
+            <groupId>com.volcengine</groupId>
+            <artifactId>volcengine-java-sdk-core</artifactId>
+            <version>0.1.129</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fuze</groupId>+
+            <artifactId>poetry-pojo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fuze.potryservice.mapper.CommentMapper">
+    <resultMap id="CommentResultMap" type="com.fuze.vo.CommentVo">
+        <id property="id" column="id"/>
+        <result property="userid" column="user_id"/>
+        <result property="publishtime" column="publishtime"/>
+        <result property="content" column="truncated_content"/> <!-- 修改这里 -->
+        <result property="replycount" column="replycount"/>
+        <result property="thumbsup" column="thumbs_up"/>
+        <result property="thumbsdown" column="thumbs_down"/>
+    </resultMap>
+
+    <select id="getCommentList" resultMap="CommentResultMap">
+        select
+        id,
+        user_id,
+        publishtime,
+        touxiang,
+        username,
+        SUBSTRING(content, 1, 50) as truncated_content, <!-- 修改别名 -->
+        replycount,
+        thumbs_up,
+        thumbs_down
+        from poem.comment
+        where parent_id IS NULL
+    </select>
+</mapper>
