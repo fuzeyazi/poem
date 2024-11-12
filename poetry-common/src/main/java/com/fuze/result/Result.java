@@ -1,5 +1,6 @@
 package com.fuze.result;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(description = "统一返回的数据模型")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result<T> implements Serializable {
 
     @ApiModelProperty("成功失败的代号")

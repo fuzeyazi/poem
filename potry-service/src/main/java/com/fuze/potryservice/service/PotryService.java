@@ -40,7 +40,7 @@ public interface PotryService{
 
     PoemDataVo GetVeryGoodPoem();
 
-    WriterEndVo GetPoemWriter(int id);
+    WriterEndVo GetPoemWriter(int id) throws InterruptedException;
 
     PageResult GetPoemPage(Integer pageNum, Integer pageSize);
 
@@ -61,4 +61,12 @@ public interface PotryService{
     PageResult GetwriterBydynasty111(Integer pageNum, Integer pageSize, String writer);
 
     List<Poem> GetContentBytitle1(Integer id);
+
+    PageResult GetPoembyTitle(Integer pageNum, Integer pageSize, String title);
+
+    PageResult GetwriterB(Integer pageNum, Integer pageSize, String title);
+
+    String getcountbyid(int id);
+
+    void update(Integer userid,Integer poemid);
 }

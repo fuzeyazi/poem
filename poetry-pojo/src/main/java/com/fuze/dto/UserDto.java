@@ -13,18 +13,13 @@ import org.springframework.context.annotation.Lazy;
 
 public class UserDto {
 
-    private Integer id;
-
     private String password;
-
     private String username;
-
+    private String email;
     private String name;
-
     private String phone;
-
     private String sex;
-
+    private String degree;
 
 
 

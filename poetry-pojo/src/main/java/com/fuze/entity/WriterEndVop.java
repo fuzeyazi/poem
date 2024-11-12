@@ -14,6 +14,7 @@ import java.util.List;
 public class WriterEndVop {
     private Integer id;
     private String name;
+    private String dynasty;
     private String headImageUrl;
     private String simpleIntro;
     private List<XiangXi> detailIntro;

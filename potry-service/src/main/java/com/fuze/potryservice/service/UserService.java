@@ -1,17 +1,22 @@
 package com.fuze.potryservice.service;
 
-import com.fuze.dto.UserCollectionPoemDto;
-import com.fuze.dto.UserCollectionRhesisDto;
-import com.fuze.dto.UserLogin;
-import com.fuze.dto.UserLoginDto;
+import com.fuze.dto.*;
 import com.fuze.entity.RhesisDataVo;
+import com.fuze.entity.UserBook;
 import com.fuze.entity.UserJo;
+import com.fuze.vo.PlanDataVo;
 import com.fuze.vo.PoemDataVo;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
+
+   
 
     UserJo login1(UserLoginDto userLoginDto);
 
@@ -55,4 +60,32 @@ public interface UserService {
     String gettouxiangbyid(Integer userid);
 
     String getusernamebyid(Integer userid);
+
+    String sendcode(String phone, HttpSession session,Integer status) throws UnsupportedEncodingException, MessagingException;
+
+    String loginEmal(UserLoginEmalDto userLoginEmalDto);
+
+
+    boolean findPoem(UserCollectionPoemDto userCollectionPoemDto);
+
+
+    String updatepassword(UserLoginEmalDto userLoginEmalDto);
+    void adduserbook1(UserBook userBook, Long dagree);
+
+    void adduserbook(UserBook userBook);
+    void addPoemword(UserBookPoemDto userBookPoemDto);
+
+    List<UserBook> show(Integer idd);
+
+    List<PoemDataVo> showpoem(Integer bookid);
+
+    Map<String, Integer> getForgetCurve(Integer userId);
+
+    void createReviewPlan1(Integer userId, Integer bookId);
+
+    void start(UserBook userBook, Integer id);
+
+    void start1(Integer bookId, Integer id, Integer much);
+
+    List<PlanDataVo> showplan(Integer bookid);
 }

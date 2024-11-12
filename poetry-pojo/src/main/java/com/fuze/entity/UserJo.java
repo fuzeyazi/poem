@@ -28,6 +28,8 @@ public class UserJo {
     //也先不传
     private int age;
     private Integer status;
+    //学历
+    private String degree;
 
 
 }

@@ -1,5 +1,8 @@
 package com.fuze.potryservice.service.impl;
 
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.fuze.entity.Poem;
 import com.fuze.entity.Writer;
 import com.fuze.entity.WriterEndVo;
@@ -10,15 +13,20 @@ import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
+import java.util.concurrent.TimeUnit;
+@Slf4j
 @Service
 public class PotryServiceimpl implements PotryService {
     @Autowired
     private PotryMapper potryMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     @Override
     public Integer getcount() {
        return potryMapper.getcount();
@@ -28,6 +36,7 @@ public class PotryServiceimpl implements PotryService {
     public List<String> GetAllPoemName() {
         return potryMapper.GetAllPoemName();
     }
+
 
     @Override
     public Poem GetContentById(Integer id) {
@@ -164,6 +173,35 @@ public class PotryServiceimpl implements PotryService {
     }
 
     @Override
+    public PageResult GetPoembyTitle(Integer pageNum, Integer pageSize, String title) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<Poem> page=potryMapper.GetPoembyTitle(title);
+        long total = page.getTotal();
+        List<Poem> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public PageResult GetwriterB(Integer pageNum, Integer pageSize, String title) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<RhesisDataVo> page=potryMapper.GetwriterB(title);
+        long total = page.getTotal();
+        List<RhesisDataVo> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public String getcountbyid(int id) {
+        return potryMapper.getcountbyid(id);
+    }
+
+    @Override
+    public void update(Integer userid,Integer poemid) {
+        potryMapper.update(userid,poemid);
+    }
+
+
+    @Override
     public List<PoemDataVo> GetPoemDataVoByWriter(String name) {
         return potryMapper.GetPoemData(name);
     }
@@ -190,10 +228,74 @@ public class PotryServiceimpl implements PotryService {
         return potryMapper.GetVeryGoodPoem();
     }
 
-    @Override
-    public WriterEndVo GetPoemWriter(int id) {
 
-        return potryMapper.GetPoemWriter(id);
+
+    private boolean trylock(String key){
+        //使用setnx占坑，setIfAbsent
+        Boolean aBoolean = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
+        return BooleanUtil.isTrue(aBoolean);
+    }
+    private void unLock(String key){
+        stringRedisTemplate.delete(key);
+    }
+
+    @Override
+    public WriterEndVo GetPoemWriter(int id) throws InterruptedException {
+       //从redis查询诗人详细
+      String poemjson=stringRedisTemplate.opsForValue().get("poem:writer:"+id);
+      //判断是否存在
+        if(StrUtil.isNotBlank(poemjson)){
+            if (poemjson != null &&poemjson.equals("null")) {
+                log.info("防止击穿");
+                return null;
+            }
+            log.info("从redis查询诗人详细数据");
+            //如果存在,将json反序列化成对象返回
+            return JSON.parseObject(poemjson,WriterEndVo.class);
+        }else{
+            //缓存穿透
+            String lock="lock:poem:writer:"+id;
+            //1,获取互斥锁
+            boolean trylock = trylock(lock);
+            if(trylock){
+                //2,如果获取锁成功，应该检查redis中是否有数据
+                log.info("缓存穿透");
+                String poemjson1=stringRedisTemplate.opsForValue().get("poem:writer:"+id);
+
+                 //3,如果redis中存在数据，直接返回
+                if(poemjson1!=null){
+                    log.info("二次验证");
+                    return JSON.parseObject(poemjson1,WriterEndVo.class);
+                }
+                //4，如果redis中不存在数据，则从数据库中查询数据
+
+                List<WriterEndVo> writerEndVo1=potryMapper.GetPoemWriter1(id);
+                //5如果数据库中不存在数据，则将null写入redis,做防止击穿
+                if(writerEndVo1.isEmpty()){
+                    log.info("返回一个空对象");
+                    stringRedisTemplate.opsForValue().set("poem:writer:"+id,"null",1,TimeUnit.MINUTES);
+                    unLock(lock);
+                    return null;
+                }
+                String dynasty=writerEndVo1.get(0).getDynasty();
+                if(writerEndVo1.size()>1){
+                    for(int i=1;i<writerEndVo1.size();i++){
+                        dynasty=writerEndVo1.get(i).getDynasty()+','+dynasty;
+                    }
+                }
+                writerEndVo1.get(0).setDynasty(dynasty);
+                WriterEndVo writerEndVo=writerEndVo1.get(0);
+                //如果缓存中没有数据，则在进行数据重建
+                stringRedisTemplate.opsForValue().set("poem:writer:"+id,JSON.toJSONString(writerEndVo),30,TimeUnit.MINUTES);
+                unLock(lock);
+                return writerEndVo;
+            }else{
+                //不存在锁住，等待
+                Thread.sleep(50);
+                return GetPoemWriter(id);
+            }
+
+        }
     }
 
 

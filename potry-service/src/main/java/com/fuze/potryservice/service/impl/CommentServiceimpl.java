@@ -62,6 +62,7 @@ public class CommentServiceimpl implements CommentService {
         CommentVo postVo = convertToCommentVo(post);
         Set<Integer> visitedIds = new HashSet<>();
         postVo.setChildren(getChildren(postVo,visitedIds));
+
         return postVo;
     }
 
