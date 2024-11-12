@@ -19,4 +19,5 @@ public class UserLogin {
     private String email;
     private String sex;
     private int age;
+    private String degree;
 }

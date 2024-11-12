@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.fuze.potryservice.mapper.UserMapper">
+
     <update id="updatemessagebyid" parameterType="com.fuze.dto.UserLogin">
         update poem.user
         <set>
@@ -13,7 +14,31 @@
             <if test="sex != null">sex=#{sex},</if>
             <if test="age != null">age=#{age},</if>
             <if test="touxiang != null">touxiang=#{touxiang}</if>
+            <if test="degree != null">degree=#{degree}</if>
         </set>
         where id = #{id}
     </update>
+    <update id="batchUpdatatep">
+            <foreach collection="dates" index="index" item="date" separator=";">
+                UPDATE poem.userbookpoem
+                SET lastReviewDate = #{date}, reviewStatus = 0
+                WHERE book_id = #{bookId} AND poem_id = #{poemid[index]}
+            </foreach>
+    </update>
+    <update id="batchUpdatatep1" parameterType="map">
+        UPDATE your_table
+        SET column1 = #{id},
+        column2 = #{dates}[#{index}]
+        WHERE column3 IN
+        <foreach item="item" index="index" collection="pomeid" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="showpoem" resultType="com.fuze.vo.PoemDataVo">
+        select title from poem.potry where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

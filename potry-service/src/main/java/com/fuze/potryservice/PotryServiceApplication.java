@@ -12,6 +12,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 public class PotryServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PotryServiceApplication.class, args);
+        var c = SpringApplication.run(PotryServiceApplication.class, args);
+        System.out.println();
     }
 }

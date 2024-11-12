@@ -23,6 +23,11 @@ class AiConfig {
                 .build();
     }
 
+      @Bean
+    ChatClient  queryClient(ChatClient.Builder builder) {
+        return builder.defaultSystem("我下面会给你传入一首古诗，将里面的生僻字和易错字给我提取出来,返回给我的数据只要有这些字，其他的都不需要，而且最少需要5个字，并且还要按照古诗的顺序依次排列")
+                .build();
+    }
 
 
 }

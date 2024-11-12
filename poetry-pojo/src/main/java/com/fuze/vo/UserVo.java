@@ -23,6 +23,8 @@ public class UserVo {
     private String touxiang;
     @ApiModelProperty("token值")
     private String token;
+    @ApiModelProperty("用户的学历")
+    private String degree;
 
 
 }

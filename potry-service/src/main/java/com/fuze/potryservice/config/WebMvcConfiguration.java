@@ -22,14 +22,17 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
 
 
-//    protected void addInterceptors(InterceptorRegistry registry) {
-//        System.out.println(jwtTokenUserInterceptor);
-//        registry.addInterceptor(jwtTokenUserInterceptor)
-//                .addPathPatterns("/user/**")
-//                .excludePathPatterns("/user/login");
-//    .excludePathPatterns("/user/regi");
-//
-//    }
+    protected void addInterceptors(InterceptorRegistry registry) {
+        System.out.println(jwtTokenUserInterceptor);
+        registry.addInterceptor(jwtTokenUserInterceptor)
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/register")
+                .excludePathPatterns("/user/login/code")
+                .excludePathPatterns("/user/login/email")
+                .addPathPatterns("/ai/**")
+                .excludePathPatterns("/user/forget");
+    }
 
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");

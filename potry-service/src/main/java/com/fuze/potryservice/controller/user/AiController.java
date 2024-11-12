@@ -2,6 +2,7 @@ package com.fuze.potryservice.controller.user;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.fuze.context.BaseContext;
 import com.fuze.potryservice.service.PotryService;
 import com.fuze.utils.AliOssUtil;
 import io.swagger.annotations.Api;
@@ -59,19 +60,19 @@ public class AiController {
         if (id == 1) {
             return this.chatClient.prompt()
                     .user(message)
-                    .advisors(new MessageChatMemoryAdvisor(chatMemory, "1", 10))
+                    .advisors(new MessageChatMemoryAdvisor(chatMemory, BaseContext.getCurrentId().toString(), 10))
                     .stream()
                     .content();
         } else if (id == 2){
             return this.chatClient2.prompt()
                     .user(message)
-                    .advisors(new MessageChatMemoryAdvisor(chatMemory, "1", 10))
+                    .advisors(new MessageChatMemoryAdvisor(chatMemory, BaseContext.getCurrentId().toString(), 10))
                     .stream()
                     .content();
         }else{
             return this.chatClient3.prompt()
                     .user(message)
-                    .advisors(new MessageChatMemoryAdvisor(chatMemory, "1", 10))
+                    .advisors(new MessageChatMemoryAdvisor(chatMemory, BaseContext.getCurrentId().toString(), 10))
                     .stream()
                     .content();
         }
@@ -80,7 +81,6 @@ public class AiController {
     @GetMapping(value = "/audio")
     public String audio(@RequestParam Integer id) throws IOException {
         String message=potryService.GetContentById(id).getContent();
-
         //文生语音的配置
         OpenAiAudioSpeechOptions speechOptions = OpenAiAudioSpeechOptions.builder()
                 .withModel("tts-1")
@@ -91,18 +91,12 @@ public class AiController {
                 // 语速配置
                 .withSpeed(0.8f)
                 .build();
-
         SpeechPrompt speechPrompt = new SpeechPrompt(message, speechOptions);
-
             SpeechResponse response = openAiAudioSpeechModel.call(speechPrompt);
             //oss上传文件
             String ss = UUID.randomUUID().toString();
             String url = aliOssUtil.upload(response.getResult().getOutput(), ss+".mp3");
             return url;
-
-
-
-
         //上传到阿里oss
 
 

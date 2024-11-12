@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user/game")
@@ -31,11 +32,11 @@ import java.util.Map;
 public class QuestionGameController {
     //todo 需要完成排行榜，用户查看，管理员修改
 @Autowired
-public RedisTemplate redisTemplate;
-@Autowired
 private PotryService potryService;
 @Autowired
 private QuestionGameService questionGameService;
+@Autowired
+private RedisTemplate<String,String> redisTemplate;
          @Value("120")
          private int gameTimeoutSeconds;
          private int sum=0;
@@ -59,7 +60,11 @@ private QuestionGameService questionGameService;
         for(String s : part){
             temp.add(s);
         }
-        questionGameService.addQuestion(temp.get(1));
+        redisTemplate.opsForValue().set("question"+temp.get(1), temp.get(1),1, TimeUnit.MINUTES);
+
+        if(false){
+            questionGameService.addQuestion(temp.get(1));
+        }
         return Result.success(temp.get(0));
     }
 @ApiOperation("检验是否答对")
@@ -79,14 +84,12 @@ private QuestionGameService questionGameService;
         return Result.error("游戏超时，请重新开始");
     }
     try {
-        String daan = questionGameService.getQuestion();
+        String daan=redisTemplate.opsForValue().get("question"+answer);
         if (daan.equals(answer)) {
-            questionGameService.deleteQuestion();
             sum+=10;
             return Result.success("答对了");
         } else {
             sum = 0;
-            questionGameService.deleteQuestion();
             return Result.error("答错了,答案是" + daan);
         }
     }catch (Exception e){

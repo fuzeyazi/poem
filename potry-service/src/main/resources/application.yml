@@ -15,10 +15,12 @@ spring:
       url: /sockjs
       allowed-origins: "*"
 
+
   ai:
     openai:
       api-key: sk-V2OAUtxXABjLBBohfFBYQCbmkSXaEn5HxRsCGOjvC6AVwVfA
       base-url: https://xiaoai.plus
+
 
   main:
     allow-bean-definition-overriding: true
@@ -28,21 +30,20 @@ spring:
     url: jdbc:mysql://localhost:3306
     username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password:
-      database: 2
+
 
   mail:
     host: smtp.qq.com
-    username: 2186256471@qq.com
-    password: nswyisgxoqmyebjh
+    username: 347185605@qq.com
+    password: ldeqcnmpnhacbjjd
     default-encoding: utf-8
+    protocol: smtps
     properties:
       mail:
         smtp:
+          timeout: 3000
+          connection-timeout: 3000
+          writetimeout: 5000
           ssl:
             enable: true
           auth: true
@@ -51,6 +52,17 @@ spring:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
           port: 465
+  data:
+    redis:
+      host: localhost
+      port: 6379
+#      password: 123456
+      lettuce:
+        pool:
+          max-active: 20
+          max-wait: 8
+          max-idle: 0
+          min-idle: 100
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

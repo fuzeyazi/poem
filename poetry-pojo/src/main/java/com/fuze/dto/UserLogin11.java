@@ -4,23 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+public class UserLogin11 {
 
-public class UserDto {
-
-    private String password;
     private String username;
-    private String email;
+    private String password;
     private String name;
+    private String touxiang;
     private String phone;
+    private String email;
     private String sex;
     private String degree;
-
-
-
+    private int age;
 }

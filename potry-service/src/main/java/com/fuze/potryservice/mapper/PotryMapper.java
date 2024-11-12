@@ -9,6 +9,7 @@ import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
@@ -73,4 +74,14 @@ public interface PotryMapper {
     Page<RhesisDataVo> GetwriterBywriter1(String writer);
     @Select("select * from  poem.potry where id=#{id}")
     List<Poem> GetContentByTitle1(Integer id);
+    @Select("SELECT DISTINCT w.id,w.simpleIntro,w.headImageUrl,w.name,w.detailIntro,p.dynasty FROM poem.writer w,poem.potry p WHERE w.id=#{id} and w.name=writer ")
+    List<WriterEndVo> GetPoemWriter1(int id);
+@Select("select * from poem.potry where title like concat('%',#{title},'%') or writer like concat('%',#{title},'%')")
+    Page<Poem> GetPoembyTitle(String title);
+@Select("select * from poem.rhesis where name like concat('%',#{title},'%') or fromm like concat('%',#{title},'%')")
+    Page<RhesisDataVo> GetwriterB(String title);
+@Select("select content from poem.potry where id=#{id}")
+    String getcountbyid(int id);
+@Update("UPDATE poem.userbookpoem SET reviewCount=reviewCount+1 WHERE book_id=(SELECT book_id FROM poem.userbook WHERE user_id=#{userid}) AND poem_id=#{poemid}")
+    void update(Integer userid, Integer poemid);
 }

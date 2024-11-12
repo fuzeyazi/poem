@@ -13,7 +13,9 @@ import java.util.List;
 public class WriterEndVo {
     private Integer id;
     private String name;
+    private String dynasty;
     private String headImageUrl;
     private String simpleIntro;
     private String detailIntro;
+
 }

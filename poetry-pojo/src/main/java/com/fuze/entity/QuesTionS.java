@@ -11,11 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WriterEndVop {
-    private Integer id;
-    private String name;
-    private String dynasty;
-    private String headImageUrl;
-    private String simpleIntro;
-    private List<XiangXi> detailIntro;
+public class QuesTionS {
+    private String question;
+    private List<kok> options;
 }
