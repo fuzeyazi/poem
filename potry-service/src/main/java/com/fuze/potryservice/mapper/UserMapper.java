@@ -106,4 +106,12 @@ UserLogin getmassagebyID(Integer id);
     void updatatep1(Integer bookId, Integer integer, LocalDateTime zz, Integer integer1);
 @Select("select * from poem.userbookpoem where book_id=#{bookid}")
     List<PlanDataVo> showplan(Integer bookid);
+
+
+    @Select("SELECT * FROM poem.user WHERE id IN (#{userIds})")
+    List<UserJo> getuserbylistid(@Param("userIds") List<Integer> userIds);
+@Select("select name_tager from poem.user where id=#{userId}")
+    String getuserTagerbyid(Integer userId);
+@Select("select fans from poem.user where id=#{userid}")
+    Integer getfans(Integer userid);
 }

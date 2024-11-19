@@ -9,8 +9,6 @@
                group_concat(title) as titlepoem
         from poem.potry
         group by  dynasty
-
-
     </select>
 
 </mapper>
