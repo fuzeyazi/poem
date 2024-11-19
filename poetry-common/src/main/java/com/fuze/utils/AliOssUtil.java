@@ -16,10 +16,10 @@ import java.util.UUID;
 @Component
 @Slf4j
 public class AliOssUtil {
-//    private String endpoint="oss-cn-beijing.aliyuncs.com";
-//    private String accessKeyId="CONFIGURE_LOCALLY";
-//    private String accessKeySecret="CONFIGURE_LOCALLY";
-//    private String bucketName="webxiangmu";
+    private String endpoint="oss-cn-beijing.aliyuncs.com";
+    private String accessKeyId="CONFIGURE_LOCALLY";
+    private String accessKeySecret="CONFIGURE_LOCALLY";
+    private String bucketName="webxiangmu";
 
     /**
      * 文件上传

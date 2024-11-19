@@ -290,6 +290,7 @@ public class PotryServiceimpl implements PotryService {
                 unLock(lock);
                 return writerEndVo;
             }else{
+                
                 //不存在锁住，等待
                 Thread.sleep(50);
                 return GetPoemWriter(id);
