@@ -14,8 +14,8 @@ public class PoemBlogDtoPlus {
     private String images;
     private String content;
     private String type;
-    private Integer poemid;
-    private String poemword;
+    private Integer poemId;
+    private String poemWord;
     private Integer bolgid;
     private Integer userid;
 

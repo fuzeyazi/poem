@@ -17,6 +17,7 @@ import com.fuze.utils.JwtUtil;
 import com.fuze.utils.PlayerUtil;
 import com.fuze.vo.PlanDataVo;
 import com.fuze.vo.PoemDataVo;
+import com.fuze.vo.PoemLunTanCommentVo;
 import com.fuze.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
@@ -82,14 +83,10 @@ private RedisTemplate<String,String> redisTemplate;
 
     @Override
     public void adduser(UserJo newuser) throws Exception {
-        PlayerUtil playerUtil = new PlayerUtil();
+
         String username=newuser.getUsername();
         //检测是否玩家是否已经注册
-        playerUtil.ifRegister(hostUrl,appId,secret,username);
         //注册玩家，这边我们是直接让注册的用户就为玩家id
-        String playerId = playerUtil.register(hostUrl,appId,secret,username,"古风","都是哈急人");
-        newuser.setOpenid(playerId);
-        System.out.println(playerId);
         userMapper.adduser(newuser);
 
     }
@@ -255,13 +252,12 @@ private RedisTemplate<String,String> redisTemplate;
             Integer id=userMapper.findidbyemail(userLoginEmalDto.getEmail());
             Map<String, Object> claims = new HashMap<>();
             claims.put(JwtClaimsConstant.USER_ID, id);
-            String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
-            return token;
+            claims.put(JwtClaimsConstant.Dagerr,"小学");
+            return JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
         }else {
             Map<String, Object> claims = new HashMap<>();
             claims.put(JwtClaimsConstant.USER_ID, userJo.getId());
-            String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
-            return token;
+            return JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
         }
     }
     @Override
@@ -406,6 +402,23 @@ private RedisTemplate<String,String> redisTemplate;
             }
         }
         return planDataVos;
+    }
+
+    @Override
+    public List<PoemLunTanCommentVo> selectcomment(Integer id) {
+        return userMapper.selectcomment(id);
+    }
+
+    @Override
+    public void deleteComment(Integer commentid) {
+        userMapper.deleteComment(commentid);
+    }
+
+    @Override
+    public UserJo login11(UserLoginEmalDtoPlus userLoginEmalDtoPlus) {
+        String username = userLoginEmalDtoPlus.getEmail();
+        UserJo userJo = userMapper.loginbyusername1(username);
+        return userJo;
     }
 
     private  String dagree1(Long dagree){

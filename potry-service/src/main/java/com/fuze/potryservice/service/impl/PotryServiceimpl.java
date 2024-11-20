@@ -160,6 +160,7 @@ public class PotryServiceimpl implements PotryService {
     @Override
     public List<Poem> GetContentBytitle1(Integer id) {
         Poem poem=potryMapper.GetContentById(id);
+
         if(poem.getRemarks()==null|| poem.getRemarks().isEmpty()){
             poem.setRemarks("暂时没有收录");
         }
@@ -169,6 +170,9 @@ public class PotryServiceimpl implements PotryService {
         if(poem.getShangxi()==null|| poem.getShangxi().isEmpty()){
             poem.setShangxi("暂时没有收录");
         }
+         String content = poem.getContent();
+        content = content.replace("\r\n", "<br>");
+        poem.setContent(content);
         return Arrays.asList(poem);
     }
 
@@ -194,42 +198,36 @@ public class PotryServiceimpl implements PotryService {
     public String getcountbyid(int id) {
         return potryMapper.getcountbyid(id);
     }
-
     @Override
     public void update(Integer userid,Integer poemid) {
         potryMapper.update(userid,poemid);
     }
-
-
+    @Override
+    public List<Writer> GetRondWriter11(String name) {
+        return potryMapper.GetRondWriter11(name);
+    }
     @Override
     public List<PoemDataVo> GetPoemDataVoByWriter(String name) {
         return potryMapper.GetPoemData(name);
     }
-
     @Override
     public List<String> GetType() {
         List<String> list1=potryMapper.GetType();
         list1.removeIf(String::isEmpty);
         return list1;
     }
-
     @Override
     public List<PoemDataVo> GetPoemDataByType(String type) {
         return potryMapper.GetPoemDataByType(type);
     }
-
     @Override
     public List<Poem>  GetContentBytitle(String title) {
         return potryMapper.GetContentByTitle(title);
     }
-
     @Override
     public PoemDataVo GetVeryGoodPoem() {
         return potryMapper.GetVeryGoodPoem();
     }
-
-
-
     private boolean trylock(String key){
         //使用setnx占坑，setIfAbsent
         Boolean aBoolean = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
@@ -238,7 +236,6 @@ public class PotryServiceimpl implements PotryService {
     private void unLock(String key){
         stringRedisTemplate.delete(key);
     }
-
     @Override
     public WriterEndVo GetPoemWriter(int id) throws InterruptedException {
        //从redis查询诗人详细
@@ -290,14 +287,10 @@ public class PotryServiceimpl implements PotryService {
                 unLock(lock);
                 return writerEndVo;
             }else{
-                
                 //不存在锁住，等待
                 Thread.sleep(50);
                 return GetPoemWriter(id);
             }
-
         }
     }
-
-
 }

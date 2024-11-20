@@ -6,14 +6,17 @@ import com.fuze.dto.*;
 import com.fuze.entity.Poem;
 import com.fuze.entity.UserJo;
 import com.fuze.potryservice.mapper.PoemLunTanMapper;
+import com.fuze.potryservice.mapper.PotryMapper;
 import com.fuze.potryservice.mapper.UserMapper;
 import com.fuze.potryservice.service.PoemLunTanService;
+import com.fuze.potryservice.service.PotryService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
 import com.fuze.result.ScrollResult;
 import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +36,16 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
     @Autowired
     private UserMapper userMapper;
     @Autowired
+    private PotryMapper potryMapper;
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @Transactional
     @Override
     public void fabu(PoemBlogDto poemBlogDto, Integer id) {
         log.info("标题：{}", poemBlogDto.getTitle());
-
         //查询文章作者的粉丝ids
         List<Integer> userIds = poemLunTanMapper.getuseridbylistid(id);
-        log.info("粉丝的id为{}", userIds);
         //发布完后，直接获取blogid
         PoemBlogDtoPlus poemBlogDtoPlus = new PoemBlogDtoPlus();
         BeanUtils.copyProperties(poemBlogDto, poemBlogDtoPlus);
@@ -82,9 +85,6 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
 
     private void isBlogLiked(PoemBlogVo poemBlogVo, Integer blogid) {
         Integer userid = BaseContext.getCurrentId().intValue();
-        if (userid == null) {
-            return;
-        }
         //判断当前登录用户是否已经点赞
         Double ismember = stringRedisTemplate.opsForZSet().score("blog:like" + blogid, userid.toString());
         if (ismember == null) {
@@ -137,18 +137,25 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
                     System.err.println("无法将字符串 " + s + " 转换为整数");
                 }
             }
+        }else{
+            return null;
         }
-        //根据用户id查询
-        List<UserJo> user = userMapper.getuserbylistid(userIds);
-        log.info("用户信息：{}", user);
         List<UserDianZanVo> userDianZanVos = new ArrayList<>();
-        for (UserJo userJo : user) {
-            UserDianZanVo userDianZanVo = new UserDianZanVo();
-            userDianZanVo.setName(userJo.getName());
-            userDianZanVo.setTouxiang(userJo.getTouxiang());
-            userDianZanVos.add(userDianZanVo);
+        //根据用户id查询
+        if(userIds.isEmpty()){
+            return userDianZanVos;
         }
-        return userDianZanVos;
+        List<UserJo> user = userMapper.getuserbylistid(userIds);
+
+
+            for (UserJo userJo : user) {
+                UserDianZanVo userDianZanVo = new UserDianZanVo();
+                userDianZanVo.setName(userJo.getName());
+                userDianZanVo.setTouxiang(userJo.getTouxiang());
+                userDianZanVos.add(userDianZanVo);
+            }
+            return userDianZanVos;
+
     }
 
     @Override
@@ -275,7 +282,7 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
         Map<Integer, List<FabaCommnetVo>> childCommentsMap = allComments.stream()
                 .filter(comment -> comment.getParentId() != -1)
                 .collect(Collectors.groupingBy(FabaCommnetVo::getParentId));
-        log.info("Child Comments Map: {}", childCommentsMap);
+
         // 为每个主评论设置子评论
         for (FabaCommnetVo mainComment : mainComments) {
             List<FabaCommnetVo> childComments = childCommentsMap.getOrDefault(mainComment.getId(), Collections.emptyList());
@@ -303,7 +310,53 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
             stringRedisTemplate.opsForZSet().remove("comment:like" + commentid, userid.toString());
             return false;
         }
+
         //如果已经点赞，则取消点赞
+    }
+
+  @Override
+public PageResult selectConmmets1(Integer blogid, Integer pageNum, Integer pageSize) {
+    // 只对父评论进行分页
+    PageHelper.startPage(pageNum, pageSize);
+    //查询父评论的id
+    List<FabaCommnetVo> mainComments = poemLunTanMapper.selectMainComments(blogid);
+
+    // 获取分页信息
+    PageInfo<FabaCommnetVo> pageInfo = new PageInfo<>(mainComments);
+
+    // 构建子评论映射
+    List<Integer> mainCommentIds = mainComments.stream()
+            .map(FabaCommnetVo::getId)
+            .collect(Collectors.toList());
+
+    List<FabaCommnetVo> allChildComments = poemLunTanMapper.selectChildComments(mainCommentIds);
+
+    Map<Integer, List<FabaCommnetVo>> childCommentsMap = allChildComments.stream()
+            .collect(Collectors.groupingBy(FabaCommnetVo::getParentId));
+
+    // 为每个主评论设置子评论
+    for (FabaCommnetVo mainComment : mainComments) {
+        List<FabaCommnetVo> childComments = childCommentsMap.getOrDefault(mainComment.getId(), Collections.emptyList());
+        mainComment.setChildren(childComments);
+    }
+
+    // 返回分页结果
+    return new PageResult(pageInfo.getTotal(), mainComments);
+}
+
+    @Override
+    public List<PoemBlogVo> selectforum() {
+        return null;
+    }
+
+    @Override
+    public List<BlogVO> selectforum1() {
+        return poemLunTanMapper.selectforum1();
+    }
+
+    @Override
+    public List<PoemSerchVo> search(String content) {
+        return potryMapper.serch(content);
     }
 
 

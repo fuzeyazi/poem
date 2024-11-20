@@ -12,10 +12,7 @@ import com.fuze.properties.JwtProperties;
 import com.fuze.constant.JwtClaimsConstant;
 import com.fuze.result.Result;
 import com.fuze.utils.JwtUtil;
-import com.fuze.vo.PlanDataVo;
-import com.fuze.vo.PoemDataVo;
-import com.fuze.vo.UserLoginVo;
-import com.fuze.vo.UserVo;
+import com.fuze.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.mail.MessagingException;
@@ -89,6 +86,7 @@ public class UserController {
                     .name(user1.getName())
                     .openid(user1.getOpenid())
                     .token(token)
+                    .touxiang(user1.getTouxiang())
                     .degree(user1.getDegree())
                     .build();
             log.info("用户登录成功，用户id为：" + user1.getId());
@@ -101,15 +99,27 @@ public class UserController {
     }
     @ApiOperation(value = "发送验证码并且保证到验证码")
     @PostMapping("/login/code")
-    public Result<String> sendcode(@RequestParam String phone, HttpSession session,@RequestParam int status) throws UnsupportedEncodingException, MessagingException {
-     String code=userService.sendcode(phone,session,status);
+    public Result<String> sendcode(@RequestParam String phone, HttpSession session) throws UnsupportedEncodingException, MessagingException {
+     String code=userService.sendcode(phone,session,1);
      return Result.success(code);
     }
 @ApiOperation(value = "邮箱登录或者注册")
 @PostMapping("/login/email")
-public Result<String> login1(@RequestBody UserLoginEmalDto userLoginEmalDto) {
+public Result<UserVo> login1(@RequestBody UserLoginEmalDtoPlus userLoginEmalDtoPlus) {
+    UserJo user1 = userService.login11(userLoginEmalDtoPlus);
+    UserLoginEmalDto userLoginEmalDto=new UserLoginEmalDto();
+        BeanUtils.copyProperties(userLoginEmalDtoPlus, userLoginEmalDto);
    String token=userService.loginEmal(userLoginEmalDto);
-        return Result.success(token);
+    UserVo userVo=UserVo.builder()
+            .id(user1.getId())
+            .username(user1.getUsername())
+            .name(user1.getName())
+            .openid(user1.getOpenid())
+            .token(token)
+            .touxiang(user1.getTouxiang())
+            .degree(user1.getDegree())
+            .build();
+        return Result.success(userVo);
 }
 
 
@@ -130,7 +140,7 @@ public Result<String> login1(@RequestBody UserLoginEmalDto userLoginEmalDto) {
         BeanUtils.copyProperties(userDto, newuser);
         userService.adduser(newuser);
         System.out.println(newuser);
-        return Result.success();
+        return Result.success("注册成功");
     }
     @ApiOperation(value = "忘记密码")
     @GetMapping("/forget")
@@ -170,6 +180,7 @@ public Result<String> login1(@RequestBody UserLoginEmalDto userLoginEmalDto) {
          return Result.error("已经收藏过了");
         }
  }
+
  @ApiOperation("用户取消收藏古诗")
     @DeleteMapping("/collect/deletepem")
     public Result<String> deletePoem(@RequestBody UserCollectionPoemDto userCollectionPoemDto){
@@ -278,6 +289,18 @@ public Result<String> addrhesis(@RequestBody UserCollectionRhesisDto userCollect
        List<PlanDataVo> list=userService.showplan(bookid);
        return Result.success(list);
     }
-
+ @ApiOperation(value = "查看我的评论")
+    @GetMapping("user/comment")
+    private Result<List<PoemLunTanCommentVo> > selectcomment(){
+       Integer id=BaseContext.getCurrentId().intValue();
+       List<PoemLunTanCommentVo> list=userService.selectcomment(id);
+       return Result.success(list);
+    }
+@ApiOperation(value = "删除我的评论")
+    @DeleteMapping("/user/comment/delete/{commentid}")
+    private Result<String> deleteComment(@PathVariable Integer commentid){
+       userService.deleteComment(commentid);
+       return Result.success("删除成功");
+    }
 
 }

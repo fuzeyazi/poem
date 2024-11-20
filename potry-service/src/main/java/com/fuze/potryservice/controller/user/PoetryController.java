@@ -300,6 +300,16 @@ public class PoetryController {
         List<Writer> list = potryService.GetRondWriter();
         return Result.success(list);
     }
+    @ApiOperation(value = "根据传来的名字来查询诗人的生平简介模糊查询")
+    @GetMapping("/GetPoemWriterByName11")
+    public Result<List<Writer>> GetPoemWriterByName(@RequestParam String name) {
+
+        List<Writer> list = potryService.GetRondWriter11(name);
+        if(list == null || list.isEmpty()){
+            return Result.error("抱歉，没有找到该诗人");
+        }
+        return Result.success(list);
+    }
 
     @ApiOperation(value = "根据诗人返回古诗的信息")
     @GetMapping("/GetwriterBywriter")

@@ -1,5 +1,4 @@
 package com.fuze.potryservice.controller.user;
-
 import com.fuze.context.BaseContext;
 import com.fuze.dto.FourmCommentDto;
 import com.fuze.dto.PoemBlogDto;
@@ -7,17 +6,13 @@ import com.fuze.potryservice.service.PoemLunTanService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
 import com.fuze.utils.AliOssUtil;
-import com.fuze.vo.BlogUserVo;
-import com.fuze.vo.FabaCommnetVo;
-import com.fuze.vo.PoemBlogVo;
-import com.fuze.vo.UserDianZanVo;
+import com.fuze.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -34,11 +29,18 @@ public class PoemLunTanController {
     private PoemLunTanService poemLunTanService;
 
     @PostMapping("updateImage")
-    @ApiOperation(value = "上传图片")
+    @ApiOperation(value = "上传图片(上传什么都可以)")
     private Result<String> updateImage(@RequestParam MultipartFile file) throws IOException {
-        byte[] bytes = convert(file);
-       String url= aliOssUtil.upload(bytes,"lun/"+ UUID.randomUUID()+".jpg");
-        return Result.success(url);
+        //获取文件名
+        String originalFilename = file.getOriginalFilename();
+        String dd;
+        if (originalFilename != null) {
+           dd=originalFilename.substring(originalFilename.lastIndexOf("."));
+            byte[] bytes = convert(file);
+            String url= aliOssUtil.upload(bytes,"lun/"+ UUID.randomUUID()+dd);
+            return Result.success(url);
+        }
+        return Result.error("上传失败");
     }
    private static byte[] convert(MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {
@@ -81,7 +83,6 @@ public class PoemLunTanController {
 
         return Result.success(pageInfo);
     }
-
     @ApiOperation(value="查询帖子详细")
     @GetMapping("selectxiangxi")
     private Result<PoemBlogVo> selectxiangxi(@RequestParam Integer blogid){
@@ -101,7 +102,11 @@ public class PoemLunTanController {
     @ApiOperation(value="获取前5个点赞的")
     @GetMapping("dianzanrank")
     private Result<List<UserDianZanVo>> dianzanrank(@RequestParam Integer blogid){
-        return Result.success(poemLunTanService.dianzanrank(blogid));
+        List<UserDianZanVo> dianzanrank = poemLunTanService.dianzanrank(blogid);
+          if(dianzanrank==null){
+              return Result.error("无点赞用户");
+          }
+        return Result.success(dianzanrank);
     }
     @ApiOperation(value="好友关注,先判断用户有没有关注")
     @GetMapping("isguanzhu")
@@ -127,7 +132,7 @@ public class PoemLunTanController {
         return Result.success(poemLunTanService.getByUsername(followid));
     }
     @ApiOperation(value="查看一个人发布的全部笔记")
-    @GetMapping("select/blog/{followid}/")
+    @GetMapping("select/blog/{followid}")
     private Result<PageResult> selectblog(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "4") Integer pageSize,
@@ -138,7 +143,7 @@ public class PoemLunTanController {
 
     }
     @ApiOperation(value="查看用户关注博主的发布的笔记")
-    @GetMapping("select/guanzhu/")
+    @GetMapping("select/guanzhu")
  public  Result selectguan(
          @RequestParam Long lasttimemax,
          @RequestParam(defaultValue = "0") Long offset){
@@ -152,10 +157,28 @@ public class PoemLunTanController {
         Integer id= BaseContext.getCurrentId().intValue();
        return  poemLunTanService.fabucomment(fourmCommentDto,id);
     }
-@ApiOperation(value = "查询评论")
+
+    @ApiOperation(value = "查询评论")
     @GetMapping("selectConmmets")
-    private Result<List<FabaCommnetVo>>selectConmmets(@RequestParam Integer blogid){
+//List<FabaCommnetVo>
+//PageResult
+    private Result<List<FabaCommnetVo>>selectConmmets(@RequestParam Integer blogid
+
+){
         return Result.success(poemLunTanService.selectConmmets(blogid));
+}
+
+@ApiOperation(value = "查询评论11")
+    @GetMapping("selectConmmets11")
+//List<FabaCommnetVo>
+//PageResult
+    private Result<PageResult>selectConmmets11(@RequestParam Integer blogid
+,@RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+
+){
+        PageResult pageinfo=poemLunTanService.selectConmmets1(blogid,pageNum,pageSize);
+        return Result.success(pageinfo);
 }
 @ApiOperation(value = "评论点赞")
     @GetMapping("commentdianzan")
@@ -166,6 +189,18 @@ public class PoemLunTanController {
        }else{
            return Result.success("点赞取消");
        }
-
     }
+    @ApiOperation(value = "随机返回5个论坛")
+    @GetMapping("select/forum")
+    private Result<List<BlogVO>> selectforum(){
+        return Result.success(poemLunTanService.selectforum1());
+    }
+    //内容 标题 id
+    @ApiOperation(value="根据用户上传的内容来搜索古诗")
+    @GetMapping("search")
+    private Result<List<PoemSerchVo>> search(@RequestParam String content){
+        List<PoemSerchVo> poemVos=poemLunTanService.search(content);
+        return Result.success(poemVos);
+    }
+
 }

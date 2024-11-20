@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FourmCommentDto {
-    private static final long serialVersionUID = 1L;
     private Integer blogId;
     private String context;
     private Integer parentId;

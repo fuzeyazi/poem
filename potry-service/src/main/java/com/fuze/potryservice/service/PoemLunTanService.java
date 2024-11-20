@@ -5,10 +5,7 @@ import com.fuze.dto.FourmCommentDto;
 import com.fuze.dto.PoemBlogDto;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
-import com.fuze.vo.BlogUserVo;
-import com.fuze.vo.FabaCommnetVo;
-import com.fuze.vo.PoemBlogVo;
-import com.fuze.vo.UserDianZanVo;
+import com.fuze.vo.*;
 
 import java.util.List;
 
@@ -39,4 +36,12 @@ public interface PoemLunTanService {
     List<FabaCommnetVo> selectConmmets(Integer blogid);
 
     boolean commentdianzan(Integer commentid);
+
+    PageResult selectConmmets1(Integer blogid, Integer pageNum, Integer pageSize);
+
+    List<PoemBlogVo> selectforum();
+
+    List<BlogVO> selectforum1();
+
+    List<PoemSerchVo> search(String content);
 }

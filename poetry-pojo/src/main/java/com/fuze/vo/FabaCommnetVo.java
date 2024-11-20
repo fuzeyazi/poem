@@ -15,7 +15,7 @@ import java.util.List;
 public class FabaCommnetVo {
     private Integer blogid;
     private String name;
-    private String touxaing;
+    private String touxiang;
     private String context;
     private LocalDateTime createTiem;
     private Integer liked;

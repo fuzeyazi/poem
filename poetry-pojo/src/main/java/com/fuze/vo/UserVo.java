@@ -25,6 +25,4 @@ public class UserVo {
     private String token;
     @ApiModelProperty("用户的学历")
     private String degree;
-
-
 }

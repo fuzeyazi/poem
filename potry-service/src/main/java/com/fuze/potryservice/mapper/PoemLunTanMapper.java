@@ -1,10 +1,7 @@
 package com.fuze.potryservice.mapper;
 
 import com.fuze.dto.*;
-import com.fuze.vo.BlogUserVo;
-import com.fuze.vo.FabaCommnetVo;
-import com.fuze.vo.PoemBlogVo;
-import com.fuze.vo.UserBlogListVo;
+import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.*;
 
@@ -71,4 +68,12 @@ PoemBlogDtoSuper selectxiangxi(Integer blogid);
     void updatedianzan1(Integer commentid);
 @Update("update poem.forum_comment set  liked=liked-1 where id=#{commentid}")
     void updatequxiaodianzan1(Integer commentid);
+@Select("SELECT b.*,u.touxiang,u.name from poem.forum_comment b ,poem.user u where blog_id=#{blogid} and u.id=b.user_id")
+    Page<FabaCommnetVo> selectConmme1t11(Integer blogid);
+
+    List<FabaCommnetVo> selectMainComments(Integer blogid);
+
+    List<FabaCommnetVo> selectChildComments(List<Integer> mainCommentIds);
+@Select("select * from poem.poem_blog where id order by rand() limit 5")
+    List<BlogVO> selectforum1();
 }

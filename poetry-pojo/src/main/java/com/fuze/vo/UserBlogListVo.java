@@ -14,5 +14,6 @@ public class UserBlogListVo {
     private String title;
     private Integer liked;
     private Integer conmments;
+    private String content;
     private Integer blogid;
 }
