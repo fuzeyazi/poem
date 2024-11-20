@@ -71,4 +71,10 @@ PoemBlogDtoSuper selectxiangxi(Integer blogid);
     void updatedianzan1(Integer commentid);
 @Update("update poem.forum_comment set  liked=liked-1 where id=#{commentid}")
     void updatequxiaodianzan1(Integer commentid);
+@Select("SELECT b.*,u.touxiang,u.name from poem.forum_comment b ,poem.user u where blog_id=#{blogid} and u.id=b.user_id")
+    Page<FabaCommnetVo> selectConmme1t11(Integer blogid);
+
+    List<FabaCommnetVo> selectMainComments(Integer blogid);
+
+    List<FabaCommnetVo> selectChildComments(List<Integer> mainCommentIds);
 }

@@ -39,4 +39,6 @@ public interface PoemLunTanService {
     List<FabaCommnetVo> selectConmmets(Integer blogid);
 
     boolean commentdianzan(Integer commentid);
+
+    PageResult selectConmmets1(Integer blogid, Integer pageNum, Integer pageSize);
 }

@@ -152,10 +152,28 @@ public class PoemLunTanController {
         Integer id= BaseContext.getCurrentId().intValue();
        return  poemLunTanService.fabucomment(fourmCommentDto,id);
     }
-@ApiOperation(value = "查询评论")
+
+    @ApiOperation(value = "查询评论")
     @GetMapping("selectConmmets")
-    private Result<List<FabaCommnetVo>>selectConmmets(@RequestParam Integer blogid){
+//List<FabaCommnetVo>
+//PageResult
+    private Result<List<FabaCommnetVo>>selectConmmets(@RequestParam Integer blogid
+
+){
         return Result.success(poemLunTanService.selectConmmets(blogid));
+}
+
+@ApiOperation(value = "查询评论11")
+    @GetMapping("selectConmmets11")
+//List<FabaCommnetVo>
+//PageResult
+    private Result<PageResult>selectConmmets11(@RequestParam Integer blogid
+,@RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+
+){
+        PageResult pageinfo=poemLunTanService.selectConmmets1(blogid,pageNum,pageSize);
+        return Result.success(pageinfo);
 }
 @ApiOperation(value = "评论点赞")
     @GetMapping("commentdianzan")
@@ -168,4 +186,7 @@ public class PoemLunTanController {
        }
 
     }
+
+
+
 }
