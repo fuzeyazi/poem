@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserBlogListVo {
-    private String images;
-    private String title;
-    private Integer liked;
-    private Integer conmments;
-    private String content;
+public class PoemLunTanCommentVo {
+    //评论id
+    private Integer id;
+    //评论
+    private String context;
+    //
     private Integer blogid;
 }

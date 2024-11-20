@@ -20,37 +20,30 @@ public class FeedBackServiceimpl implements FeedBackService {
     private FeedBackMapper feedBackMapper;
     @Override
     public void addfeedback(FeedBackDto feedBackDto) {
-
         feedBackMapper.addfeedback(feedBackDto);
     }
-
     @Override
     public List<FeedBack> getAllFeedBack() {
         return feedBackMapper.getAllFeedBack();
     }
-
     @Override
     public FeedBack getFeedBack(Integer id) {
         return feedBackMapper.getFeedBack(id);
     }
-
     @Override
     public void deletefeedback(Integer id) {
         feedBackMapper.deletefeedback(id);
     }
-
     @Override
     public void addreply(ReplyDto replyDto) {
         feedBackMapper.addreply(replyDto);
     }
-
     @Override
     public PageInfo<FeedBackVo> selectPage(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         List<FeedBackVo> lis1 = feedBackMapper.Getpage();
         return new PageInfo<>(lis1);
     }
-
     @Override
     public String getReply(Integer id) {
         return feedBackMapper.getReply(id);

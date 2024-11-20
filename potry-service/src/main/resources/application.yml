@@ -3,6 +3,10 @@ server:
 
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
   profiles:
     active: dev
   websocket:
@@ -18,7 +22,7 @@ spring:
 
   ai:
     openai:
-      api-key: sk-V2OAUtxXABjLBBohfFBYQCbmkSXaEn5HxRsCGOjvC6AVwVfA
+      api-key: sk-v4yzSqtbttHco6e7wskObkfPhqAYan671q1KjRcS0BAbnV8f
       base-url: https://xiaoai.plus
 
 

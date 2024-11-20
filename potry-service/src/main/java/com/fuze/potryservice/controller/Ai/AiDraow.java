@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
+import org.eclipse.angus.mail.util.BASE64DecoderStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,11 +38,11 @@ private PotryService potryService;
 
     @ApiOperation("绘画,根据古诗id来进行绘画")
     @PostMapping("")
-    public String draw(@RequestParam Integer id) throws Exception {
+    public Result<String> draw(@RequestParam Integer id) throws Exception {
         String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
 
 String ai=potryService.GetContentById(id).getContent();
-        String escapedAi = escapeJson(ai);
+        String escapedAi = escapeJson(ai+"生成全景图(panorama)");
         // URL地址正确
         System.err.println(authUrl);
         String json = "{\n" +
@@ -80,10 +81,56 @@ String ai=potryService.GetContentById(id).getContent();
                 .get("text").getAsJsonArray()
                 .get(0).getAsJsonObject()
                 .get("content").getAsJsonPrimitive().getAsString();
-        return payload;
-
+        return Result.success(payload);
     }
+    @ApiOperation("绘画,根据用户传来的对话来进行绘画")
+    @PostMapping("/sdadwadw")
+    public Result<String> draw(@RequestParam String ai) throws Exception {
+        String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
+        String escapedAi = escapeJson(ai+"生成全景图(panorama)");
+        // URL地址正确
+        System.err.println(authUrl);
+        String json = "{\n" +
+                "  \"header\": {\n" +
+                "    \"app_id\": \"" + appid + "\",\n" +
+                "    \"uid\": \"" + UUID.randomUUID().toString().substring(0, 15) + "\"\n" +
+                "  },\n" +
+                "  \"parameter\": {\n" +
+                "    \"chat\": {\n" +
+                "      \"domain\": \"s291394db\",\n" +
+                "      \"temperature\": 0.5,\n" +
+                "      \"max_tokens\": 4096,\n" +
+                "      \"width\": 512,\n" +
+                "      \"height\": 512\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"payload\": {\n" +
+                "    \"message\": {\n" +
+                "      \"text\": [\n" +
+                "        {\n" +
+                "          \"role\": \"user\",\n" +
+                "          \"content\": \""+escapedAi+"\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        // 发起Post请求
+//        System.err.println(json);
+        String res = MyUtil.doPostJson(authUrl, null, json);
+        JsonParser parser = new JsonParser();
+        JsonElement parse = parser.parse(res);
+        String payload = parse.getAsJsonObject()
+                .get("payload").getAsJsonObject()
+                .get("choices").getAsJsonObject()
+                .get("text").getAsJsonArray()
+                .get(0).getAsJsonObject()
+                .get("content").getAsJsonPrimitive().getAsString();
 
+        String payload1 = "data:image/png;base64,"+payload;
+      String resultString = payload1.replace("\"", "");
+        return Result.success(resultString);
+    }
     public static String getAuthUrl(String hostUrl, String apiKey, String apiSecret) throws Exception {
         URL url = new URL(hostUrl);
         // 时间

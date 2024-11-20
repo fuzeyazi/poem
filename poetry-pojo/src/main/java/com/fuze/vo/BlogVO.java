@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserBlogListVo {
-    private String images;
+public class BlogVO {
+    private Integer id;
     private String title;
     private Integer liked;
     private Integer conmments;
-    private String content;
-    private Integer blogid;
+
 }

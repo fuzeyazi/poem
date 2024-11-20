@@ -2,6 +2,7 @@ package com.fuze.potryservice.config;
 
 import com.fuze.json.JacksonObjectMapper;
 import com.fuze.potryservice.interceptor.JwtTokenUserInterceptor;
+import okhttp3.Response;
 import org.aopalliance.intercept.Interceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .addPathPatterns("/ai/**")
                 .excludePathPatterns("/user/forget");
     }
+
 
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");

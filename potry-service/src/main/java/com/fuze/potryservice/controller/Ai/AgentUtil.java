@@ -26,13 +26,8 @@ import org.springframework.stereotype.Service;
 public class AgentUtil {
     @Autowired
     private UserMapper userMapper;
-
-
-
     private final static OkHttpClient client = new OkHttpClient();
-
     private static final String suffixUrl = "/open/agent";
-
     public void createAgentCharacter(String url, String appId, String secret, String playerId, String agentName, String agentType, String desc, String perso, JSONArray languag, String identity, String hobby) throws Exception {
         url = url + suffixUrl + "/edit-character";
         System.out.println("url:" + url);

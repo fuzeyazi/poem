@@ -30,6 +30,6 @@ public class UserJo {
     private Integer status;
     //学历
     private String degree;
-
+    private String nameTager;
 
 }

@@ -69,4 +69,8 @@ public interface PotryService{
     String getcountbyid(int id);
 
     void update(Integer userid,Integer poemid);
+
+    List<Writer> GetRondWriter11(String name);
+
+
 }

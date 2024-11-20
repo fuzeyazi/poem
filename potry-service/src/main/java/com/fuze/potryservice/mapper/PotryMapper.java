@@ -84,4 +84,11 @@ public interface PotryMapper {
     String getcountbyid(int id);
 @Update("UPDATE poem.userbookpoem SET reviewCount=reviewCount+1 WHERE book_id=(SELECT book_id FROM poem.userbook WHERE user_id=#{userid}) AND poem_id=#{poemid}")
     void update(Integer userid, Integer poemid);
+
+    @Select("SELECT DISTINCT w.id, w.name, w.headImageUrl, w.simpleIntro, p.dynasty\n" +
+            "        FROM poem.writer w\n" +
+            "         JOIN poem.potry p ON w.name = p.writer and w.name like CONCAT('%',#{name},'%')")
+    List<Writer> GetRondWriter11(String name);
+@Select("SELECT * FROM poem.potry WHERE title LIKE CONCAT('%', #{content}, '%') OR potry.content LIKE CONCAT('%', #{content}, '%') order by case when title like CONCAT('%', #{content}, '%') THEN 1 else 2 end,title,content")
+    List<PoemSerchVo> serch(String content);
 }

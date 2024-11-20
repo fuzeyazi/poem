@@ -13,7 +13,7 @@
             <if test="email != null">email=#{email},</if>
             <if test="sex != null">sex=#{sex},</if>
             <if test="age != null">age=#{age},</if>
-            <if test="touxiang != null">touxiang=#{touxiang}</if>
+            <if test="touxiang != null">touxiang=#{touxiang},</if>
             <if test="degree != null">degree=#{degree}</if>
         </set>
         where id = #{id}
@@ -22,13 +22,13 @@
             <foreach collection="dates" index="index" item="date" separator=";">
                 UPDATE poem.userbookpoem
                 SET lastReviewDate = #{date}, reviewStatus = 0
-                WHERE book_id = #{bookId} AND poem_id = #{poemid[index]}
+                WHERE book_id = #{bookId} AND poem_id = #{poemid[index].value}
             </foreach>
     </update>
     <update id="batchUpdatatep1" parameterType="map">
         UPDATE your_table
         SET column1 = #{id},
-        column2 = #{dates}[#{index}]
+        column2 = #{dates}[{index}]
         WHERE column3 IN
         <foreach item="item" index="index" collection="pomeid" open="(" separator="," close=")">
             #{item}
@@ -38,6 +38,12 @@
     <select id="showpoem" resultType="com.fuze.vo.PoemDataVo">
         select title from poem.potry where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getuserbylistid" resultType="com.fuze.entity.UserJo">
+        select * from poem.user where id in
+        <foreach collection="userIds" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
