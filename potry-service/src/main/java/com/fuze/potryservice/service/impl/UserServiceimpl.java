@@ -17,6 +17,7 @@ import com.fuze.utils.JwtUtil;
 import com.fuze.utils.PlayerUtil;
 import com.fuze.vo.PlanDataVo;
 import com.fuze.vo.PoemDataVo;
+import com.fuze.vo.PoemLunTanCommentVo;
 import com.fuze.vo.UserVo;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
@@ -406,6 +407,16 @@ private RedisTemplate<String,String> redisTemplate;
             }
         }
         return planDataVos;
+    }
+
+    @Override
+    public List<PoemLunTanCommentVo> selectcomment(Integer id) {
+        return userMapper.selectcomment(id);
+    }
+
+    @Override
+    public void deleteComment(Integer commentid) {
+        userMapper.deleteComment(commentid);
     }
 
     private  String dagree1(Long dagree){

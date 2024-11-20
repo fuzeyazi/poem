@@ -6,6 +6,7 @@ import com.fuze.entity.UserBook;
 import com.fuze.entity.UserJo;
 import com.fuze.vo.PlanDataVo;
 import com.fuze.vo.PoemDataVo;
+import com.fuze.vo.PoemLunTanCommentVo;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 
@@ -88,4 +89,8 @@ public interface UserService {
     void start1(Integer bookId, Integer id, Integer much);
 
     List<PlanDataVo> showplan(Integer bookid);
+
+    List<PoemLunTanCommentVo> selectcomment(Integer id);
+
+    void deleteComment(Integer commentid);
 }

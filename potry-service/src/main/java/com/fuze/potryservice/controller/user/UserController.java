@@ -12,10 +12,7 @@ import com.fuze.properties.JwtProperties;
 import com.fuze.constant.JwtClaimsConstant;
 import com.fuze.result.Result;
 import com.fuze.utils.JwtUtil;
-import com.fuze.vo.PlanDataVo;
-import com.fuze.vo.PoemDataVo;
-import com.fuze.vo.UserLoginVo;
-import com.fuze.vo.UserVo;
+import com.fuze.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.mail.MessagingException;
@@ -278,6 +275,18 @@ public Result<String> addrhesis(@RequestBody UserCollectionRhesisDto userCollect
        List<PlanDataVo> list=userService.showplan(bookid);
        return Result.success(list);
     }
-
+ @ApiOperation(value = "查看我的评论")
+    @GetMapping("user/comment")
+    private Result<List<PoemLunTanCommentVo> > selectcomment(){
+       Integer id=BaseContext.getCurrentId().intValue();
+       List<PoemLunTanCommentVo> list=userService.selectcomment(id);
+       return Result.success(list);
+    }
+@ApiOperation(value = "删除我的评论")
+    @DeleteMapping("/user/comment/delete/{commentid}")
+    private Result<String> deleteComment(@PathVariable Integer commentid){
+       userService.deleteComment(commentid);
+       return Result.success("删除成功");
+    }
 
 }

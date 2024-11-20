@@ -6,6 +6,7 @@ import com.fuze.entity.UserBook;
 import com.fuze.entity.UserJo;
 import com.fuze.vo.PlanDataVo;
 import com.fuze.vo.PoemDataVo;
+import com.fuze.vo.PoemLunTanCommentVo;
 import org.apache.catalina.User;
 import org.apache.ibatis.annotations.*;
 
@@ -76,7 +77,7 @@ UserLogin getmassagebyID(Integer id);
 
 @Select("select id from poem.potry  where type like CONCAT('%',#{dagree1},'%')  ")
     List<Integer> getpoemidbydagree(String dagree1);
-
+@Insert("INSERT INTO poem.userbook(user_id,book_name,description) VALUES (#{userid},#{bookname},#{description})")
     void adduserbook11(UserBook userBook, List<Integer> keys);
 @Insert("INSERT INTO poem.userbook(user_id,book_name,description) VALUES (#{userid},#{bookname},#{description})")
     void adduserbook(UserBook userBook);
@@ -114,4 +115,8 @@ UserLogin getmassagebyID(Integer id);
     String getuserTagerbyid(Integer userId);
 @Select("select fans from poem.user where id=#{userid}")
     Integer getfans(Integer userid);
+@Select("select id,blog_id,context from poem.forum_comment where user_id=#{id}")
+    List<PoemLunTanCommentVo> selectcomment(Integer id);
+@Delete("delete from poem.forum_comment where id=#{commentid}")
+    void deleteComment(Integer commentid);
 }

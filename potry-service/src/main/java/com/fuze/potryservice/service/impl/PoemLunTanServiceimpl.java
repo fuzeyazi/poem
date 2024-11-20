@@ -14,6 +14,7 @@ import com.fuze.result.ScrollResult;
 import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
 
         //查询文章作者的粉丝ids
         List<Integer> userIds = poemLunTanMapper.getuseridbylistid(id);
-        log.info("粉丝的id为{}", userIds);
+
         //发布完后，直接获取blogid
         PoemBlogDtoPlus poemBlogDtoPlus = new PoemBlogDtoPlus();
         BeanUtils.copyProperties(poemBlogDto, poemBlogDtoPlus);
@@ -275,7 +276,7 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
         Map<Integer, List<FabaCommnetVo>> childCommentsMap = allComments.stream()
                 .filter(comment -> comment.getParentId() != -1)
                 .collect(Collectors.groupingBy(FabaCommnetVo::getParentId));
-        log.info("Child Comments Map: {}", childCommentsMap);
+
         // 为每个主评论设置子评论
         for (FabaCommnetVo mainComment : mainComments) {
             List<FabaCommnetVo> childComments = childCommentsMap.getOrDefault(mainComment.getId(), Collections.emptyList());
@@ -303,8 +304,39 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
             stringRedisTemplate.opsForZSet().remove("comment:like" + commentid, userid.toString());
             return false;
         }
+
         //如果已经点赞，则取消点赞
     }
+
+  @Override
+public PageResult selectConmmets1(Integer blogid, Integer pageNum, Integer pageSize) {
+    // 只对父评论进行分页
+    PageHelper.startPage(pageNum, pageSize);
+    //查询父评论的id
+    List<FabaCommnetVo> mainComments = poemLunTanMapper.selectMainComments(blogid);
+
+    // 获取分页信息
+    PageInfo<FabaCommnetVo> pageInfo = new PageInfo<>(mainComments);
+
+    // 构建子评论映射
+    List<Integer> mainCommentIds = mainComments.stream()
+            .map(FabaCommnetVo::getId)
+            .collect(Collectors.toList());
+
+    List<FabaCommnetVo> allChildComments = poemLunTanMapper.selectChildComments(mainCommentIds);
+
+    Map<Integer, List<FabaCommnetVo>> childCommentsMap = allChildComments.stream()
+            .collect(Collectors.groupingBy(FabaCommnetVo::getParentId));
+
+    // 为每个主评论设置子评论
+    for (FabaCommnetVo mainComment : mainComments) {
+        List<FabaCommnetVo> childComments = childCommentsMap.getOrDefault(mainComment.getId(), Collections.emptyList());
+        mainComment.setChildren(childComments);
+    }
+
+    // 返回分页结果
+    return new PageResult(pageInfo.getTotal(), mainComments);
+}
 
 
 }
