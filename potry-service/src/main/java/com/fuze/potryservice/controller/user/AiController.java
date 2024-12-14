@@ -209,7 +209,7 @@ private ChatClient zuojia;
     }
     @ApiOperation("ai语言朗诵古诗--根据传回来的id值决定什么诗句")
     @GetMapping(value = "/audio")
-    public String audio(@RequestParam Integer id) throws IOException {
+    public Result<String> audio(@RequestParam Integer id) throws IOException {
 
         String isurl=stringRedisTemplate.opsForValue().get("yingpiurl:"+id);
         if(isurl==null) {
@@ -230,9 +230,9 @@ private ChatClient zuojia;
             String ss = UUID.randomUUID().toString();
             String url = aliOssUtil.upload(response.getResult().getOutput(), ss + ".mp3");
             stringRedisTemplate.opsForValue().set("yingpiurl:"+id,url);
-            return url;
+            return Result.success(url);
         }else{
-            return isurl;
+            return Result.success(isurl);
         }
         //上传到阿里oss
         //TODO 文件存放于本地 项目根目录下

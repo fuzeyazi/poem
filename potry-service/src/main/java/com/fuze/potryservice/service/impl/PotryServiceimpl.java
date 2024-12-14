@@ -265,7 +265,6 @@ public class PotryServiceimpl implements PotryService {
                     return JSON.parseObject(poemjson1,WriterEndVo.class);
                 }
                 //4，如果redis中不存在数据，则从数据库中查询数据
-
                 List<WriterEndVo> writerEndVo1=potryMapper.GetPoemWriter1(id);
                 //5如果数据库中不存在数据，则将null写入redis,做防止击穿
                 if(writerEndVo1.isEmpty()){

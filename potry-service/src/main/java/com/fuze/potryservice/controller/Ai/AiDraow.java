@@ -42,7 +42,7 @@ private PotryService potryService;
         String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
 
 String ai=potryService.GetContentById(id).getContent();
-        String escapedAi = escapeJson(ai+"生成全景图(panorama)");
+        String escapedAi = escapeJson(ai);
         // URL地址正确
         System.err.println(authUrl);
         String json = "{\n" +
@@ -81,13 +81,15 @@ String ai=potryService.GetContentById(id).getContent();
                 .get("text").getAsJsonArray()
                 .get(0).getAsJsonObject()
                 .get("content").getAsJsonPrimitive().getAsString();
-        return Result.success(payload);
+        String payload1 = "data:image/png;base64,"+payload;
+        String resultString = payload1.replace("\"", "");
+        return Result.success(resultString);
     }
     @ApiOperation("绘画,根据用户传来的对话来进行绘画")
     @PostMapping("/sdadwadw")
     public Result<String> draw(@RequestParam String ai) throws Exception {
         String authUrl = getAuthUrl(hostUrl, apiKey, apiSecret);
-        String escapedAi = escapeJson(ai+"生成全景图(panorama)");
+        String escapedAi = escapeJson(ai);
         // URL地址正确
         System.err.println(authUrl);
         String json = "{\n" +
