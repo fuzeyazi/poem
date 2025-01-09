@@ -10,6 +10,7 @@
     <groupId>com.fuze</groupId>
     <artifactId>potry-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>potry-service</name>
     <description>potry-service</description>
     <url/>
@@ -162,6 +163,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.fuze.potryservice.PotryServiceApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

@@ -10,6 +10,7 @@
     </parent>
     <groupId>com.fuze</groupId>
     <artifactId>poetry-pojo</artifactId>
+    <packaging>jar</packaging>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
