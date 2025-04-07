@@ -119,4 +119,6 @@ UserLogin getmassagebyID(Integer id);
     List<PoemLunTanCommentVo> selectcomment(Integer id);
 @Delete("delete from poem.forum_comment where id=#{commentid}")
     void deleteComment(Integer commentid);
+
+    void update(UserJo userJo);
 }

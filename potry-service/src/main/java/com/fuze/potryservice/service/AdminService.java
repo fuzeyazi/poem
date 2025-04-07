@@ -4,6 +4,7 @@ import com.fuze.dto.AdminDto;
 import com.fuze.dto.AdminLoginDto;
 import com.fuze.dto.PotryDTO;
 import com.fuze.entity.Admin;
+import com.fuze.entity.Suggestion;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 
@@ -22,4 +23,11 @@ public interface AdminService {
     String sendcode(String email, HttpSession session, int i) throws UnsupportedEncodingException, MessagingException;
 
     void update(PotryDTO potryDTO);
+        void disable(Integer status,Integer id);
+
+    List<PotryDTO> GetContent(PotryDTO potryDTO);
+
+    void deleteByTitle(String title);
+
+    void save(Suggestion suggestion);
 }

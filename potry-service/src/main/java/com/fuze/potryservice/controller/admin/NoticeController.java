@@ -62,5 +62,7 @@ public class NoticeController {
         List<NoticeDto> noticeDtoList = noticeService.getNotice();
         return Result.success(noticeDtoList);
     }
+    //TODO暂时脑袋有点昏 通知之后再考虑
+
 
 }

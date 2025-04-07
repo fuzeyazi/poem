@@ -15,4 +15,6 @@ public interface NoticeService {
     void update(NoticeDto noticeDto);
 
     List<NoticeDto> getNotice();
+
+
 }

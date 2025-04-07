@@ -24,7 +24,7 @@ public class PotryController {
     @Autowired
     private  PotryService potryService;
     @Autowired
-    private AdminService AdminService;
+    private AdminService adminService;
     @ApiOperation(value = "获取古诗的数量")
     @GetMapping("/GetCount")
     public Result<Integer> GetCount() {
@@ -38,7 +38,7 @@ public class PotryController {
     @GetMapping("/add")
 public Result add(@RequestBody PotryDTO potryDTO) {
         log.info("添加古诗执行:");
-        AdminService.add(potryDTO);
+        adminService.add(potryDTO);
         return Result.success("添加成功");
     }
     @ApiOperation(value = "批量删除古诗")
@@ -46,7 +46,7 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     @GetMapping("/delete")
     public Result delete(@RequestBody List<Long> ids) {
         log.info("批量删除古诗执行:");
-        AdminService.delete(ids);
+        adminService.delete(ids);
         return Result.success("删除成功");
     }
 @ApiOperation(value = "修改古诗")
@@ -54,7 +54,26 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     @GetMapping("/update")
     public Result update(@RequestBody PotryDTO potryDTO) {
         log.info("修改古诗执行:");
-        AdminService.update(potryDTO);
+        adminService.update(potryDTO);
         return Result.success("修改成功");
     }
+    @ApiOperation("模糊查询古诗")
+    @GetMapping("/getPoem")
+    public Result<List<PotryDTO>> getPoem(@RequestBody PotryDTO potryDTO) {
+        log.info("模糊查询古诗执行:");
+        List<PotryDTO> poem = adminService.GetContent(potryDTO);
+        if (poem.isEmpty())
+        {
+            return Result.error("未查询到古诗");
+        }
+        return Result.success(poem);
+    }
+    @ApiOperation("根据标题删除古诗")
+    @GetMapping("/deletePoem")
+    public Result deletePoem(String title) {
+        log.info("根据标题删除古诗执行:");
+        adminService.deleteByTitle(title);
+        return Result.success("删除成功");
+    }
+
 }

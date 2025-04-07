@@ -61,5 +61,10 @@ public class CommentController {
         commentService.deleteComment(ids);
         return Result.success("删除成功");
     }
-
+@ApiOperation("获取帖子的所有评论")
+    @GetMapping("/getcomment/{id}")
+    public Result<List<String>> gettListBy(@PathVariable int id) {
+        List<String> commentVos = commentService.getListBy(id);
+        return Result.success(commentVos);
+    }
 }
