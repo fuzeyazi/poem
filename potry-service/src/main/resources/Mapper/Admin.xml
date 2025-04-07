@@ -4,7 +4,44 @@
 <mapper namespace="com.fuze.potryservice.mapper.AdminMapper">
     <update id="update" parameterType="com.fuze.dto.PotryDTO">
         UPDATE poem.potry
-        SET title = #{title}, dynasty = #{dynasty}, writer = #{writer}, content = #{content}, type = #{type}
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="dynasty != null and dynasty != ''">
+                dynasty = #{dynasty},
+            </if>
+            <if test="writer != null and writer != ''">
+                writer = #{writer},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+        </set>
         WHERE id = #{id}
     </update>
+    <select id="GetContent" parameterType="com.fuze.entity.Poem" resultType="com.fuze.entity.Poem">
+        SELECT id,title, dynasty, writer, content, type
+        FROM poem.potry
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="dynasty != null and dynasty != ''">
+                AND dynasty LIKE CONCAT('%', #{dynasty}, '%')
+            </if>
+            <if test="writer != null and writer != ''">
+                AND writer LIKE CONCAT('%', #{writer}, '%')
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="type != null and type != ''">
+                AND type LIKE CONCAT('%', #{type}, '%')
+            </if>
+        </trim>
+    </select>
 </mapper>

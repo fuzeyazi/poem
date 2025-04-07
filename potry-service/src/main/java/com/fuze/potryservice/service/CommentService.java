@@ -19,4 +19,6 @@ public interface CommentService {
     List<CommentVo> getCommentListBy(CommentFindDto commentFinDto);
 
     void deleteComment(List<Long> id);
+
+    List<String> getListBy(int id);
 }

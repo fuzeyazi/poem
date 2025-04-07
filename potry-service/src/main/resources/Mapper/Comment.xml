@@ -35,21 +35,21 @@
         publishtime,
         touxiang,
         username,
-        SUBSTRING(content, 1, 50) AS truncated_content, <!-- 修改别名 -->
+        SUBSTRING(content, 1, 50) AS truncated_content,
         replycount,
         thumbs_up,
         thumbs_down
         FROM poem.comment
         WHERE parent_id IS NULL AND status = 1
         <if test="username != null and username != ''">
-            AND username = #{username} <!-- 根据作者筛选 -->
+            AND username LIKE CONCAT('%', #{username}, '%') <!-- 模糊匹配作者 -->
         </if>
         <if test="startTime != null">
-            AND publishtime &gt;= #{startTime} <!-- 根据起始时间筛选 -->
+            AND publishtime &gt;= #{startTime}
         </if>
         <if test="endTime != null">
-            AND publishtime &lt;= #{endTime} <!-- 根据终止时间筛选 -->
+            AND publishtime &lt;= #{endTime}
         </if>
-        ORDER BY publishtime DESC <!-- 按发布时间倒序排列 -->
+        ORDER BY publishtime DESC
     </select>
 </mapper>

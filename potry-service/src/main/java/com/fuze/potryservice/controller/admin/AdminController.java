@@ -9,6 +9,7 @@ import com.fuze.constant.JwtClaimsConstant;
 import com.fuze.dto.AdminDto;
 import com.fuze.dto.AdminLoginDto;
 import com.fuze.entity.Admin;
+import com.fuze.potryservice.Aspect.AutoLog;
 import com.fuze.potryservice.service.AdminService;
 import com.fuze.properties.JwtProperties;
 import com.fuze.result.Result;
@@ -139,5 +140,13 @@ public class AdminController {
     public Result<String> sendcode(@RequestParam String phone, HttpSession session) throws UnsupportedEncodingException, MessagingException {
         String code=adminService.sendcode(phone,session,1);
         return Result.success(code);
+    }
+    @ApiOperation("更改用户账号权限")
+    @PostMapping("/disable/{status}")
+    @AutoLog("更改用户账号权限")
+    public Result<String> disable(@PathVariable Integer status,Integer id) {
+        log.info("启用禁用用户账号{}", status,id);
+            adminService.disable(status,id);
+            return Result.success();
     }
 }

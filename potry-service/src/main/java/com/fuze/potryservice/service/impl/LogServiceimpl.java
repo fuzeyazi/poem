@@ -30,4 +30,12 @@ public class LogServiceimpl implements LogService {
     public void addLog(String title, String time) {
         logMapper.addLog(title, time);
     }
+
+    @Override
+    public void deleteLog(List<Long> ids) {
+        for(Long id : ids)
+        {
+            logMapper.deleteLog(id);
+        }
+    }
 }

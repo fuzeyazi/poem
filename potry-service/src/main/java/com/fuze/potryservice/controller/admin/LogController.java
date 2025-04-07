@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/log")
 @Slf4j
@@ -30,5 +32,10 @@ public class LogController {
         PageResult pageInfo = logService.GetLog(pageNum, pageSize);
         return Result.success(pageInfo);
     }
-
+@ApiOperation("删除日志")
+    @RequestMapping("/delete")
+    public Result deleteLog(@RequestParam List<Long> ids) {
+        logService.deleteLog(ids);
+        return Result.success();
+    }
 }

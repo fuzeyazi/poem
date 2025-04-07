@@ -6,10 +6,14 @@ import com.fuze.dto.AdminDto;
 import com.fuze.dto.AdminLoginDto;
 import com.fuze.dto.PotryDTO;
 import com.fuze.entity.Admin;
+import com.fuze.entity.Poem;
+import com.fuze.entity.Suggestion;
+import com.fuze.entity.UserJo;
 import com.fuze.exception.AccountLockedException;
 import com.fuze.exception.AccountNotFoundException;
 import com.fuze.exception.PasswordErrorException;
 import com.fuze.potryservice.mapper.AdminMapper;
+import com.fuze.potryservice.mapper.UserMapper;
 import com.fuze.potryservice.service.AdminService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -34,6 +38,8 @@ public class AdminServiceImpl implements AdminService {
     private org.springframework.mail.javamail.JavaMailSender javaMailSender;
     @Autowired
     private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public Admin login(AdminLoginDto adminLoginDto) {
@@ -64,12 +70,13 @@ public class AdminServiceImpl implements AdminService {
     }
     @Override
     public void add(PotryDTO potryDTO) {
-        if(potryDTO.getDynasty()!=null||potryDTO.getTitle()!=null||potryDTO.getWriter()!=null||potryDTO.getContent()!=null)
-        {
+        String title = potryDTO.getTitle();
+        Poem poem = adminMapper.getbyTitle(title);
+        if(poem == null) {
             adminMapper.insert(potryDTO);
-        }
-       else {
-            throw new RuntimeException("添加失败");
+        }else
+        {
+            throw new RuntimeException("古诗已存在");
         }
     }
     @Override
@@ -152,6 +159,32 @@ public class AdminServiceImpl implements AdminService {
     public void update(PotryDTO potryDTO) {
         adminMapper.update(potryDTO);
 
+    }
+
+    @Override
+    public void disable(Integer status ,Integer id) {
+        UserJo userJo = UserJo.builder()
+                .status(status)
+                .id(id)
+                .build();
+        userMapper.update(userJo);
+    }
+
+    @Override
+    public List<PotryDTO> GetContent(PotryDTO potryDTO) {
+        List<PotryDTO> list = adminMapper.GetContent(potryDTO);
+        log.info("模糊查询古诗执行:"+list);
+        return list;
+    }
+
+    @Override
+    public void deleteByTitle(String title) {
+        adminMapper.deleteByTitle(title);
+    }
+
+    @Override
+    public void save(Suggestion suggestion) {
+        adminMapper.save(suggestion);
     }
 
     private boolean isValidEmail(String email) {
