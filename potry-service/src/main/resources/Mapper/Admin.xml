@@ -23,6 +23,18 @@
         </set>
         WHERE id = #{id}
     </update>
+    <update id="updateRhesis">
+        UPDATE poem.rhesis
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="fromm != null and fromm != ''">
+                fromm = #{fromm},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
     <select id="GetContent" parameterType="com.fuze.entity.Poem" resultType="com.fuze.entity.Poem">
         SELECT id,title, dynasty, writer, content, type
         FROM poem.potry
@@ -43,5 +55,10 @@
                 AND type LIKE CONCAT('%', #{type}, '%')
             </if>
         </trim>
+    </select>
+    <select id="GetRhesisByPoemName" resultType="com.fuze.dto.RhesisDto">
+        SELECT id,name,fromm
+        FROM poem.rhesis
+        WHERE fromm LIKE CONCAT('%', #{name}, '%')
     </select>
 </mapper>

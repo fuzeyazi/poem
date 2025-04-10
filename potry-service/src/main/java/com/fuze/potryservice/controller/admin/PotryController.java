@@ -4,15 +4,13 @@ import com.fuze.dto.PotryDTO;
 import com.fuze.potryservice.Aspect.AutoLog;
 import com.fuze.potryservice.service.AdminService;
 import com.fuze.potryservice.service.PotryService;
+import com.fuze.result.PageResult;
 import com.fuze.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +33,7 @@ public class PotryController {
     }
     @ApiOperation(value = "添加古诗")
     @AutoLog(value = "添加古诗")
-    @GetMapping("/add")
+    @PostMapping("/add")
 public Result add(@RequestBody PotryDTO potryDTO) {
         log.info("添加古诗执行:");
         adminService.add(potryDTO);
@@ -43,7 +41,7 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     }
     @ApiOperation(value = "批量删除古诗")
     @AutoLog(value = "删除古诗")
-    @GetMapping("/delete")
+    @PostMapping("/delete")
     public Result delete(@RequestBody List<Long> ids) {
         log.info("批量删除古诗执行:");
         adminService.delete(ids);
@@ -51,7 +49,7 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     }
 @ApiOperation(value = "修改古诗")
 @AutoLog(value = "修改古诗")
-    @GetMapping("/update")
+    @PostMapping("/update")
     public Result update(@RequestBody PotryDTO potryDTO) {
         log.info("修改古诗执行:");
         adminService.update(potryDTO);
@@ -69,11 +67,20 @@ public Result add(@RequestBody PotryDTO potryDTO) {
         return Result.success(poem);
     }
     @ApiOperation("根据标题删除古诗")
-    @GetMapping("/deletePoem")
+    @PostMapping("/deletePoem")
     public Result deletePoem(String title) {
         log.info("根据标题删除古诗执行:");
         adminService.deleteByTitle(title);
         return Result.success("删除成功");
+    }
+    @ApiOperation("分页获取所有古诗")
+    @GetMapping("/GetPoemPage")
+    public Result<PageResult> GetLog(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        PageResult pageInfo = adminService.GetPoem(pageNum, pageSize);
+        return Result.success(pageInfo);
     }
 
 }
