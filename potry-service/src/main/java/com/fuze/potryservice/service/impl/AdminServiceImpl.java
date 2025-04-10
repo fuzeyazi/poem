@@ -5,16 +5,20 @@ import com.fuze.constant.StatusConstant;
 import com.fuze.dto.AdminDto;
 import com.fuze.dto.AdminLoginDto;
 import com.fuze.dto.PotryDTO;
-import com.fuze.entity.Admin;
-import com.fuze.entity.Poem;
-import com.fuze.entity.Suggestion;
-import com.fuze.entity.UserJo;
+import com.fuze.dto.RhesisDto;
+import com.fuze.entity.*;
 import com.fuze.exception.AccountLockedException;
 import com.fuze.exception.AccountNotFoundException;
 import com.fuze.exception.PasswordErrorException;
 import com.fuze.potryservice.mapper.AdminMapper;
 import com.fuze.potryservice.mapper.UserMapper;
 import com.fuze.potryservice.service.AdminService;
+import com.fuze.result.PageResult;
+import com.fuze.vo.CommentVo;
+import com.fuze.vo.PoemBlogVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
@@ -186,6 +190,74 @@ public class AdminServiceImpl implements AdminService {
     public void save(Suggestion suggestion) {
         adminMapper.save(suggestion);
     }
+
+    @Override
+    public PageResult GetUser(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<UserJo> page = adminMapper.GetUser();
+        long total = page.getTotal();
+        List<UserJo> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public PageResult GetPoem(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<Poem> page = adminMapper.GetPoem();
+        long total = page.getTotal();
+        List<Poem> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public PageResult GetBlog(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<PoemBlog> page = adminMapper.GetBlog();
+        long total = page.getTotal();
+        List<PoemBlog> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public void deleteBlogById(List<Integer> ids) {
+        for(Integer id : ids)
+        {
+            adminMapper.deleteBlogById(id);
+        }
+    }
+
+    @Override
+    public PageResult GetAllRhesis(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<Rhesis> page = adminMapper.GetRhesis();
+        long total = page.getTotal();
+        List<Rhesis> records = page.getResult();
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public void deleteRhesisById(List<Integer> ids) {
+        for(Integer id : ids)
+        {
+            adminMapper.deleteRhesisById(id);
+        }
+    }
+
+    @Override
+    public void addRhesis(RhesisDto rhesisDto) {
+        adminMapper.addRhesis(rhesisDto);
+    }
+
+    @Override
+    public void updateRhesis(RhesisDto rhesisDto) {
+        adminMapper.updateRhesis(rhesisDto);
+    }
+
+    @Override
+    public List<RhesisDto> GetRhesisByPoemName(String name) {
+        return adminMapper.GetRhesisByPoemName(name);
+    }
+
 
     private boolean isValidEmail(String email) {
         // 简化的邮箱正则表达式

@@ -1,5 +1,6 @@
 package com.fuze.potryservice.controller.admin;
 
+import com.fuze.dto.TouserDto;
 import com.fuze.potryservice.service.LogService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
@@ -7,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,4 +40,10 @@ public class LogController {
         logService.deleteLog(ids);
         return Result.success();
     }
+//    @ApiOperation("向用户发送通知")
+//    @RequestMapping("/touser")
+//    public Result ToUser(@RequestBody TouserDto touserDto)
+//    {
+//
+//    }
 }

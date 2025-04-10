@@ -2,6 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.fuze.potryservice.mapper.WriterMapper">
+    <insert id="add">
+        INSERT INTO poem.writer
+        (name, headImageUrl, simpleIntro, dynasty)
+        VALUES
+        (#{name}, #{headImageUrl}, #{simpleIntro}, #{dynasty})
+    </insert>
+    <update id="save">
+        UPDATE poem.writer
+        SET name = #{name},
+            headImageUrl = #{headImageUrl},
+            simpleIntro = #{simpleIntro},
+            dynasty = #{dynasty}
+        WHERE id = #{id}
+    </update>
     <!-- 获取诗人总数 -->
     <select id="getWriterCount" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM poem.writer
@@ -112,5 +126,9 @@
         ORDER BY RAND()
         LIMIT 5
     </select>
-
+    <select id="getWriterByName" resultType="com.fuze.vo.WriterVo">
+        SELECT id, name, headImageUrl, simpleIntro
+        FROM poem.writer
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+    </select>
 </mapper>

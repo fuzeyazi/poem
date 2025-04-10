@@ -1,9 +1,10 @@
 package com.fuze.potryservice.mapper;
 
 import com.fuze.dto.PotryDTO;
-import com.fuze.entity.Admin;
-import com.fuze.entity.Poem;
-import com.fuze.entity.Suggestion;
+import com.fuze.dto.RhesisDto;
+import com.fuze.entity.*;
+import com.fuze.vo.PoemBlogVo;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,4 +37,23 @@ Poem getbyTitle(String title);
     void save(Suggestion suggestion);
     @Select("SELECT content FROM poem.comment WHERE parent_id=#{id} AND status=#{status}")
     List<String> GetListBy(Integer id, int status);
+@Select("SELECT * FROM poem.poem_blog")
+    List<PoemBlog> GetPage();
+@Select("SELECT * FROM poem.user")
+    Page<UserJo> GetUser();
+@Select("SELECT * FROM poem.potry")
+    Page<Poem> GetPoem();
+@Select("SELECT * FROM poem.poem_blog")
+    Page<PoemBlog> GetBlog();
+@Delete("delete from poem.poem_blog where id=#{id}")
+    void deleteBlogById(Integer id);
+@Select("SELECT * FROM poem.rhesis")
+    Page<Rhesis> GetRhesis();
+@Delete("delete from poem.rhesis where id=#{id}")
+    void deleteRhesisById(Integer id);
+@Insert("INSERT INTO poem.rhesis(name,fromm) " + "VALUES(#{name},#{fromm})")
+    void addRhesis(RhesisDto rhesisDto);
+
+    void updateRhesis(RhesisDto rhesisDto);
+    List<RhesisDto> GetRhesisByPoemName(String name);
 }

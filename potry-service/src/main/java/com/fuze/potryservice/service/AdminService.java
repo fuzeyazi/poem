@@ -3,8 +3,10 @@ package com.fuze.potryservice.service;
 import com.fuze.dto.AdminDto;
 import com.fuze.dto.AdminLoginDto;
 import com.fuze.dto.PotryDTO;
+import com.fuze.dto.RhesisDto;
 import com.fuze.entity.Admin;
 import com.fuze.entity.Suggestion;
+import com.fuze.result.PageResult;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 
@@ -30,4 +32,22 @@ public interface AdminService {
     void deleteByTitle(String title);
 
     void save(Suggestion suggestion);
+
+    PageResult GetUser(Integer pageNum, Integer pageSize);
+
+    PageResult GetPoem(Integer pageNum, Integer pageSize);
+
+    PageResult GetBlog(Integer pageNum, Integer pageSize);
+
+    void deleteBlogById(List<Integer> ids);
+
+    PageResult GetAllRhesis(Integer pageNum, Integer pageSize);
+
+    void deleteRhesisById(List<Integer> ids);
+
+    void addRhesis(RhesisDto rhesisDto);
+
+    void updateRhesis(RhesisDto rhesisDto);
+
+    List<RhesisDto> GetRhesisByPoemName(String name);
 }

@@ -12,6 +12,7 @@ import com.fuze.entity.Admin;
 import com.fuze.potryservice.Aspect.AutoLog;
 import com.fuze.potryservice.service.AdminService;
 import com.fuze.properties.JwtProperties;
+import com.fuze.result.PageResult;
 import com.fuze.result.Result;
 import com.fuze.utils.JwtUtil;
 import com.fuze.utils.RedisUtil;
@@ -148,5 +149,14 @@ public class AdminController {
         log.info("启用禁用用户账号{}", status,id);
             adminService.disable(status,id);
             return Result.success();
+    }
+    @ApiOperation("分页展示所有用户")
+    @GetMapping("/getAll")
+    public Result<PageResult> GetLog(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        PageResult pageInfo = adminService.GetUser(pageNum, pageSize);
+        return Result.success(pageInfo);
     }
 }
