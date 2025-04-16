@@ -340,6 +340,7 @@ public class PoetryController {
             @RequestParam String writer,
             @RequestParam(defaultValue = "1")
             Integer pageNum, @RequestParam(defaultValue = "4") Integer pageSize) {
+        String jj;
         log.info("dynasty:{}, pageNum:{}, pageSize:{}", writer, pageNum, pageSize);
         PageResult pageInfo = potryService.GetwriterBydynasty11(pageNum, pageSize, writer);
         return Result.success(pageInfo);
