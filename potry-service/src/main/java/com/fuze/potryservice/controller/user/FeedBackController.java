@@ -11,7 +11,11 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,15 +27,24 @@ import java.util.List;
 public class FeedBackController {
     @Autowired
     private FeedBackService feedBackService;
-
+   @Autowired
+   private RabbitTemplate rabbitTemplate;
+   @Autowired
+   private RedissonClient redissonClient;
+   @Autowired
+   private StringRedisTemplate stringRedisTemplate;
 
     @ApiOperation(value = "用户留言反馈")
     @PostMapping("/addfeedback")
     public Result<String> addfeedback(@RequestBody FeedBackDto feedBackDto)
     {
+        RBucket<Object> feedback = redissonClient.getBucket("feedback");
+        feedback.set(feedBackDto);
+
         feedBackService.addfeedback(feedBackDto);
         return Result.success("反馈成功");
     }
+
 
     @ApiOperation(value ="用户接受回复")
     @GetMapping("/getReply/{id}")

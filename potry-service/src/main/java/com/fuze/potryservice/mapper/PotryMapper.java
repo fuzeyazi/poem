@@ -37,7 +37,7 @@ public interface PotryMapper {
     @Select("select id,title,writer,content,type,dynasty from poem.potry order by rand() limit 10")
     List<PoemDataVo> GetPoemDateRondom();
     @Select("select id,title,dynasty,content,type from poem.potry where writer=#{writer}")
-    List<PoemDataVo> GetPoemData(String name);
+    Page<PoemDataVo> GetPoemData(String name);
     @Select("select type from poem.potry")
     List<String> GetType();
     @Select("select title,content,writer,type,dynasty from poem.potry where type like concat('%',#{type},'%')")
@@ -50,7 +50,7 @@ public interface PotryMapper {
     @Select("SELECT DISTINCT w.id,w.simpleIntro,w.headImageUrl,w.name,w.detailIntro,p.dynasty FROM poem.writer w,poem.potry p WHERE w.id=#{id} and w.name=writer ")
     WriterEndVo GetPoemWriter(int id);
 
-    @Select("SELECT id, title, writer, content, type FROM poem.potry")
+    @Select("select id,title,writer,content,type,dynasty from poem.potry")
     Page<PoemDataVo> GetPoemvoByPage1();
     @Select("select id,writer,title,content,dynasty from poem.potry where dynasty=#{dynasty}")
     Page<PoemVo> GetPoemBydynasty(String dynasty);
@@ -91,4 +91,12 @@ public interface PotryMapper {
     List<Writer> GetRondWriter11(String name);
 @Select("SELECT * FROM poem.potry WHERE title LIKE CONCAT('%', #{content}, '%') OR potry.content LIKE CONCAT('%', #{content}, '%') order by case when title like CONCAT('%', #{content}, '%') THEN 1 else 2 end,title,content")
     List<PoemSerchVo> serch(String content);
+    @Select("SELECT DISTINCT w.id, w.name, w.headImageUrl, w.simpleIntro, p.dynasty\n" +
+            "        FROM poem.writer w\n" +
+            "         JOIN poem.potry p ON w.name = p.writer order by rand()")
+    Page<Writer> GetRondWriter1();
+
+    Page<PoemDataVo> GetPoemvoByPage11(long idd);
+@Select("select * from poem.usercollectionpoem where userid=#{idd}")
+    List<Integer> GetLike(long idd);
 }

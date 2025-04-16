@@ -29,7 +29,7 @@ public interface PotryService{
 
 //    PageInfo<PoemDataVo> GetPoemPage(Integer pageNum, Integer pageSize);
 
-    List<PoemDataVo> GetPoemDataVoByWriter(String name);
+    PageResult GetPoemDataVoByWriter1( int pageNum,int pageSize,String name);
 
 
     List<String> GetType();
@@ -73,4 +73,7 @@ public interface PotryService{
     List<Writer> GetRondWriter11(String name);
 
 
+    PageResult GetwriterBydynasty22(Integer pageNum, Integer pageSize);
+
+    PageResult GetPoemDataVoByWriter(Integer pageNum, Integer pageSize, String name);
 }

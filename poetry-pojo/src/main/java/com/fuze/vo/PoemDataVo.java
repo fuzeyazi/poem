@@ -16,4 +16,5 @@ public class PoemDataVo {
     private String  writer;
     private String type;
     private String dynasty;
+    private String  islike;
 }

@@ -2,6 +2,7 @@ package com.fuze.potryservice.service;
 
 import com.fuze.entity.Poem;
 import com.fuze.entity.Rhesis;
+import com.fuze.result.PageResult;
 import com.fuze.vo.PoemDataVo;
 import com.fuze.vo.RhesisDataVo;
 import com.github.pagehelper.PageInfo;
@@ -22,5 +23,5 @@ public interface RhesisService {
 
     List<RhesisDataVo> GetRhesisDateRondom();
 
-    PageInfo<RhesisDataVo> GetRhesisPage(Integer pageNum, Integer pageSize);
+    PageResult GetRhesisPage(Integer pageNum, Integer pageSize);
 }

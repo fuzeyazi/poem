@@ -20,4 +20,5 @@ public class Poem {
     private String translation;
     private String shangxi;
     private String audiourl;
+    private String islike;
 }
