@@ -1,6 +1,7 @@
 package com.fuze.potryservice;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,8 @@ import java.time.LocalDateTime;
 class PotryServiceApplicationTests {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Test
     void contextLoads() {
         LocalDateTime localDateTime = LocalDateTime.of(2024, 11, 16, 0, 0, 0);

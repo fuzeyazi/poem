@@ -2,6 +2,7 @@ package com.fuze.potryservice.mapper;
 
 import com.fuze.entity.Rhesis;
 import com.fuze.vo.RhesisDataVo;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -22,6 +23,6 @@ public interface RhesisMapper {
     RhesisDataVo GetVeryGoodPoem();
     @Select("select id,name,fromm from poem.rhesis where name like concat('%', #{keyword}, '%')")
     List<RhesisDataVo> GetRhesisByKey(String keyword);
-@Select("select id,name,fromm from poem.rhesis order by rand() limit 10")
-    List<RhesisDataVo> GetRhesisDateRondom();
+@Select("select id,name,fromm from poem.rhesis order by rand() ")
+Page<RhesisDataVo> GetRhesisDateRondom();
 }

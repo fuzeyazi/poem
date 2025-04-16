@@ -83,6 +83,9 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
         return poemBlogVo;
     }
 
+
+
+
     private void isBlogLiked(PoemBlogVo poemBlogVo, Integer blogid) {
         Integer userid = BaseContext.getCurrentId().intValue();
         //判断当前登录用户是否已经点赞

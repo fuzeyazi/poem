@@ -63,8 +63,8 @@ public class AiController {
     public void ChatController(OpenAiChatModel chatModel) {
         this.chatModel = chatModel;
     }
-   @Autowired
-   private ChatClient gushitecher;
+    @Autowired
+    private ChatClient gushitecher;
     @Autowired
     private ChatClient chatClient;
     @Autowired
@@ -87,7 +87,7 @@ public class AiController {
     private OpenAiImageModel openaiImageModel;
     @Autowired
     private PotryService potryService;
-@Autowired
+    @Autowired
 private ChatClient zuojia;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -274,12 +274,10 @@ private ChatClient zuojia;
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
         connection.connect();
-
         int responseCode = connection.getResponseCode();
         if (responseCode != 200) {
             throw new IOException("无法下载图片，HTTP 状态码: " + responseCode);
         }
-
         File tempFile = File.createTempFile("temp_image_", ".PNG");
         try (InputStream in = connection.getInputStream();
              FileOutputStream out = new FileOutputStream(tempFile)) {
@@ -289,7 +287,6 @@ private ChatClient zuojia;
                 out.write(buffer, 0, bytesRead);
             }
         }
-
         return tempFile;
     }
 

@@ -61,11 +61,17 @@ public class RhesisController {
         List<RhesisDataVo> list=rhesisService.GetRhesisDateRondom();
         return Result.success(list);
     }
+//    @ApiOperation(value = "分页查询名句（一次获得20条名句数据）")
+//    @GetMapping("/GetRhesisPage")
+//    public  Result<PageResult> GetRhesisPage(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "20") Integer pageSize)
+//    {         PageInfo pageInfo=rhesisService.GetRhesisPage(pageNum, pageSize);
+//        return Result.success(new PageResult(pageInfo.getTotal(),pageInfo.getList()));
+//    }
     @ApiOperation(value = "分页查询名句（一次获得20条名句数据）")
     @GetMapping("/GetRhesisPage")
     public  Result<PageResult> GetRhesisPage(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "20") Integer pageSize)
-    {         PageInfo<RhesisDataVo> pageInfo=rhesisService.GetRhesisPage(pageNum, pageSize);
-        return Result.success(new PageResult(pageInfo.getTotal(),pageInfo.getList()));
+    {   PageResult pageResult=rhesisService.GetRhesisPage(pageNum, pageSize);
+        return Result.success(pageResult);
     }
 
 }

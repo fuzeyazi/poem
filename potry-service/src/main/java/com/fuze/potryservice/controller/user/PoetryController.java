@@ -10,6 +10,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -36,6 +38,8 @@ public class PoetryController {
     private OpenAiAudioSpeechModel openAiAudioSpeechModel;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
     @Autowired
     private ChatClient queryClient;
 
@@ -146,13 +150,21 @@ public class PoetryController {
     }
 
     //to 根据诗人查古诗还需要优化
-    @ApiOperation(value = "根据诗人查询古诗")
+//    @ApiOperation(value = "根据诗人查询古诗")
+//    @GetMapping("/GetPoemByWriter")
+//    public Result<List<PoemDataVo>> GetPoemByWriter(@RequestParam String name) {
+//        List<PoemDataVo> list = potryService.GetPoemDataVoByWriter(name);
+//        return Result.success(list);
+//    }
+    @ApiOperation(value = "根据诗人查询古诗(分页查询)")
     @GetMapping("/GetPoemByWriter")
-    public Result<List<PoemDataVo>> GetPoemByWriter(@RequestParam String name) {
-        List<PoemDataVo> list = potryService.GetPoemDataVoByWriter(name);
-        return Result.success(list);
+    public Result<PageResult> GetPoemByWriter(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+         @RequestParam(defaultValue = "4") Integer pageSize,@RequestParam String name
+    ){
+        PageResult pageInfo = potryService.GetPoemDataVoByWriter(pageNum, pageSize, name);
+        return Result.success(pageInfo);
     }
-
 
     @ApiOperation(value = "获取古诗的分类，因为一个古诗不仅仅一个分类,用于前端展示")
     @GetMapping("/GetTypeDotaVo")
@@ -294,12 +306,23 @@ public class PoetryController {
         return Result.success(pageInfo);
     }
 
-    @ApiOperation(value = "随机返回十条诗人数据")
-    @GetMapping("/Get")
-    public Result<List<Writer>> GetwriterBydynasty() {
-        List<Writer> list = potryService.GetRondWriter();
-        return Result.success(list);
+//    @ApiOperation(value = "随机返回十条诗人数据")
+//    @GetMapping("/Get")
+//    public Result<List<Writer>> GetwriterBydynasty() {
+//
+//        List<Writer> list = potryService.GetRondWriter();
+//        return Result.success(list);
+//    }
+
+    @ApiOperation(value = "随机返回十条诗人数据（分页查询）")
+    @GetMapping("Get")
+    public  Result<PageResult> GetwriterBydynasty1( @RequestParam(defaultValue = "1") Integer pageNum,
+                                                    @RequestParam(defaultValue = "20") Integer pageSize){
+        PageResult pageInfo = potryService.GetwriterBydynasty22(pageNum, pageSize);
+        return Result.success(pageInfo);
+
     }
+
     @ApiOperation(value = "根据传来的名字来查询诗人的生平简介模糊查询")
     @GetMapping("/GetPoemWriterByName11")
     public Result<List<Writer>> GetPoemWriterByName(@RequestParam String name) {
@@ -333,7 +356,7 @@ public class PoetryController {
         return Result.success(pageInfo);
     }
 
-    @ApiOperation(value = "根据标题返回名句的信息")
+    @ApiOperation(value = "根据标题或者诗人返回名句的信息")
     @GetMapping("/GetmingjuByThesisDataVo")
     public Result<PageResult> GetmingjuByThesisDataVo(
             @RequestParam String title,
@@ -358,6 +381,8 @@ public class PoetryController {
         log.info("返回的答案是：{}", woko);
         String[] wokoWords = woko.split("、");
         Set<Character> wokoChars = new HashSet<>();
+        RBucket<Object> bucket = redissonClient.getBucket("woko:" + id);
+          bucket.set(woko, 2, TimeUnit.MINUTES);
         stringRedisTemplate.opsForValue().set("woko:" + id, woko, 2, TimeUnit.MINUTES);
         for (String word : wokoWords) {
             // 将每个单词的字符添加到Set中
