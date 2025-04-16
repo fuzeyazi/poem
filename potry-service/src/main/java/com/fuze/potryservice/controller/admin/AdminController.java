@@ -139,7 +139,9 @@ public class AdminController {
     @ApiOperation(value = "发送验证码并且保证到验证码")
     @PostMapping("/login/code")
     public Result<String> sendcode(@RequestParam String phone, HttpSession session) throws UnsupportedEncodingException, MessagingException {
+        log.info("发送验证码");
         String code=adminService.sendcode(phone,session,1);
+
         return Result.success(code);
     }
     @ApiOperation("更改用户账号权限")
@@ -158,5 +160,11 @@ public class AdminController {
     ) {
         PageResult pageInfo = adminService.GetUser(pageNum, pageSize);
         return Result.success(pageInfo);
+    }
+    @ApiOperation("获取用户数量")
+    @GetMapping("/getUserCount")
+    public Result<Long> getUserCount() {
+        Long count = adminService.getUserCount();
+        return Result.success(count);
     }
 }

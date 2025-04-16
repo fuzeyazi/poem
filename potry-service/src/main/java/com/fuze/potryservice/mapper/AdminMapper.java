@@ -3,7 +3,10 @@ package com.fuze.potryservice.mapper;
 import com.fuze.dto.PotryDTO;
 import com.fuze.dto.RhesisDto;
 import com.fuze.entity.*;
+import com.fuze.vo.BlogVO;
 import com.fuze.vo.PoemBlogVo;
+import com.fuze.vo.PoemDataVo;
+import com.fuze.vo.UserTotalVo;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -40,11 +43,11 @@ Poem getbyTitle(String title);
 @Select("SELECT * FROM poem.poem_blog")
     List<PoemBlog> GetPage();
 @Select("SELECT * FROM poem.user")
-    Page<UserJo> GetUser();
+    Page<UserTotalVo> GetUser();
 @Select("SELECT * FROM poem.potry")
-    Page<Poem> GetPoem();
+    Page<PoemDataVo> GetPoem();
 @Select("SELECT * FROM poem.poem_blog")
-    Page<PoemBlog> GetBlog();
+    Page<BlogVO> GetBlog();
 @Delete("delete from poem.poem_blog where id=#{id}")
     void deleteBlogById(Integer id);
 @Select("SELECT * FROM poem.rhesis")
@@ -56,4 +59,10 @@ Poem getbyTitle(String title);
 
     void updateRhesis(RhesisDto rhesisDto);
     List<RhesisDto> GetRhesisByPoemName(String name);
+@Select("select * from poem.potry where title=#{title} and dynasty=#{dynasty} and writer=#{writer}")
+    Poem getbyTitleAnd(String title, String dynasty, String writer);
+@Select("select count(*) from poem.user")
+    Long getUserCount();
+@Select("select count(*) from poem.rhesis")
+    Long getRhesisCount();
 }

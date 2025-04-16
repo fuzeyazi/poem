@@ -11,5 +11,6 @@ public class PotryServiceApplication {
     public static void main(String[] args) {
         var c = SpringApplication.run(PotryServiceApplication.class, args);
         System.out.println();
+        System.setProperty("https.protocols", "TLSv1.2");
     }
 }

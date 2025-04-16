@@ -50,4 +50,8 @@ public interface AdminService {
     void updateRhesis(RhesisDto rhesisDto);
 
     List<RhesisDto> GetRhesisByPoemName(String name);
+
+    Long getUserCount();
+
+    Long getRhesisCount();
 }

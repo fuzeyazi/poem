@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class WriterVo {
-    private Integer id;
+    private int id;
     private String name;
-    private String headImageUrl;
     private String simpleIntro;
-
+    private String detailIntro;
+private String headImageUrl;
 }
