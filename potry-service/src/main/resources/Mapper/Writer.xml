@@ -11,6 +11,7 @@
     <update id="save">
         UPDATE poem.writer
         SET name = #{name},
+            detailIntro = #{detailIntro},
             headImageUrl = #{headImageUrl},
             simpleIntro = #{simpleIntro},
             dynasty = #{dynasty}
@@ -116,7 +117,7 @@
     </select>
 
     <select id="selectAllWriters" resultType="com.fuze.vo.WriterVo">
-        SELECT id, name, headImageUrl, simpleIntro
+        SELECT id, name, headImageUrl, simpleIntro,detailIntro
         FROM poem.writer
     </select>
 

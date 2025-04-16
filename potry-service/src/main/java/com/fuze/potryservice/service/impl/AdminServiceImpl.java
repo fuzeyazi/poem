@@ -14,8 +14,7 @@ import com.fuze.potryservice.mapper.AdminMapper;
 import com.fuze.potryservice.mapper.UserMapper;
 import com.fuze.potryservice.service.AdminService;
 import com.fuze.result.PageResult;
-import com.fuze.vo.CommentVo;
-import com.fuze.vo.PoemBlogVo;
+import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -75,7 +74,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void add(PotryDTO potryDTO) {
         String title = potryDTO.getTitle();
-        Poem poem = adminMapper.getbyTitle(title);
+        String dynasty = potryDTO.getDynasty();
+        String writer = potryDTO.getWriter();
+        Poem poem = adminMapper.getbyTitleAnd(title,dynasty,writer);
         if(poem == null) {
             adminMapper.insert(potryDTO);
         }else
@@ -194,27 +195,27 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public PageResult GetUser(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        Page<UserJo> page = adminMapper.GetUser();
+        Page<UserTotalVo> page = adminMapper.GetUser();
         long total = page.getTotal();
-        List<UserJo> records = page.getResult();
+        List<UserTotalVo> records = page.getResult();
         return new PageResult(total, records);
     }
 
     @Override
     public PageResult GetPoem(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        Page<Poem> page = adminMapper.GetPoem();
+        Page<PoemDataVo> page = adminMapper.GetPoem();
         long total = page.getTotal();
-        List<Poem> records = page.getResult();
+        List<PoemDataVo> records = page.getResult();
         return new PageResult(total, records);
     }
 
     @Override
     public PageResult GetBlog(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        Page<PoemBlog> page = adminMapper.GetBlog();
+        Page<BlogVO> page = adminMapper.GetBlog();
         long total = page.getTotal();
-        List<PoemBlog> records = page.getResult();
+        List<BlogVO> records = page.getResult();
         return new PageResult(total, records);
     }
 
@@ -256,6 +257,16 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<RhesisDto> GetRhesisByPoemName(String name) {
         return adminMapper.GetRhesisByPoemName(name);
+    }
+
+    @Override
+    public Long getUserCount() {
+      return adminMapper.getUserCount();
+    }
+
+    @Override
+    public Long getRhesisCount() {
+        return adminMapper.getRhesisCount();
     }
 
 

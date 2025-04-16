@@ -35,7 +35,7 @@ public class PotryController {
     @AutoLog(value = "添加古诗")
     @PostMapping("/add")
 public Result add(@RequestBody PotryDTO potryDTO) {
-        log.info("添加古诗执行:");
+        log.info("添加古诗执行:{}",potryDTO);
         adminService.add(potryDTO);
         return Result.success("添加成功");
     }
