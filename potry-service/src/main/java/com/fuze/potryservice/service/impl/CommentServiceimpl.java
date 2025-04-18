@@ -1,11 +1,14 @@
 package com.fuze.potryservice.service.impl;
 
+import com.fuze.dto.CommentFindDto;
 import com.fuze.entity.Comment;
 import com.fuze.potryservice.mapper.CommentMapper;
+import com.fuze.potryservice.service.AdminService;
 import com.fuze.potryservice.service.CommentService;
 import com.fuze.vo.CommentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +18,14 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class CommentServiceimpl implements CommentService {
     @Autowired
     private CommentMapper commentMapper;
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private AdminMapper adminMapper;
 
     @Override
     public void addcomment(Comment comment) {
@@ -66,6 +74,12 @@ public class CommentServiceimpl implements CommentService {
         return postVo;
     }
 
+    @Override
+    public List<CommentVo> getCommentListBy(CommentFindDto commentFinDto) {
+        List<CommentVo> comments = commentMapper.List(commentFinDto);
+        return comments;
+    }
+
     private CommentVo convertToCommentVo(Comment comment) {
         CommentVo vo = new CommentVo();
         vo.setId(comment.getId());
@@ -99,6 +113,18 @@ public class CommentServiceimpl implements CommentService {
 
 
         return children;
+    }
+@Override
+    public void deleteComment(List<Long> id) {
+        for (Long i : id) {
+            commentMapper.deleteComment(i);
+        }
+    }
+
+    @Override
+    public List<String> getListBy(int id) {
+        List<String> list =adminMapper.GetListBy(id,0);
+        return list;
     }
 }
 
