@@ -1,5 +1,6 @@
 package com.fuze.potryservice.service;
 
+import com.fuze.dto.PotryDTO;
 import com.fuze.entity.Poem;
 import com.fuze.entity.Writer;
 import com.fuze.entity.WriterEndVo;

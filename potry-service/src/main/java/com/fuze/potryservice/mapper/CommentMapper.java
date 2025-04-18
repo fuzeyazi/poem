@@ -7,6 +7,10 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import com.fuze.dto.CommentFindDto;
+import com.fuze.entity.Comment;
+import com.fuze.vo.CommentVo;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +33,8 @@ public interface CommentMapper extends BaseMapper<CommentVo> {
 
     @Select("select * from poem.comment where parent_id=#{id}")
     List<Comment> findByParentId(Integer id);
+
+    List<CommentVo> List(CommentFindDto commentFinDto);
+@Delete("delete from poem.comment where id=#{id}")
+    void deleteComment(Long i);
 }

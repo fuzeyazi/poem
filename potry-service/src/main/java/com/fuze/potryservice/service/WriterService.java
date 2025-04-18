@@ -1,5 +1,7 @@
 package com.fuze.potryservice.service;
 
+import com.fuze.dto.WriterDto;
+import com.fuze.entity.Writer;
 import com.fuze.vo.PoemDataVo;
 import com.fuze.vo.WriterVo;
 import com.fuze.vo.WriterWithPoemsVo;
@@ -20,5 +22,15 @@ public interface WriterService {
     PoemDataVo getFamousLinesByWriterId(Long id);
     PageInfo<WriterVo> getWritersByPage(int pageNum, int pageSize);
     List<WriterVo> getRandomWriters();
+
+    Writer add(WriterDto writer);
+
+    void delete(List<Long> ids);
+
+    void save(WriterDto writerDto);
+
+    WriterVo getWriterById(int id);
+
+    List<WriterVo> getWriterByName(String name);
 }
 

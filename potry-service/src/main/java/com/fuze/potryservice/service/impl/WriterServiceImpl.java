@@ -1,5 +1,7 @@
 package com.fuze.potryservice.service.impl;
 
+import com.fuze.dto.WriterDto;
+import com.fuze.entity.Writer;
 import com.fuze.potryservice.mapper.WriterMapper;
 import com.fuze.potryservice.service.WriterService;
 import com.fuze.vo.PoemDataVo;
@@ -78,6 +80,37 @@ public class WriterServiceImpl implements WriterService {
     @Override
     public List<WriterVo> getRandomWriters() {
         return writerMapper.selectRandomWriters();
+    }
+
+    @Override
+    public Writer add(WriterDto writer) {
+        return writerMapper.add(writer);
+    }
+
+    @Override
+    public void delete(List<Long> ids) {
+        //删除之前先判断诗人所关联的诗句 如果有关联的诗句 则不能删除
+        //TODO目前是直接删除
+        for(Long id : ids)
+        {
+            writerMapper.DeleteByid(id);
+        }
+    }
+
+    @Override
+    public void save(WriterDto writerDto) {
+writerMapper.save(writerDto);
+    }
+
+    @Override
+    public WriterVo getWriterById(int id) {
+        return writerMapper.getWriterById(id);
+    }
+
+    @Override
+    public List<WriterVo> getWriterByName(String name) {
+        List<WriterVo> list = writerMapper.getWriterByName(name);
+        return list;
     }
 }
 

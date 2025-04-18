@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fuze.potryservice.mapper.AdminMapper">
+    <update id="update" parameterType="com.fuze.dto.PotryDTO">
+        UPDATE poem.potry
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="dynasty != null and dynasty != ''">
+                dynasty = #{dynasty},
+            </if>
+            <if test="writer != null and writer != ''">
+                writer = #{writer},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <update id="updateRhesis">
+        UPDATE poem.rhesis
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="fromm != null and fromm != ''">
+                fromm = #{fromm},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <select id="GetContent" parameterType="com.fuze.entity.Poem" resultType="com.fuze.entity.Poem">
+        SELECT id,title, dynasty, writer, content, type
+        FROM poem.potry
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="dynasty != null and dynasty != ''">
+                AND dynasty LIKE CONCAT('%', #{dynasty}, '%')
+            </if>
+            <if test="writer != null and writer != ''">
+                AND writer LIKE CONCAT('%', #{writer}, '%')
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="type != null and type != ''">
+                AND type LIKE CONCAT('%', #{type}, '%')
+            </if>
+        </trim>
+    </select>
+    <select id="GetRhesisByPoemName" resultType="com.fuze.dto.RhesisDto">
+        SELECT id,name,fromm
+        FROM poem.rhesis
+        WHERE fromm LIKE CONCAT('%', #{name}, '%')
+    </select>
+</mapper>

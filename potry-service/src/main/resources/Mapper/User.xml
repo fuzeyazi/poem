@@ -34,7 +34,22 @@
             #{item}
         </foreach>
     </update>
-
+    <update id="update" parameterType="com.fuze.entity.UserJo">
+        update poem.user
+        <set>
+            <if test="username != null">username=#{username},</if>
+            <if test="password != null">password=#{password, jdbcType=VARCHAR},</if>
+            <if test="name != null">name=#{name},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="email != null">email=#{email},</if>
+            <if test="sex != null">sex=#{sex},</if>
+            <if test="age != null">age=#{age},</if>
+            <if test="touxiang != null">touxiang=#{touxiang},</if>
+            <if test="status != null">status=#{status},</if>
+            <if test="degree != null">degree=#{degree}</if>
+        </set>
+        where id = #{id}
+    </update>
     <select id="showpoem" resultType="com.fuze.vo.PoemDataVo">
         select title from poem.potry where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">

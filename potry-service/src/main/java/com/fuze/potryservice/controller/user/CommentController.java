@@ -7,6 +7,9 @@ import com.fuze.potryservice.service.CommentService;
 import com.fuze.potryservice.service.UserService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
+
+import com.fuze.utils.SensitiveWordFilte;
+
 import com.fuze.vo.CommentVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -29,6 +32,8 @@ public class CommentController {
     private UserService userService;
     @Autowired
     private CommentMapper commentMapper;
+@Autowired
+private SensitiveWordFilte sensitiveWordFilte;
 
 
     @ApiOperation("发布帖子")
@@ -70,6 +75,11 @@ public class CommentController {
     //获取父评论的id，和回复的内容
     public Result<String> reply(@RequestParam Integer parentid,@RequestParam String content,@RequestParam Integer userid){
         Comment comment=new Comment();
+
+        if(sensitiveWordFilte.filter(content))
+        {
+            return Result.error("评论内容含有敏感词");
+        }
         comment.setContent(content);
         comment.setParentid(parentid);
         comment.setStatus(1);

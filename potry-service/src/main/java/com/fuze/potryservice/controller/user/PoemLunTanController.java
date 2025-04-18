@@ -6,6 +6,9 @@ import com.fuze.potryservice.service.PoemLunTanService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
 import com.fuze.utils.AliOssUtil;
+
+import com.fuze.utils.SensitiveWordFilte;
+
 import com.fuze.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +30,9 @@ public class PoemLunTanController {
     private AliOssUtil aliOssUtil;
     @Autowired
     private PoemLunTanService poemLunTanService;
+
+@Autowired
+    private SensitiveWordFilte sensitiveWordFilte;
 
     @PostMapping("updateImage")
     @ApiOperation(value = "上传图片(上传什么都可以)")
@@ -50,6 +56,12 @@ public class PoemLunTanController {
     @PostMapping("fabutiezi")
     @ApiOperation(value="发布帖子")
    private  Result<String> fabutiezi(@RequestBody PoemBlogDto poemBlogDto){
+
+        if(sensitiveWordFilte.filter(poemBlogDto.getContent())&& sensitiveWordFilte.filter(poemBlogDto.getTitle()))
+        {
+            return Result.error("内容含有敏感词");
+        }
+
         Integer id= BaseContext.getCurrentId().intValue();
         poemLunTanService.fabu(poemBlogDto,id);
         log.info("发布成功");
@@ -154,6 +166,13 @@ public class PoemLunTanController {
     @ApiOperation(value="发布评论")
     @PostMapping("fabacomment")
     private Result fabacomment(@RequestBody FourmCommentDto fourmCommentDto){
+
+        if(!sensitiveWordFilte.filter(fourmCommentDto.getContext()))
+        {
+            System.out.println("评论内容含有敏感词");
+            return Result.error("评论内容含有敏感词");
+        }
+
         Integer id= BaseContext.getCurrentId().intValue();
        return  poemLunTanService.fabucomment(fourmCommentDto,id);
     }

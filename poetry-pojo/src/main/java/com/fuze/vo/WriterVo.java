@@ -9,5 +9,5 @@ public class WriterVo {
     private String name;
     private String headImageUrl;
     private String simpleIntro;
-
+    private String detailIntro;
 }
