@@ -52,7 +52,7 @@ public class PoemLunTanController {
     @PostMapping("fabutiezi")
     @ApiOperation(value="发布帖子")
    private  Result<String> fabutiezi(@RequestBody PoemBlogDto poemBlogDto){
-        if(sensitiveWordFilte.filter(poemBlogDto.getContent())&& sensitiveWordFilte.filter(poemBlogDto.getTitle()))
+        if(!sensitiveWordFilte.filter(poemBlogDto.getContent())&& !sensitiveWordFilte.filter(poemBlogDto.getTitle()))
         {
             return Result.error("内容含有敏感词");
         }
