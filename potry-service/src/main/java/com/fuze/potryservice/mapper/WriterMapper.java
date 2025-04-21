@@ -25,7 +25,7 @@ public interface WriterMapper {
     PoemDataVo    selectFamousLinesByWriterId(Long id);
     List<WriterVo> selectAllWriters();
     List<WriterVo> selectRandomWriters();
-    Writer add(WriterDto writer);
+    void add(WriterDto writer);
 @Delete("delete from poem.writer where id=#{id}")
     void DeleteByid(Long id);
 @Select("select * from poem.writer where id=#{id}")

@@ -4,9 +4,9 @@
 <mapper namespace="com.fuze.potryservice.mapper.WriterMapper">
     <insert id="add">
         INSERT INTO poem.writer
-        (name, headImageUrl, simpleIntro, dynasty)
+        (name, headImageUrl, simpleIntro)
         VALUES
-        (#{name}, #{headImageUrl}, #{simpleIntro}, #{dynasty})
+        (#{name}, #{headImageUrl}, #{simpleIntro})
     </insert>
     <update id="save">
         UPDATE poem.writer

@@ -83,8 +83,8 @@ public class WriterServiceImpl implements WriterService {
     }
 
     @Override
-    public Writer add(WriterDto writer) {
-        return writerMapper.add(writer);
+    public void add(WriterDto writer) {
+         writerMapper.add(writer);
     }
 
     @Override
