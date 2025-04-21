@@ -23,7 +23,7 @@ public interface WriterService {
     PageInfo<WriterVo> getWritersByPage(int pageNum, int pageSize);
     List<WriterVo> getRandomWriters();
 
-    Writer add(WriterDto writer);
+    void add(WriterDto writer);
 
     void delete(List<Long> ids);
 
