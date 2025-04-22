@@ -17,7 +17,6 @@ import com.fuze.result.PageResult;
 import com.fuze.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -176,8 +176,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<PotryDTO> GetContent(PotryDTO potryDTO) {
-        List<PotryDTO> list = adminMapper.GetContent(potryDTO);
+    public List<PotryDTO> GetContent(PotryDTO word) {
+        List<PotryDTO> list = adminMapper.GetContent(word);
         log.info("模糊查询古诗执行:"+list);
         return list;
     }
@@ -267,6 +267,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Long getRhesisCount() {
         return adminMapper.getRhesisCount();
+    }
+
+    @Override
+    public PageResult GetbyWord(Integer pageNum,
+                                    Integer pageSize,
+                                    String word) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<PotryDTO> page = adminMapper.Getbyword(word);
+        long total = page.getTotal();
+        List<PotryDTO> records = page.getResult();
+        return new PageResult(total, records);
     }
 
 
