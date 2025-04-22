@@ -25,7 +25,7 @@ public class LogAspect {
         String title = autoLog.value();
         //获取当前更改时间
         String time= DateUtil.now();
-        Log log = new Log(title, time);
+        Log log = new Log(0,title, time);
         logService.addLog(log.getTitle(),log.getTime());
         Result proceed = (Result) joinPoint.proceed();
         return proceed;

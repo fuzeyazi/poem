@@ -57,14 +57,13 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     }
     @ApiOperation("模糊查询古诗")
     @GetMapping("/getPoem")
-    public Result<List<PotryDTO>> getPoem(@RequestBody PotryDTO potryDTO) {
-        log.info("模糊查询古诗执行:");
-        List<PotryDTO> poem = adminService.GetContent(potryDTO);
-        if (poem.isEmpty())
-        {
-            return Result.error("未查询到古诗");
-        }
-        return Result.success(poem);
+    public Result<PageResult> GetLog(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam String word
+    ) {
+        PageResult pageInfo = adminService.GetbyWord(pageNum, pageSize,word);
+        return Result.success(pageInfo);
     }
     @ApiOperation("根据标题删除古诗")
     @PostMapping("/deletePoem")
