@@ -40,7 +40,8 @@ UserJo loginbyusername1(String username);
 @Select("SELECT * FROM poem.user WHERE id=#{id}")
 UserLogin getmassagebyID(Integer id);
 
-    void updatemessagebyid(UserLogin userLogin);
+    void updatemessagebyid2(UserLogin userLogin);
+
     //古诗
 @Insert("INSERT INTO poem.usercollectionpoem(userid, poemid) VALUE (#{userid},#{poemid})")
     void addPoem(UserCollectionPoemDto userCollectionPoemDto);
@@ -121,4 +122,25 @@ UserLogin getmassagebyID(Integer id);
     void deleteComment(Integer commentid);
 
     void update(UserJo userJo);
+
+    @Update({
+            "<script>",
+            "UPDATE poem.user",
+            "<set>",
+            "  <if test='username != null'>username = #{username},</if>",
+            "  <if test='password != null'>password = #{password, jdbcType=VARCHAR},</if>",
+            "  <if test='name != null'>name = #{name},</if>",
+            "  <if test='touxiang != null'>touxiang = #{touxiang},</if>",
+            "  <if test='phone != null'>phone = #{phone},</if>",
+            "  <if test='email != null'>email = #{email},</if>",
+            "  <if test='sex != null'>sex = #{sex},</if>",
+            "  <if test='age != null'>age = #{age},</if>",
+            "  <if test='degree != null'>degree = #{degree}</if>",
+            "</set>",
+            "WHERE id = #{id}",
+            "</script>"
+    })
+    int updatemessagebyid213(UserLogin userLogin);
+
+
 }

@@ -7,6 +7,7 @@ import com.fuze.entity.RhesisDataVo;
 import com.fuze.entity.UserBook;
 import com.fuze.entity.UserJo;
 import com.fuze.exception.AccountNotFoundException;
+import com.fuze.potryservice.Aspect.Autozuru;
 import com.fuze.potryservice.service.UserService;
 import com.fuze.properties.JwtProperties;
 import com.fuze.constant.JwtClaimsConstant;
@@ -57,6 +58,7 @@ public class UserController {
     private JwtProperties jwtProperties;
     @Autowired
     private OpenAiAudioSpeechModel openAiAudioSpeechModel;
+
     @ApiOperation(value = "用户登录")
     @PostMapping("/login")
     public Result<UserVo> login(@RequestBody UserLoginDto userLoginDto) {
@@ -105,6 +107,7 @@ public class UserController {
     }
 @ApiOperation(value = "邮箱登录或者注册")
 @PostMapping("/login/email")
+
 public Result<UserVo> login1(@RequestBody UserLoginEmalDtoPlus userLoginEmalDtoPlus) {
     UserJo user1 = userService.login11(userLoginEmalDtoPlus);
     UserLoginEmalDto userLoginEmalDto=new UserLoginEmalDto();

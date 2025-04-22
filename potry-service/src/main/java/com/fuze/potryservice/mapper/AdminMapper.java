@@ -38,7 +38,7 @@ Poem getbyTitle(String title);
 @Delete("delete from poem.potry where title=#{title}")
     void deleteByTitle(String title);
 @Insert("INSERT INTO poem.suggestion(id,content,created_at) " + "VALUES(#{id},#{content},#{createdAt})")
-    void save(SourceCodeAnalysis.Suggestion suggestion);
+    void save( Suggestion suggestion);
     @Select("SELECT content FROM poem.comment WHERE parent_id=#{id} AND status=#{status}")
     List<String> GetListBy(Integer id, int status);
 @Select("SELECT * FROM poem.poem_blog")

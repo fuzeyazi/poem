@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fuze.potryservice.mapper.PoemLunTanMapper">
-    <insert id="fabu12" parameterType="com.fuze.dto.PoemBlogDtoPlus" useGeneratedKeys="true" keyProperty="bolgid">
+    <!--<insert id="fabu12" parameterType="com.fuze.dto.PoemBlogDtoPlus" useGeneratedKeys="true" keyProperty="bolgid">
         insert into poem.poem_blog(user_id, title, images, content, type, poem_id, poem_word) values(
                                                                                                      #{userid},
                                                                                                      #{title},
@@ -11,8 +11,8 @@
                                                                                                      #{type},
                                                                                                      #{poemId},
                                                                                                      #{poemWord}
-                                                                                                     )
-    </insert>
+                                                                                                  )
+    </insert>-->
     <select id="selectConmmets" resultType="com.fuze.vo.FabaCommnetVo">
 
     </select>

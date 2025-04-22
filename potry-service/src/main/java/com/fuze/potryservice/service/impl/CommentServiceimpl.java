@@ -2,12 +2,14 @@ package com.fuze.potryservice.service.impl;
 
 import com.fuze.dto.CommentFindDto;
 import com.fuze.entity.Comment;
+import com.fuze.potryservice.mapper.AdminMapper;
 import com.fuze.potryservice.mapper.CommentMapper;
 import com.fuze.potryservice.service.AdminService;
 import com.fuze.potryservice.service.CommentService;
 import com.fuze.vo.CommentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

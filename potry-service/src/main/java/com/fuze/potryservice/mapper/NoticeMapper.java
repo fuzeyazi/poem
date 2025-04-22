@@ -11,14 +11,14 @@ import java.util.List;
 
 @Mapper
 public interface NoticeMapper {
-    @Insert("insert into Poem.notice(name,contents,createtime) values(#{name},#{contents},#{createtime})")
+    @Insert("insert into poem.notice(name,contents,createtime) values(#{name},#{contents},#{createtime})")
     void add(Notice notice);
-@Delete("delete from Poem.notice where id=#{id}")
+@Delete("delete from poem.notice where id=#{id}")
     void delete(Long id);
-@Select("select * from Poem.notice")
+@Select("select * from poem.notice")
     Page<Notice> GetNoticeByPage();
 
     void update(Notice notice);
-@Select("select * from Poem.notice")
+@Select("select * from poem.notice")
     List<NoticeDto> getNotice();
 }

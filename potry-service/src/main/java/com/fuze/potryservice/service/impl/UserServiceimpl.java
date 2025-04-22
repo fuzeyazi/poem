@@ -131,7 +131,7 @@ private RedisTemplate<String,String> redisTemplate;
      String touxiang = userLogin.getTouxiang();
      String url=aliOssUtil.upload(touxiang.getBytes(),"user/"+UUID.randomUUID()+".jpg");
      userLogin.setTouxiang(url);
-     userMapper.updatemessagebyid(userLogin);
+     userMapper.updatemessagebyid213(userLogin);
     }
 
     @Override
