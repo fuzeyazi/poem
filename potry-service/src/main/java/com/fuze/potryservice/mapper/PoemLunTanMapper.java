@@ -38,7 +38,9 @@ PoemBlogDtoSuper selectxiangxi(Integer blogid);
     List<Integer> getuseridbylistid(Integer id);
 @Select("select max(id)from poem.poem_blog where user_id=#{id}")
     Integer fabu(Integer id);
-
+    @Insert("INSERT INTO poem.poem_blog(user_id, title, images, content, type, poem_id, poem_word) VALUES(" +
+            "#{userid}, #{title}, #{images}, #{content}, #{type}, #{poemId}, #{poemWord})")
+    @Options(useGeneratedKeys = true, keyProperty = "bolgid")
     void fabu12(PoemBlogDtoPlus poemBlogDtoPlus);
 @Select("select * from poem.poem_blog where id in (#{ids}) order by field(id,#{ids})  ")
     List<PoemBlogVo> selecttieziy(List<Long> ids);

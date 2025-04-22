@@ -100,12 +100,12 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>com.fuze</groupId>
             <artifactId>potry-service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
         <!--
         <dependency>
             <groupId>com.fuze</groupId>

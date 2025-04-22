@@ -31,7 +31,7 @@ spring:
 
   datasource:
     password: 123456
-    url: jdbc:mysql://localhost:3306
+    url: jdbc:mysql://localhost:3306/poem?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -74,10 +74,11 @@ spring:
 
 
 mybatis:
-  mapper-locations: classpath:mapper/*.xml
+  mapper-locations: classpath:Mapper/**/*.xml
   type-aliases-package: com.fuze.entity
   configuration:
     map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
 
 logging:
   level:

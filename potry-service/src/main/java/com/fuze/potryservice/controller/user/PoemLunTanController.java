@@ -57,10 +57,6 @@ public class PoemLunTanController {
     @ApiOperation(value="发布帖子")
    private  Result<String> fabutiezi(@RequestBody PoemBlogDto poemBlogDto){
 
-        if(sensitiveWordFilte.filter(poemBlogDto.getContent())&& sensitiveWordFilte.filter(poemBlogDto.getTitle()))
-        {
-            return Result.error("内容含有敏感词");
-        }
 
         Integer id= BaseContext.getCurrentId().intValue();
         poemLunTanService.fabu(poemBlogDto,id);
@@ -167,11 +163,7 @@ public class PoemLunTanController {
     @PostMapping("fabacomment")
     private Result fabacomment(@RequestBody FourmCommentDto fourmCommentDto){
 
-        if(!sensitiveWordFilte.filter(fourmCommentDto.getContext()))
-        {
-            System.out.println("评论内容含有敏感词");
-            return Result.error("评论内容含有敏感词");
-        }
+
 
         Integer id= BaseContext.getCurrentId().intValue();
        return  poemLunTanService.fabucomment(fourmCommentDto,id);

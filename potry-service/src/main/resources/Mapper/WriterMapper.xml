@@ -28,7 +28,7 @@
     </select>
 
     <!-- 查询不同朝代里的诗人数量 -->
-    <select id="selectWritersByDynasty" resultType="String">
+    <select id="selectWritersByDynasty" >
         SELECT DISTINCT writer
         FROM poem.potry
         WHERE dynasty = #{dynasty}
@@ -60,14 +60,14 @@
     </select>
 
         <!-- 查询诗人图片和简要介绍 -->
-    <select id="selectImageAndSimpleIntroByName" parameterType="String" resultType="com.fuze.vo.WriterVo">
+    <select id="selectImageAndSimpleIntroByName"  resultType="com.fuze.vo.WriterVo">
         SELECT headImageUrl, simpleIntro
         FROM poem.writer
         WHERE name = #{name}
     </select>
 
     <!-- 查询诗人详细介绍 -->
-    <select id="selectDetailIntroByName" parameterType="String" resultType="String">
+    <select id="selectDetailIntroByName">
         SELECT detailIntro
         FROM poem.writer
         WHERE name = #{name}

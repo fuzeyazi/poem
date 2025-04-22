@@ -1,23 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fuze.potryservice.mapper.UserMapper">
 
-    <update id="updatemessagebyid" parameterType="com.fuze.dto.UserLogin">
-        update poem.user
-        <set>
-            <if test="username != null">username=#{username},</if>
-            <if test="password != null">password=#{password, jdbcType=VARCHAR},</if>
-            <if test="name != null">name=#{name},</if>
-            <if test="phone != null">phone=#{phone},</if>
-            <if test="email != null">email=#{email},</if>
-            <if test="sex != null">sex=#{sex},</if>
-            <if test="age != null">age=#{age},</if>
-            <if test="touxiang != null">touxiang=#{touxiang},</if>
-            <if test="degree != null">degree=#{degree}</if>
-        </set>
-        where id = #{id}
-    </update>
+
     <update id="batchUpdatatep">
             <foreach collection="dates" index="index" item="date" separator=";">
                 UPDATE poem.userbookpoem
@@ -35,7 +21,7 @@
         </foreach>
     </update>
     <update id="update" parameterType="com.fuze.entity.UserJo">
-        update poem.user
+        update Poem.user
         <set>
             <if test="username != null">username=#{username},</if>
             <if test="password != null">password=#{password, jdbcType=VARCHAR},</if>
@@ -50,6 +36,19 @@
         </set>
         where id = #{id}
     </update>
+    <!--<update id="updatemessagebyid213" parameterType="com.fuze.dto.UserLogin">
+        update poem.user
+        <if test="username != null">username=#{username},</if>
+        <if test="password != null">password=#{password, jdbcType=VARCHAR},</if>
+        <if test="name != null">name=#{name},</if>
+        <if test="phone != null">phone=#{phone},</if>
+        <if test="email != null">email=#{email},</if>
+        <if test="sex != null">sex=#{sex},</if>
+        <if test="age != null">age=#{age},</if>
+        <if test="touxiang != null">touxiang=#{touxiang},</if>
+        <if test="status != null">status=#{status},</if>
+        <if test="degree != null">degree=#{degree}</if>
+    </update>-->
     <select id="showpoem" resultType="com.fuze.vo.PoemDataVo">
         select title from poem.potry where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">

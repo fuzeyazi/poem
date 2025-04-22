@@ -2,6 +2,7 @@ package com.fuze.potryservice.controller.user;
 
 import com.fuze.context.BaseContext;
 import com.fuze.entity.*;
+import com.fuze.potryservice.Aspect.Autozuru;
 import com.fuze.potryservice.service.PotryService;
 import com.fuze.result.PageResult;
 import com.fuze.result.Result;
@@ -52,7 +53,7 @@ public class PoetryController {
         PageResult pageInfo = potryService.GetPoembyTitle(pageNum, pageSize, title);
         return Result.success(pageInfo);
     }
-
+    @Autozuru
     @ApiOperation(value = "获取古诗的数量")
     @GetMapping("/GetCount")
     public Result<Integer> GetCount() {
