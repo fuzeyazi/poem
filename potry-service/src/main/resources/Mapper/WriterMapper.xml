@@ -4,17 +4,16 @@
 <mapper namespace="com.fuze.potryservice.mapper.WriterMapper">
     <insert id="add">
         INSERT INTO poem.writer
-        (name, headImageUrl, simpleIntro, dynasty)
+        (name, headImageUrl, simpleIntro,detailIntro)
         VALUES
-        (#{name}, #{headImageUrl}, #{simpleIntro}, #{dynasty})
+        (#{name}, #{headImageUrl}, #{simpleIntro}, #{detailIntro})
     </insert>
     <update id="save">
         UPDATE poem.writer
         SET name = #{name},
             detailIntro = #{detailIntro},
             headImageUrl = #{headImageUrl},
-            simpleIntro = #{simpleIntro},
-            dynasty = #{dynasty}
+            simpleIntro = #{simpleIntro}
         WHERE id = #{id}
     </update>
     <!-- 获取诗人总数 -->

@@ -54,4 +54,6 @@ public interface AdminService {
     Long getUserCount();
 
     Long getRhesisCount();
+
+    PageResult GetbyWord(Integer pageNum, Integer pageSize, String word);
 }

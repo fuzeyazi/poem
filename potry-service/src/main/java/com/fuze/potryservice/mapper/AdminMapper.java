@@ -66,4 +66,5 @@ Poem getbyTitle(String title);
     Long getUserCount();
 @Select("select count(*) from poem.rhesis")
     Long getRhesisCount();
+    Page<PotryDTO> Getbyword(String word);
 }

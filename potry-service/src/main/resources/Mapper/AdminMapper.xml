@@ -61,4 +61,13 @@
         FROM poem.rhesis
         WHERE fromm LIKE CONCAT('%', #{name}, '%')
     </select>
+    <select id="Getbyword" resultType="com.fuze.dto.PotryDTO">
+        SELECT id,title, dynasty, writer, content, type
+        FROM poem.potry
+        WHERE title LIKE CONCAT('%', #{word}, '%')
+           OR dynasty LIKE CONCAT('%', #{word}, '%')
+           OR writer LIKE CONCAT('%', #{word}, '%')
+           OR content LIKE CONCAT('%', #{word}, '%')
+           OR type LIKE CONCAT('%', #{word}, '%')
+    </select>
 </mapper>

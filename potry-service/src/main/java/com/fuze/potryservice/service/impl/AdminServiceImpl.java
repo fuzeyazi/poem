@@ -268,6 +268,16 @@ public class AdminServiceImpl implements AdminService {
     public Long getRhesisCount() {
         return adminMapper.getRhesisCount();
     }
+    @Override
+    public PageResult GetbyWord(Integer pageNum,
+                                Integer pageSize,
+                                String word) {
+        PageHelper.startPage(pageNum, pageSize);
+        Page<PotryDTO> page = adminMapper.Getbyword(word);
+        long total = page.getTotal();
+        List<PotryDTO> records = page.getResult();
+        return new PageResult(total, records);
+    }
 
 
     private boolean isValidEmail(String email) {
