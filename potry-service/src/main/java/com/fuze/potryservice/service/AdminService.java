@@ -9,6 +9,7 @@ import com.fuze.entity.Suggestion;
 import com.fuze.result.PageResult;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -27,7 +28,7 @@ public interface AdminService {
     void update(PotryDTO potryDTO);
         void disable(Integer status,Integer id);
 
-    List<PotryDTO> GetContent(PotryDTO potryDTO);
+    List<PotryDTO> GetContent(PotryDTO word);
 
     void deleteByTitle(String title);
 
@@ -54,4 +55,8 @@ public interface AdminService {
     Long getUserCount();
 
     Long getRhesisCount();
+
+
+    PageResult GetbyWord(Integer pageNum,
+                             Integer pageSize,String word);
 }
