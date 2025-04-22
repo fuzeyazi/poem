@@ -13,8 +13,8 @@
         SET name = #{name},
             detailIntro = #{detailIntro},
             headImageUrl = #{headImageUrl},
-            simpleIntro = #{simpleIntro},
-        WHERE id = #{id}
+            simpleIntro = #{simpleIntro}
+            WHERE id = #{id}
     </update>
     <!-- 获取诗人总数 -->
     <select id="getWriterCount" resultType="java.lang.Integer">

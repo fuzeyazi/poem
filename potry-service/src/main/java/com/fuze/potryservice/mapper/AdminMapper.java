@@ -33,7 +33,7 @@ Admin getByUsername(String username);
 @Select("select * from poem.potry where title=#{title}")
 Poem getbyTitle(String title);
 
-    List<PotryDTO> GetContent(PotryDTO potryDTO);
+    List<PotryDTO> GetContent(PotryDTO word);
 @Delete("delete from poem.potry where title=#{title}")
     void deleteByTitle(String title);
 @Insert("INSERT INTO poem.suggestion(id,content,created_at) " + "VALUES(#{id},#{content},#{createdAt})")
@@ -65,4 +65,6 @@ Poem getbyTitle(String title);
     Long getUserCount();
 @Select("select count(*) from poem.rhesis")
     Long getRhesisCount();
+
+    Page<PotryDTO> Getbyword(String word);
 }
