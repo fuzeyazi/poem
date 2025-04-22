@@ -127,7 +127,7 @@
         LIMIT 5
     </select>
     <select id="getWriterByName" resultType="com.fuze.vo.WriterVo">
-        SELECT id, name, headImageUrl, simpleIntro
+        SELECT id, name, headImageUrl, simpleIntro,detailIntro
         FROM poem.writer
         WHERE name LIKE CONCAT('%', #{name}, '%')
     </select>
