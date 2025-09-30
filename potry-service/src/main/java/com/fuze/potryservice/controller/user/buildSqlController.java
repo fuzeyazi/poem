@@ -52,49 +52,5 @@ public class buildSqlController {
     return Result.success("重建成功");
     }
 
-    @Scheduled(cron = "0 0 1 * * ?")
-    public String beiensql() throws SQLException {
-    String dbUrl = "jdbc:mysql://120.27.234.36:3306";
-    String username = "root";
-    String password = "123456";
-    Runtime runtime = Runtime.getRuntime();
-    String exportPath = "sql/poemmax"+kk+".sql";
-    kk++;
-    String command = getExportCommand(exportPath);
-    try {
-        Process process = runtime.exec(command);
-        int exitStatus = process.waitFor();
-        if (exitStatus == 0) {
-            return "备份成功！路径：" + exportPath;
-        } else {
-            return "备份失败！";
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return "异常：" + e.getMessage();
-    }
-}
 
-    @Scheduled(cron = "0 0 3 * * ?")
-    private Result<String> buildSql1() throws SQLException {
-        String dbUrl = "jdbc:mysql://120.27.234.36:3306";
-        String username = "root";
-        String password = "123456";
-
-        try {
-            Connection conn = DriverManager.getConnection(dbUrl, username, password);
-            Statement st = conn.createStatement();
-            st.execute("DROP DATABASE IF EXISTS poem;");
-            st.execute("create schema poem collate utf8mb4_0900_ai_ci;");
-            st.execute("USE poem;");
-            ScriptUtils.executeSqlScript(conn, new ClassPathResource("sql/poemmax"+kk+".sql"));
-        }catch (SQLException e){
-            log.error("连接失败,{}",e.getMessage());
-            return Result.error("连接失败");
-        }
-        return Result.success("重建成功");
-    }
-    private String getExportCommand(String exportPath) {
-        return "mysqldump -uroot -p123456 poem > " + exportPath;
-    }
 }

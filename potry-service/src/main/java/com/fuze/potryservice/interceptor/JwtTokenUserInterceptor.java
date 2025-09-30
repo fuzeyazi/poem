@@ -20,7 +20,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class JwtTokenUserInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtProperties jwtProperties;
-@Autozuru
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String contentType= "text/event-stream";
         System.out.println("进入拦截器");
