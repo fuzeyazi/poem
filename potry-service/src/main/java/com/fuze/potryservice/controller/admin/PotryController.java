@@ -67,7 +67,7 @@ public Result add(@RequestBody PotryDTO potryDTO) {
     }
     @ApiOperation("根据标题删除古诗")
     @PostMapping("/deletePoem")
-    public Result deletePoem(String title) {
+    public Result deletePoem(String title) { 
         log.info("根据标题删除古诗执行:");
         adminService.deleteByTitle(title);
         return Result.success("删除成功");

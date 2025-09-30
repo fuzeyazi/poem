@@ -253,7 +253,6 @@ public class PoetryController {
                         title("<h3>" + parts[i] + "</h3>").
                         build());
             }
-
             WriterEndVop writerEndVop = WriterEndVop.builder().id(writer.getId()).
                     name(writer.getName()).
                     dynasty(writer.getDynasty()).

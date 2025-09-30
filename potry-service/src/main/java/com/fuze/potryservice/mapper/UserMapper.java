@@ -21,7 +21,7 @@ public interface UserMapper {
 UserJo loginbyusername1(String username);
 @Select("select * from poem.user where username=#{username}")
     UserJo getbynamme(String username);
-@Insert("insert into poem.user(password,username,name,phone,sex,openid,email)value(#{password},#{username},#{name},#{phone},#{sex},#{openid},#{email})")
+@Insert("insert into poem.user(password,username,name,phone,sex,openid,email,touxiang)value(#{password},#{username},#{name},#{phone},#{sex},#{openid},#{email},#{touxiang})")
     void adduser(UserJo newuser);
 @Select("select openid from poem.user where id=#{id}")
     String getopid(int id);

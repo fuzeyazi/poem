@@ -33,10 +33,7 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -141,6 +138,9 @@ public Result<UserVo> login1(@RequestBody UserLoginEmalDtoPlus userLoginEmalDtoP
         UserJo newuser=new UserJo();
         userDto.setPassword(password);
         BeanUtils.copyProperties(userDto, newuser);
+        newuser.setTouxiang("https://webxiangmu.oss-cn-beijing.aliyuncs.com/lun/40e10c38-4470-4832-be75-67af2861e0e1.png");
+        newuser.setCreatetime(LocalDate.now().toString());
+        newuser.setName("不吃香菜"+"（哈基米版#"+ UUID.randomUUID().toString().substring(0, 6)+")");
         userService.adduser(newuser);
         System.out.println(newuser);
         return Result.success("注册成功");

@@ -57,7 +57,6 @@ public class PoemLunTanController {
     @ApiOperation(value="发布帖子")
    private  Result<String> fabutiezi(@RequestBody PoemBlogDto poemBlogDto){
 
-
         Integer id= BaseContext.getCurrentId().intValue();
         poemLunTanService.fabu(poemBlogDto,id);
         log.info("发布成功");
@@ -162,9 +161,6 @@ public class PoemLunTanController {
     @ApiOperation(value="发布评论")
     @PostMapping("fabacomment")
     private Result fabacomment(@RequestBody FourmCommentDto fourmCommentDto){
-
-
-
         Integer id= BaseContext.getCurrentId().intValue();
        return  poemLunTanService.fabucomment(fourmCommentDto,id);
     }

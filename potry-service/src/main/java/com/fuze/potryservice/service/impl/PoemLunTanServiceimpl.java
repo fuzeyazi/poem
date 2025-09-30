@@ -39,28 +39,20 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
     private PotryMapper potryMapper;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
+    @Autowired
+    private AsyncService asyncService;
     @Transactional
     @Override
     public void fabu(PoemBlogDto poemBlogDto, Integer id) {
         log.info("标题：{}", poemBlogDto.getTitle());
         //查询文章作者的粉丝ids
-        List<Integer> userIds = poemLunTanMapper.getuseridbylistid(id);
         //发布完后，直接获取blogid
         PoemBlogDtoPlus poemBlogDtoPlus = new PoemBlogDtoPlus();
         BeanUtils.copyProperties(poemBlogDto, poemBlogDtoPlus);
         poemBlogDtoPlus.setUserid(id);
         poemBlogDtoPlus.setBolgid(0);
         poemLunTanMapper.fabu12(poemBlogDtoPlus);
-        if (userIds.isEmpty()) {
-            return;
-        }
-        //循环遍历，给每一个粉丝发送消息
-        for (Integer userId : userIds) {
-            //推送粉丝的id
-            String key = "fan:" + userId;
-            stringRedisTemplate.opsForZSet().add(key, String.valueOf(poemBlogDtoPlus.getBolgid()), System.currentTimeMillis());
-        }
+        asyncService.asyncNotifyFans(poemBlogDtoPlus, id);
     }
 
     @Override
@@ -265,6 +257,8 @@ public class PoemLunTanServiceimpl implements PoemLunTanService {
         }
         poemLunTanMapper.fabucomment(fourmCommentDto, id);
         poemLunTanMapper.addblogcomment(fourmCommentDto.getBlogId());
+
+
         return Result.success("发布成功");
     }
 
