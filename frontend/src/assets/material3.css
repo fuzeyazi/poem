@@ -1,0 +1,206 @@
+/* Shared Material 3 roles. Keep colors on html so teleported Element Plus UI inherits them. */
+:root {
+  color-scheme: light;
+  --md-primary: #0B57D0;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #D3E3FD;
+  --md-on-primary-container: #041E49;
+  --md-secondary: #565E71;
+  --md-on-secondary: #FFFFFF;
+  --md-secondary-container: #E2E7F2;
+  --md-on-secondary-container: #191C20;
+  --md-surface: #F8FAFD;
+  --md-surface-container-lowest: #FFFFFF;
+  --md-surface-container-low: #F0F4F9;
+  --md-surface-container: #E9EEF6;
+  --md-surface-container-high: #E2E7EF;
+  --md-surface-container-highest: #DCE1E9;
+  --md-on-surface: #1F1F1F;
+  --md-on-surface-variant: #444746;
+  --md-outline: #747775;
+  --md-outline-variant: #C4C7C5;
+  --md-error: #B3261E;
+  --md-on-error: #FFFFFF;
+  --md-error-container: #F9DEDC;
+  --md-on-error-container: #410E0B;
+  --md-success: #146C2E;
+  --md-success-container: #C4EED0;
+  --md-warning: #795900;
+  --md-warning-container: #FFEFC3;
+  --md-state-hover: rgba(31, 31, 31, .08);
+  --md-state-focus: rgba(11, 87, 208, .12);
+  --md-state-pressed: rgba(31, 31, 31, .12);
+  --md-scrim: rgba(0, 0, 0, .4);
+  --md-elevation-1: 0 1px 3px rgba(31, 31, 31, .12), 0 1px 2px rgba(31, 31, 31, .06);
+  --md-elevation-2: 0 4px 12px rgba(31, 31, 31, .12);
+  --md-elevation-3: 0 8px 28px rgba(31, 31, 31, .18);
+  --md-radius-control: 999px;
+  --md-radius-card: 24px;
+  --md-radius-dialog: 28px;
+  --md-nav-width: 240px;
+  --f-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun, serif;
+  --f-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+html.dark {
+  color-scheme: dark;
+  --md-primary: #A8C7FA;
+  --md-on-primary: #062E6F;
+  --md-primary-container: #0842A0;
+  --md-on-primary-container: #D3E3FD;
+  --md-secondary: #BEC6DC;
+  --md-on-secondary: #283141;
+  --md-secondary-container: #3E4759;
+  --md-on-secondary-container: #DEE3EB;
+  --md-surface: #131314;
+  --md-surface-container-lowest: #0E0E0F;
+  --md-surface-container-low: #1B1B1D;
+  --md-surface-container: #1E1F20;
+  --md-surface-container-high: #282A2C;
+  --md-surface-container-highest: #333537;
+  --md-on-surface: #E3E3E3;
+  --md-on-surface-variant: #C4C7C5;
+  --md-outline: #8E918F;
+  --md-outline-variant: #444746;
+  --md-error: #F2B8B5;
+  --md-on-error: #601410;
+  --md-error-container: #8C1D18;
+  --md-on-error-container: #F9DEDC;
+  --md-success: #6DD58C;
+  --md-success-container: #0F5223;
+  --md-warning: #E6C36B;
+  --md-warning-container: #594300;
+  --md-state-hover: rgba(227, 227, 227, .08);
+  --md-state-focus: rgba(168, 199, 250, .12);
+  --md-state-pressed: rgba(227, 227, 227, .12);
+  --md-scrim: rgba(0, 0, 0, .64);
+  --md-elevation-1: 0 1px 3px rgba(0, 0, 0, .3);
+  --md-elevation-2: 0 4px 12px rgba(0, 0, 0, .32);
+  --md-elevation-3: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+/* Compatibility roles consumed by existing poem, soundscape, and card components. */
+html, html.dark {
+  --paper: var(--md-surface);
+  --paper-warm: var(--md-surface-container-low);
+  --paper-card: var(--md-surface-container-lowest);
+  --ink-900: var(--md-on-surface);
+  --ink-700: var(--md-on-surface-variant);
+  --ink-500: var(--md-on-surface-variant);
+  --ink-300: var(--md-on-surface-variant);
+  --gold: var(--md-primary);
+  --cinnabar: var(--md-primary);
+  --cinnabar-soft: var(--md-primary);
+  --jade: var(--md-success);
+  --line: var(--md-outline-variant);
+  --panel-line: var(--md-outline-variant);
+  --line-strong: var(--md-outline);
+  --shadow-sm: var(--md-elevation-1);
+  --shadow-md: var(--md-elevation-2);
+  --shadow-lg: var(--md-elevation-3);
+
+  --el-font-family: var(--f-sans);
+  --el-font-size-base: 14px;
+  --el-color-primary: var(--md-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--md-primary) 70%, var(--md-surface));
+  --el-color-primary-light-5: color-mix(in srgb, var(--md-primary) 50%, var(--md-surface));
+  --el-color-primary-light-7: color-mix(in srgb, var(--md-primary) 30%, var(--md-surface));
+  --el-color-primary-light-8: color-mix(in srgb, var(--md-primary) 20%, var(--md-surface));
+  --el-color-primary-light-9: var(--md-primary-container);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--md-primary) 85%, var(--md-on-surface));
+  --el-color-danger: var(--md-error);
+  --el-color-danger-light-3: color-mix(in srgb, var(--md-error) 70%, var(--md-surface));
+  --el-color-danger-light-5: color-mix(in srgb, var(--md-error) 50%, var(--md-surface));
+  --el-color-danger-light-7: color-mix(in srgb, var(--md-error) 30%, var(--md-surface));
+  --el-color-danger-light-8: color-mix(in srgb, var(--md-error) 20%, var(--md-surface));
+  --el-color-danger-light-9: var(--md-error-container);
+  --el-color-success: var(--md-success);
+  --el-color-success-light-3: color-mix(in srgb, var(--md-success) 70%, var(--md-surface));
+  --el-color-success-light-5: color-mix(in srgb, var(--md-success) 50%, var(--md-surface));
+  --el-color-success-light-7: color-mix(in srgb, var(--md-success) 30%, var(--md-surface));
+  --el-color-success-light-8: color-mix(in srgb, var(--md-success) 20%, var(--md-surface));
+  --el-color-success-light-9: var(--md-success-container);
+  --el-color-warning: var(--md-warning);
+  --el-color-warning-light-3: color-mix(in srgb, var(--md-warning) 70%, var(--md-surface));
+  --el-color-warning-light-5: color-mix(in srgb, var(--md-warning) 50%, var(--md-surface));
+  --el-color-warning-light-7: color-mix(in srgb, var(--md-warning) 30%, var(--md-surface));
+  --el-color-warning-light-8: color-mix(in srgb, var(--md-warning) 20%, var(--md-surface));
+  --el-color-warning-light-9: var(--md-warning-container);
+  --el-color-info: var(--md-on-surface-variant);
+  --el-color-info-light-3: color-mix(in srgb, var(--md-on-surface-variant) 70%, var(--md-surface));
+  --el-color-info-light-5: color-mix(in srgb, var(--md-on-surface-variant) 50%, var(--md-surface));
+  --el-color-info-light-7: color-mix(in srgb, var(--md-on-surface-variant) 30%, var(--md-surface));
+  --el-color-info-light-8: color-mix(in srgb, var(--md-on-surface-variant) 20%, var(--md-surface));
+  --el-color-info-light-9: var(--md-surface-container);
+  --el-bg-color: var(--md-surface-container-lowest);
+  --el-bg-color-page: var(--md-surface);
+  --el-bg-color-overlay: var(--md-surface-container-low);
+  --el-fill-color: var(--md-surface-container);
+  --el-fill-color-light: var(--md-surface-container-low);
+  --el-fill-color-lighter: var(--md-surface-container-low);
+  --el-fill-color-extra-light: var(--md-surface);
+  --el-fill-color-dark: var(--md-surface-container-high);
+  --el-fill-color-darker: var(--md-surface-container-highest);
+  --el-fill-color-blank: var(--md-surface-container-lowest);
+  --el-text-color-primary: var(--md-on-surface);
+  --el-text-color-regular: var(--md-on-surface-variant);
+  --el-text-color-secondary: var(--md-on-surface-variant);
+  --el-text-color-placeholder: var(--md-on-surface-variant);
+  --el-text-color-disabled: var(--md-outline);
+  --el-border-color: var(--md-outline-variant);
+  --el-border-color-light: var(--md-outline-variant);
+  --el-border-color-lighter: var(--md-outline-variant);
+  --el-border-color-extra-light: var(--md-outline-variant);
+  --el-border-color-dark: var(--md-outline);
+  --el-border-color-darker: var(--md-outline);
+  --el-border-radius-base: 12px;
+  --el-border-radius-small: 8px;
+  --el-border-radius-round: var(--md-radius-control);
+  --el-box-shadow: var(--md-elevation-2);
+  --el-box-shadow-light: var(--md-elevation-1);
+  --el-box-shadow-lighter: var(--md-elevation-1);
+  --el-box-shadow-dark: var(--md-elevation-3);
+  --el-mask-color: color-mix(in srgb, var(--md-surface) 88%, transparent);
+  --el-mask-color-extra-light: color-mix(in srgb, var(--md-surface) 64%, transparent);
+  --el-overlay-color: var(--md-scrim);
+  --el-overlay-color-light: var(--md-scrim);
+  --el-overlay-color-lighter: var(--md-scrim);
+  --el-disabled-bg-color: var(--md-surface-container);
+  --el-disabled-text-color: var(--md-outline);
+  --el-disabled-border-color: var(--md-outline-variant);
+}
+
+.md-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; flex: 0 0 48px; padding: 12px; border: 0; border-radius: 50%; color: var(--md-on-surface-variant); background: transparent; cursor: pointer; transition: background 120ms; }
+.md-icon-button svg { width: 24px; height: 24px; }
+.md-icon-button:hover { background: var(--md-state-hover); }
+.md-icon-button:active { background: var(--md-state-pressed); }
+.md-card { border-radius: var(--md-radius-card); background: var(--md-surface-container-lowest); border: 1px solid var(--md-outline-variant); }
+html .el-button { min-height: 48px; height: auto; padding: 12px 24px; border-radius: var(--md-radius-control); font-family: var(--f-sans); font-weight: 500; letter-spacing: 0; }
+html .el-button.is-circle { width: 48px; padding: 12px; }
+html .el-button.is-link, html .el-button.is-text { padding: 8px 12px; }
+html .el-button--small { min-height: 44px; padding: 8px 16px; }
+html .el-button--primary:not(.is-plain):not(.is-text):not(.is-link) { --el-button-text-color: var(--md-on-primary); --el-button-hover-text-color: var(--md-on-primary); --el-button-active-text-color: var(--md-on-primary); --el-button-hover-bg-color: color-mix(in srgb, var(--md-primary) 92%, var(--md-on-primary)); --el-button-hover-border-color: var(--el-button-hover-bg-color); }
+html .el-button--danger:not(.is-plain):not(.is-text):not(.is-link) { --el-button-text-color: var(--md-on-error); --el-button-hover-text-color: var(--md-on-error); --el-button-active-text-color: var(--md-on-error); }
+html .el-input__wrapper, html .el-select__wrapper { min-height: 48px; border-radius: 12px; }
+html .el-textarea__inner { border-radius: 16px; padding: 12px 16px; font-family: var(--f-sans); }
+html .el-dialog, html .el-message-box { border-radius: var(--md-radius-dialog); max-width: calc(100vw - 32px); background: var(--md-surface-container-high); }
+html .el-dialog { padding: 24px; }
+html .el-dialog__title, html .el-message-box__title { color: var(--md-on-surface); font-weight: 500; }
+html .el-dialog__headerbtn { width: 48px; height: 48px; border-radius: 50%; }
+html .el-popper, html .el-dropdown__popper, html .el-select__popper { --el-popper-border-radius: 16px; border-radius: 16px; }
+html .el-dropdown-menu { border-radius: 16px; padding: 8px; }
+html .el-dropdown-menu__item, html .el-select-dropdown__item { min-height: 44px; display: flex; align-items: center; }
+html .el-dropdown-menu__item:focus, html .el-dropdown-menu__item:not(.is-disabled):hover { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+html .el-message { --el-message-bg-color: var(--md-surface-container-high); --el-message-border-color: var(--md-outline-variant); --el-message-text-color: var(--md-on-surface); border-radius: 16px; max-width: calc(100vw - 32px); padding: 14px 20px; }
+html .el-message__content { color: var(--md-on-surface); line-height: 1.5; }
+html .el-card { border-radius: var(--md-radius-card); }
+html .el-table { --el-table-bg-color: var(--md-surface-container-lowest); --el-table-tr-bg-color: var(--md-surface-container-lowest); --el-table-header-bg-color: var(--md-surface-container); --el-table-header-text-color: var(--md-on-surface-variant); --el-table-row-hover-bg-color: var(--md-state-hover); --el-table-border-color: var(--md-outline-variant); --el-table-text-color: var(--md-on-surface); }
+html .el-pagination { flex-wrap: wrap; gap: 4px; font-family: var(--f-sans); }
+html .el-pagination button, html .el-pagination .el-pager li { min-width: 44px; height: 44px; border-radius: 50%; }
+html .el-pagination .el-pager li.is-active { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+html .el-tabs__item { min-height: 48px; color: var(--md-on-surface-variant); }
+html .el-tabs__item.is-active { color: var(--md-primary); }
+html .el-form-item__label { color: var(--md-on-surface-variant); font-weight: 500; }
+html .el-tag { border-radius: 8px; }
+
+@media (min-width: 768px) and (max-width: 1199px) { :root { --md-nav-width: 208px; } }

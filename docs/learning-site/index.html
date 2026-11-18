@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>poetry-spring2 · 数据流可视化学习站</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a22; --panel2:#1c212b; --line:#2a3140;
+    --fg:#e8e6e0; --muted:#8b93a3; --gold:#d8b34c; --gold-dim:#8a7334;
+    --blue:#5ea0ef; --green:#67c784; --red:#e06c6c; --purple:#a58cf0; --cyan:#57c2c9;
+    --serif:"Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+    --sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.65}
+  a{color:var(--blue);text-decoration:none}
+  header{position:sticky;top:0;z-index:9;background:rgba(15,17,21,.92);backdrop-filter:blur(6px);
+         border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  header h1{font-family:var(--serif);font-size:20px;margin:0;color:var(--gold);letter-spacing:2px;font-weight:500}
+  header .sub{color:var(--muted);font-size:12px}
+  nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+  nav button{background:transparent;border:1px solid var(--line);color:var(--muted);padding:6px 16px;
+             border-radius:16px;cursor:pointer;font-size:13px;transition:.2s}
+  nav button:hover{color:var(--fg);border-color:var(--gold-dim)}
+  nav button.on{color:var(--gold);border-color:var(--gold);background:rgba(216,179,76,.08)}
+  main{max-width:1180px;margin:0 auto;padding:26px 28px 60px}
+  section{display:none} section.on{display:block}
+  h2{font-family:var(--serif);font-size:18px;color:var(--gold);font-weight:500;margin:8px 0 4px;letter-spacing:1px}
+  h3{font-size:14px;margin:18px 0 8px;color:var(--fg)}
+  .lead{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  /* ---------- 图形 ---------- */
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  .node rect{fill:var(--panel2);stroke:var(--line);stroke-width:1.2;rx:9}
+  .node.infra rect{stroke:#3d4a63}
+  .node.data rect{stroke:#2f4a3d}
+  .node text{fill:var(--fg);font-size:12.5px;font-family:var(--sans)}
+  .node .subt{fill:var(--muted);font-size:10.5px}
+  .edge{fill:none;stroke:var(--line);stroke-width:1.4}
+  .edge.flow{stroke:var(--gold-dim);stroke-dasharray:5 5}
+  .edge.active{stroke:var(--gold);stroke-width:2;filter:drop-shadow(0 0 3px rgba(216,179,76,.5))}
+  .edge.alt{stroke:#4a5a78}
+  .edge.branch{stroke-dasharray:3 4;stroke:#7a5a5a}
+  .packet{fill:var(--gold);filter:drop-shadow(0 0 6px rgba(216,179,76,.9))}
+  .packet.pulse{fill:var(--blue);filter:drop-shadow(0 0 6px rgba(94,160,239,.9))}
+  .nodelabel{font-size:12.5px}
+  /* ---------- 播放器 ---------- */
+  .player{display:grid;grid-template-columns:1fr 330px;gap:14px;margin-top:14px}
+  @media(max-width:900px){.player{grid-template-columns:1fr}}
+  .caption{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-height:200px}
+  .caption .stepno{color:var(--gold);font-family:var(--serif);font-size:12px;letter-spacing:2px}
+  .caption h4{margin:6px 0 8px;font-size:15px;font-family:var(--serif);color:var(--fg);font-weight:500}
+  .caption p{margin:0 0 8px;color:#c6cbd6;font-size:13px}
+  .caption .ref{color:var(--muted);font-size:11.5px;font-family:Consolas,monospace;background:#10141b;
+                border:1px solid var(--line);border-radius:5px;padding:2px 7px;display:inline-block;margin:2px 4px 0 0}
+  .controls{display:flex;gap:8px;align-items:center;margin:10px 0 0;flex-wrap:wrap}
+  .controls button{background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:8px;
+                   padding:7px 14px;cursor:pointer;font-size:13px;transition:.15s}
+  .controls button:hover{border-color:var(--gold-dim)}
+  .controls button.primary{background:rgba(216,179,76,.14);border-color:var(--gold);color:var(--gold)}
+  .dots{display:flex;gap:5px;margin-left:6px;flex-wrap:wrap}
+  .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+  .dots i.done{background:var(--gold-dim)} .dots i.cur{background:var(--gold);box-shadow:0 0 5px var(--gold)}
+  .chainbtns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .chainbtns button{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 16px;
+                    border-radius:9px;cursor:pointer;font-size:13px;transition:.2s;text-align:left}
+  .chainbtns button.on{border-color:var(--gold);color:var(--gold);background:rgba(216,179,76,.07)}
+  .chainbtns button small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  .chainbtns button.on small{color:var(--gold-dim)}
+  /* ---------- 接口表 ---------- */
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+  .filters button{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:14px;
+                  padding:4px 14px;cursor:pointer;font-size:12px}
+  .filters button.on{color:var(--gold);border-color:var(--gold)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{color:var(--muted);text-align:left;font-weight:400;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:7px 10px;border-bottom:1px solid #1d2330;vertical-align:top}
+  tr:hover td{background:rgba(216,179,76,.03)}
+  code.path{font-family:Consolas,monospace;font-size:12px;color:#cdd6e4}
+  .m{display:inline-block;min-width:44px;text-align:center;border-radius:4px;font-size:11px;padding:1px 0;
+     font-family:Consolas,monospace;font-weight:700}
+  .m.GET{background:rgba(103,199,132,.15);color:var(--green)}
+  .m.POST{background:rgba(94,160,239,.15);color:var(--blue)}
+  .m.PUT{background:rgba(165,140,240,.15);color:var(--purple)}
+  .m.DELETE{background:rgba(224,108,108,.15);color:var(--red)}
+  .m.SSE{background:rgba(216,179,76,.15);color:var(--gold)}
+  .m.WS{background:rgba(87,194,201,.15);color:var(--cyan)}
+  .st{display:inline-block;border-radius:4px;font-size:11px;padding:1px 7px}
+  .st.live{background:rgba(103,199,132,.12);color:var(--green)}
+  .st.dead{background:rgba(139,147,163,.12);color:var(--muted)}
+  .st.warn{background:rgba(224,108,108,.12);color:var(--red)}
+  .count{color:var(--muted);font-size:12px;margin-left:auto}
+  .tblhead{display:flex;align-items:center;margin-bottom:4px}
+  /* ---------- 方案卡 ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .card h4{margin:0 0 8px;font-family:var(--serif);color:var(--gold);font-weight:500;font-size:15px}
+  .card ul{margin:0;padding-left:18px;color:#c6cbd6;font-size:13px}
+  .card li{margin:5px 0}
+  .card .vs{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12px}
+  .card .vs b{color:var(--cyan);font-weight:400}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;padding:18px 28px;text-align:center}
+  footer code{color:var(--gold-dim)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>poetry-spring2</h1>
+    <div class="sub">数据流可视化学习站 · 依据 2026-10-25/26 全量接口考古(docs/TECH-REPORT.md),所有结论可溯源到 file:line</div>
+  </div>
+  <nav>
+    <button class="on" data-v="overview">全局总览</button>
+    <button data-v="flows">数据流向</button>
+    <button data-v="apis">接口目录</button>
+    <button data-v="designs">技术方案</button>
+  </nav>
+</header>
+<main>
+
+<!-- ============ 总览 ============ -->
+<section id="view-overview" class="on">
+  <h2>全局架构 · 一张图</h2>
+  <p class="lead">一个粒子沿一条边代表一次真实调用。把鼠标悬停在节点上看说明;切到「数据流向」可逐帧播放五条核心链路。</p>
+  <div class="stage"><svg id="ov-svg" viewBox="0 0 980 470"></svg></div>
+  <div class="grid" style="margin-top:16px">
+    <div class="card"><h4>三个进程</h4><ul>
+      <li><b style="color:var(--gold)">potry-service :8081</b> — Spring Boot 业务单体,20 个 Controller、约 130 端点</li>
+      <li><b style="color:var(--blue)">potry-ai-agent :8000</b> — FastAPI + LangGraph,18 个端点</li>
+      <li><b style="color:var(--purple)">poetry-gateway :9080</b> — 统一入口:JWT/限流/TraceId/CORS</li>
+    </ul></div>
+    <div class="card"><h4>基础设施</h4><ul>
+      <li>MySQL 8.4(:3306,schema <code style="color:var(--gold-dim)">poem</code>)— 21+ 张表,Java 写、Agent 只读六张</li>
+      <li>Redis(:6379)— 缓存/热搜/幂等键/收件箱/提醒日志/随机 id 池</li>
+      <li>RabbitMQ — 发帖通知拓扑(post.exchange + DLX)</li>
+      <li>Nacos(:8848)· Milvus Lite(向量)· Langfuse+ClickHouse(LLM 追踪)</li>
+    </ul></div>
+    <div class="card"><h4>怎么用这个站</h4><ul>
+      <li>「数据流向」五条链路可<b style="color:var(--gold)">播放/步进</b>,每步带 file:line 证据</li>
+      <li>「接口目录」按域筛选,活跃/死接口一目了然</li>
+      <li>深入文字版见 <a href="../TECH-REPORT.md">TECH-REPORT.md</a> 与 <a href="../ARCHITECTURE.md">ARCHITECTURE.md</a></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 数据流向 ============ -->
+<section id="view-flows">
+  <h2>核心链路 · 数据流向</h2>
+  <p class="lead">五条覆盖全项目的端到端链路。点「播放」看数据包怎么走,每一步的旁注都带真实代码位置。</p>
+  <div class="chainbtns" id="chainbtns"></div>
+  <div class="player">
+    <div>
+      <div class="stage"><svg id="flow-svg" viewBox="0 0 980 430"></svg></div>
+      <div class="controls">
+        <button class="primary" id="btn-play">▶ 播放</button>
+        <button id="btn-prev">◀ 上一步</button>
+        <button id="btn-next">下一步 ▶</button>
+        <button id="btn-reset">⟲ 重置</button>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+    <div class="caption" id="caption">
+      <div class="stepno">READY</div>
+      <h4>选择一条链路,点「播放」</h4>
+      <p>粒子表示一次调用;金色实线是正在走的边。旁注会同步显示当前步骤的机制与代码位置。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 接口目录 ============ -->
+<section id="view-apis">
+  <h2>接口目录</h2>
+  <p class="lead">按域筛选。状态:<span class="st live">活跃</span>=前端真实调用 ·<span class="st warn">注意</span>=活跃但有坑 ·<span class="st dead">死接口</span>=后端路由在、前端零调用。完整清单见 TECH-REPORT §2。</p>
+  <div class="tblhead"><div class="filters" id="filters"></div><span class="count" id="count"></span></div>
+  <div class="panel" style="padding:0;overflow-x:auto">
+  <table>
+    <thead><tr><th>方法</th><th>路径</th><th>干什么</th><th>状态</th><th>域</th></tr></thead>
+    <tbody id="apibody"></tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 技术方案 ============ -->
+<section id="view-designs">
+  <h2>六大技术方案</h2>
+  <p class="lead">面试最容易被深挖的六个设计,每张卡:思路 → 关键实现 → 与主流方案的差异。</p>
+  <div class="grid" id="designs"></div>
+</section>
+
+</main>
+<footer>
+  动画引擎 <code>GSAP 3(MIT,CDN)</code> · 数据来源 <code>codebase-xray 两轮方法级考古</code> ·
+  更新方式:改本文件底部 <code>DATA</code> 区块即可,布局与动画自动重算 · 生成于 2026-10-26
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+<script>
+/* ================================================================
+   DATA —— 声明式数据区:改这里即可更新站点,布局/动画自动重算
+   ================================================================ */
+const OVERVIEW_NODES = [
+  {id:"fe",   x:60,  y:200, w:120, label:"Vue 前端",      sub:"5173 · ElementPlus", cls:""},
+  {id:"gw",   x:250, y:200, w:120, label:"网关 :9080",    sub:"JWT·限流·TraceId", cls:""},
+  {id:"svc",  x:440, y:110, w:130, label:"potry-service", sub:"8081 · Spring Boot", cls:""},
+  {id:"agent",x:440, y:290, w:130, label:"AI Agent",      sub:"8000 · LangGraph",  cls:""},
+  {id:"mysql",x:700, y:40,  w:110, label:"MySQL :3306",   sub:"schema poem",       cls:"infra data"},
+  {id:"redis",x:700, y:130, w:110, label:"Redis :6379",   sub:"缓存/幂等/收件箱",  cls:"infra"},
+  {id:"mq",   x:700, y:220, w:110, label:"RabbitMQ",      sub:"post.exchange+DLX", cls:"infra"},
+  {id:"nacos",x:700, y:310, w:110, label:"Nacos :8848",   sub:"注册/发现",         cls:"infra"},
+  {id:"milvus",x:860,y:290, w:100, label:"Milvus Lite",   sub:"1024 维向量",       cls:"infra data"},
+  {id:"lf",   x:860, y:390, w:100, label:"Langfuse",      sub:"LLM 追踪/成本",     cls:"infra"},
+];
+const OVERVIEW_EDGES = [
+  {id:"e1", a:"fe",   b:"gw",    t:"REST/WS"},
+  {id:"e2", a:"gw",   b:"svc",   t:"lb://potry-service"},
+  {id:"e3", a:"gw",   b:"agent", t:"lb://potry-ai-agent"},
+  {id:"e4", a:"svc",  b:"mysql", t:"MyBatis"},
+  {id:"e5", a:"svc",  b:"redis", t:"缓存/幂等"},
+  {id:"e6", a:"svc",  b:"mq",    t:"发帖事件"},
+  {id:"e7", a:"agent",b:"mysql", t:"只读6表", dashed:true},
+  {id:"e8", a:"agent",b:"milvus",t:"向量检索", dashed:true},
+  {id:"e9", a:"agent",b:"lf",    t:"trace",   dashed:true},
+  {id:"e10",a:"svc",  b:"agent", t:"KB导入回调", dashed:true},
+  {id:"e11",a:"svc",  b:"nacos", t:"注册", dashed:true},
+];
+
+const CHAINS = {
+  read: { name:"读诗链(缓存四合一)", tag:"前端→网关→MySQL/Redis",
+    nodes:[
+      {id:"a",x:40, y:150,w:130,label:"PoetryList.vue",sub:"搜索/分页/每日好诗"},
+      {id:"b",x:230,y:150,w:110,label:"vite 代理",sub:"/user → :9080"},
+      {id:"c",x:400,y:150,w:120,label:"网关 :9080",sub:"AuthGlobalFilter"},
+      {id:"d",x:580,y:150,w:130,label:"PoetryController",sub:"GetPoemPage 等"},
+      {id:"e",x:800,y:60, w:130,label:"MySQL poem.potry",sub:"FULLTEXT ngram",cls:"data"},
+      {id:"f",x:800,y:240,w:130,label:"Redis 缓存",sub:"poem:context:{id}",cls:"infra"},
+    ],
+    edges:[
+      {id:"r1",a:"a",b:"b"},{id:"r2",a:"b",b:"c"},{id:"r3",a:"c",b:"d"},
+      {id:"r4",a:"d",b:"f"},{id:"r5",a:"f",b:"e",dashed:true,label:"未命中回源"},
+    ],
+    steps:[
+      {n:"a",t:"发起请求",d:"页面调 api/poetry.ts,axios 实例(utils/request.ts)自动注入 token 头;401 时清 token 跳登录。",r:"frontend/src/utils/request.ts:47-53"},
+      {n:"b",t:"vite 代理转发",d:"dev 下 /user 前缀整体代理到网关 9080;⚠️ /notice、/ai 因与 Vue 路由冲突必须逐端点登记。",r:"frontend/vite.config.ts:19-38"},
+      {n:"c",t:"网关验签",d:"AuthGlobalFilter 用用户端密钥验 JWT(HS256),通过后透传 X-User-Id 给下游;白名单放行登录/公告。",r:"poetry-gateway/.../AuthGlobalFilter.java:30-33"},
+      {n:"c",t:"服务侧第二道防线",d:"JwtTokenUserInterceptor 再验一次(纵深防御),身份写进 ThreadLocal BaseContext 贯穿全链。",r:"potry-service/.../WebMvcConfiguration.java:26-34"},
+      {n:"d",t:"进入业务层",d:"GetPoemPage:PageHelper 分页查 poem.potry,再查收藏表内存标记 islike。",r:"PoetryController.java:169"},
+      {n:"f",t:"缓存四合一",d:"key=poem:context:{id}:命中直接返回 / 逻辑过期则抢互斥锁异步重建 / 不存在写 2min 空值缓存防穿透 / Redis 宕机降级直查 DB。",r:"PotryServiceImpl.java:144-235"},
+      {n:"e",t:"未命中回源",d:"select * from potry where id=?;配套还有:搜索走 FULLTEXT ngram(单字回退 like)、随机推荐走 Redis id 池替代 ORDER BY RAND()。",r:"PotryMapper.java:71-75"},
+      {n:"a",t:"统一返回",d:"Result{code,data,msg} 包装回传;前端按 401/正常双路径消费。这条链覆盖了项目缓存设计的全部考点。",r:"poetry-common/result/Result.java"},
+    ]},
+  post: { name:"发帖实时链(MQ 可靠闭环)", tag:"事务→MQ→STOMP 广播",
+    nodes:[
+      {id:"a",x:30, y:200,w:120,label:"Forum.vue",sub:"发布帖子"},
+      {id:"b",x:200,y:200,w:130,label:"PoemLunTanService",sub:"@Transactional 发帖"},
+      {id:"c",x:410,y:110,w:130,label:"RabbitMQ",sub:"post.exchange",cls:"infra"},
+      {id:"d",x:410,y:290,w:130,label:"Redis 补偿队列",sub:"mq:pending:*",cls:"infra"},
+      {id:"e",x:640,y:110,w:140,label:"PostNotifyListener",sub:"幂等键+收件箱"},
+      {id:"f",x:860,y:40, w:110,label:"粉丝收件箱",sub:"ZSet fan:{uid}",cls:"infra"},
+      {id:"g",x:860,y:180,w:110,label:"STOMP 广播",sub:"/topic/newpost"},
+      {id:"h",x:640,y:290,w:140,label:"DLX 死信队列",sub:"重试耗尽进死信",cls:"infra"},
+    ],
+    edges:[
+      {id:"p1",a:"a",b:"b"},{id:"p2",a:"b",b:"c"},{id:"p3",a:"b",b:"d",branch:true},
+      {id:"p4",a:"c",b:"e"},{id:"p5",a:"e",b:"f"},{id:"p6",a:"e",b:"g"},{id:"p7",a:"c",b:"h",branch:true},
+    ],
+    steps:[
+      {n:"a",t:"发布帖子",d:"Forum.vue 调 POST /user/luntan/fabutiezi;AiChat 的 AI 草稿也走这同一个接口(一键发帖)。",r:"Forum.vue:109、AiChat.vue:117"},
+      {n:"b",t:"事务内落库",d:"INSERT poem.poem_blog(useGeneratedKeys 回填 bolgid)。注意:MQ 发送注册在 afterCommit——事务真提交后才投递,防消费者读到未提交数据。",r:"PoemLunTanServiceimpl.java:56-75"},
+      {n:"c",t:"投递交换机",d:"direct 交换机 post.exchange / routingKey=post.created,消息带 traceId 串联消费端日志;publisher confirm 开启,NACK 告警。",r:"RabbitMQConfig.java:17-46"},
+      {n:"d",t:"投递失败兜底",d:"发不出去(事务已提交、接口不能 500)→ 落 Redis list mq:pending:*,每 20s 定时任务 rightPop 重投,仍挂推回队尾。",r:"PoemLunTanServiceimpl.java:456-480"},
+      {n:"e",t:"消费+幂等",d:"消费者先 setIfAbsent post:notified:{bolgid}(24h)——同一帖子绝不重复处理;重试 3 次(1s/2s/4s)耗尽 reject 不 requeue。",r:"PostNotifyListener.java"},
+      {n:"f",t:"粉丝收件箱(推模式)",d:"ZADD fan:{fanId},关注流接口从这里倒序读——写扩散,粉丝读时 O(1)。",r:"PostNotifyListener.java:78 前"},
+      {n:"g",t:"实时广播",d:"STOMP 推 /topic/newpost,Forum.vue 订阅后 toast+刷新第一页;复习提醒走同款机制(/topic/review.{userId})。",r:"PostNotifyListener.java:78"},
+      {n:"h",t:"死信兜底",d:"本地重试耗尽 → DLX post.dlx → 死信消费者告警+计数。毒消息治理实战:曾 15s 刷 40 万行日志,靠重试上限+不 requeue 根治。",r:"RabbitMQConfig.java:17-23"},
+    ]},
+  srs: { name:"背诵 SRS 闭环", tag:"排期→提醒→推进",
+    nodes:[
+      {id:"a",x:30, y:200,w:130,label:"UserCenter.vue",sub:"建书/加诗/开始复习"},
+      {id:"b",x:210,y:200,w:130,label:"UserController",sub:"/user/book/*"},
+      {id:"c",x:430,y:90, w:150,label:"排期:窗口函数 SQL",sub:"userbookpoem 按组错峰",cls:"data"},
+      {id:"d",x:430,y:310,w:150,label:"ReviewRemindTask",sub:"每日 9:00 cron"},
+      {id:"e",x:660,y:310,w:140,label:"Redis 双重防重",sub:"批次锁+用户级",cls:"infra"},
+      {id:"f",x:660,y:90, w:140,label:"book/today",sub:"到期队列 next<=NOW()"},
+      {id:"g",x:870,y:200,w:100,label:"query/end",sub:"CASE 推进轮次",cls:"data"},
+    ],
+    edges:[
+      {id:"s1",a:"a",b:"b"},{id:"s2",a:"b",b:"c"},{id:"s3",a:"b",b:"d",dashed:true},
+      {id:"s4",a:"d",b:"e"},{id:"s5",a:"e",b:"f",dashed:true},{id:"s6",a:"f",b:"g"},
+    ],
+    steps:[
+      {n:"a",t:"建书加诗",d:"book/add 建诗集、book/addpoem 加诗(幂等查重);bookid 无属主校验是已知越权面(TECH-REPORT P0)。",r:"UserController.java:257-272"},
+      {n:"b",t:"一键排期",d:"book/start:窗口函数一条 SQL 按组错峰——每 much 首一组,learnDate=今天+组序号,当天即进今日任务。",r:"UserController.java:289-294"},
+      {n:"c",t:"到期即入队",d:"userbookpoem.nextReviewDate<=NOW() 走 idx_book_next 索引;今日任务补文案「第{n}轮·间隔1/3/7/14/30天」。",r:"UserController.java:334-341"},
+      {n:"d",t:"每日 9:00 提醒",d:"@Scheduled cron 扫到期用户(GROUP BY user_id);管理端 /admin/remind/trigger 可手动 force 触发做演示/补偿。",r:"ReviewRemindTask.java:38-47"},
+      {n:"e",t:"双重防重",d:"Redis 批次锁 remind:lock:{date}(多实例只跑一次)+ 用户级 remind:sent:{date}:{uid}(定时+手动叠加只提醒一次);历史进 ZSet 留 7 条。",r:"ReviewRemindTask.java:47-86"},
+      {n:"f",t:"推送与查看",d:"STOMP 定向推 /topic/review.{userId},前端全局订阅弹 toast;红点数走 book/remindcount。",r:"reviewRemind.ts:12-43"},
+      {n:"g",t:"背诵完成→推进",d:"query/end?kk=1:CASE reviewCount 0→+3天 1→+7天 2→+14天 3→+30天 ELSE NULL(毕业),reviewCount+1。🟡 kk 无真实判题,任何非 0 都算对。",r:"PoetryController.java:436、PotryMapper.java:80-88"},
+    ]},
+  chat: { name:"AI 对话链(真流式)", tag:"SSE + LangGraph 12 节点",
+    nodes:[
+      {id:"a",x:25, y:200,w:120,label:"AiChat.vue",sub:"fetch SSE"},
+      {id:"b",x:185,y:200,w:110,label:"网关 :9080",sub:"/agent/** 验JWT"},
+      {id:"c",x:345,y:200,w:110,label:"resolve_user_id",sub:"验签,409 检查"},
+      {id:"d",x:520,y:60, w:110,label:"resolve",sub:"指代消解"},
+      {id:"e",x:520,y:150,w:110,label:"classify",sub:"八类意图"},
+      {id:"f",x:520,y:240,w:110,label:"retrieve",sub:"三源召回"},
+      {id:"g",x:520,y:330,w:110,label:"gate",sub:"置信度 0.46"},
+      {id:"h",x:700,y:150,w:110,label:"agent",sub:"ReAct 工具循环"},
+      {id:"i",x:700,y:290,w:110,label:"tool_node",sub:"写操作 interrupt"},
+      {id:"j",x:870,y:200,w:100,label:"log",sub:"落库+摘要"},
+    ],
+    edges:[
+      {id:"c1",a:"a",b:"b"},{id:"c2",a:"b",b:"c"},{id:"c3",a:"c",b:"d"},{id:"c4",a:"c",b:"e"},
+      {id:"c5",a:"e",b:"f",dashed:true},{id:"c6",a:"f",b:"g",dashed:true},{id:"c7",a:"e",b:"h"},
+      {id:"c8",a:"h",b:"i",dashed:true},{id:"c9",a:"h",b:"j"},{id:"c10",a:"g",b:"h",dashed:true},
+    ],
+    steps:[
+      {n:"a",t:"SSE 发起",d:"AiChat.vue:167 原生 fetch POST /agent/workflow,流式读取帧;⚠️ Vue 未实现 confirm_ticket→resume 链路,遇建单确认会 409 卡死(P0 待修)。",r:"AiChat.vue:167"},
+      {n:"b",t:"网关强制 JWT",d:"2026-10-26 起 /agent/** 纳入用户密钥强制(此前这条公网入口裸奔,可伪造 userId)。",r:"AuthGlobalFilter.java:40"},
+      {n:"c",t:"验签+互斥检查",d:"resolve_user_id:claims.userId 优先(无 token 遗留回退,AUTH_STRICT=1 可收紧);该 thread 有未决 interrupt→409。",r:"main.py:549-555、auth.py:33"},
+      {n:"d",t:"resolve 指代消解",d:"结合历史改写问题(\"那他呢\"→补全主语);历史由三层上下文现算,不经 LLM 摘要。",r:"workflow/nodes.py:44-72"},
+      {n:"e",t:"意图分类",d:"LLM 八选一意图+置信度,解析失败降级 other;route 硬编码分流——投诉/闲聊直接预设话术。",r:"workflow/intent.py:35-71"},
+      {n:"f",t:"三源检索",d:"诗/诗人/问答三路向量召回合并,再回查 MySQL 原文;朝代等结构化条件走过滤+翻倍扫描去重。",r:"workflow/nodes.py:140-155"},
+      {n:"g",t:"置信度闸门",d:"0.5·top1+0.3·margin+0.2·条数,阈值 0.46 金标校准;不足→兜底话术+pending_questions 喂飞轮——幻觉有业务出口。",r:"workflow/confidence.py:43-62"},
+      {n:"h",t:"ReAct 工具循环",d:"agent 节点 bind_tools 调 LLM;有 tool_calls→tool_node(统一审计);超步数/超 token 强制收敛。2026-10-26 起真流式:LLM delta 实时成 token 帧。",r:"workflow/agent_react.py:38"},
+      {n:"i",t:"写操作 interrupt",d:"create_ticket 是唯一写工具:先两段式 interrupt 人工确认,ToolEngine 才放行(权限门+审计 tool_audit_logs)。",r:"workflow/nodes.py:292-311"},
+      {n:"j",t:"落库与收尾",d:"log 节点写 conversations/messages,层2 超预算投递后台摘要;之后发 trace/action/done 帧,自评任务异步启动。",r:"workflow/nodes.py:192-246"},
+    ]},
+  kb: { name:"知识库同步链", tag:"导入→嵌入→对账",
+    nodes:[
+      {id:"a",x:30, y:200,w:130,label:"ContentAdmin.vue",sub:"导入诗词"},
+      {id:"b",x:210,y:200,w:130,label:"PotryController.add",sub:"/admin/potry/add"},
+      {id:"c",x:420,y:110,w:120,label:"MySQL potry",sub:"INSERT 新诗",cls:"data"},
+      {id:"d",x:420,y:290,w:130,label:"notifyKbSync",sub:"异步·自签 admin JWT"},
+      {id:"e",x:640,y:290,w:120,label:"kb/sync",sub:"切块 400/60"},
+      {id:"f",x:850,y:290,w:110,label:"BGE-M3 onnx",sub:"1024 维·51ms/条"},
+      {id:"g",x:850,y:110,w:110,label:"Milvus Lite",sub:"collection knowledge",cls:"data"},
+    ],
+    edges:[
+      {id:"k1",a:"a",b:"b"},{id:"k2",a:"b",b:"c"},{id:"k3",a:"b",b:"d",dashed:true},
+      {id:"k4",a:"d",b:"e"},{id:"k5",a:"e",b:"f"},{id:"k6",a:"f",b:"g"},
+    ],
+    steps:[
+      {n:"a",t:"管理台导入",d:"ContentAdmin.vue 走管理端 axios 实例(管理 JWT),POST /admin/potry/add。",r:"adminApi.ts:53"},
+      {n:"b",t:"入库+触发同步",d:"先 title+dynasty+writer 三元组查重,INSERT 后 notifyKbSync 异步通知——失败不阻塞导入,对账兜底。",r:"PotryController.java:48-79"},
+      {n:"c",t:"MySQL 落库",d:"INSERT poem.potry;这条「导入即同步」让 MySQL↔Milvus 的窗口缩到秒级。",r:"AdminMapper.java:24"},
+      {n:"d",t:"自签 JWT 回调",d:"CompletableFuture.runAsync:用管理密钥签 60s token(claims user_id=1),POST http://localhost:8000/api/admin/kb/sync?title=...",r:"PotryController.java:64-79"},
+      {n:"e",t:"切块",d:"按子节(原文/译文/赏析/注释)切 400 字/重叠 60,裁到句号;knowledge_chunks 先落 pending 状态。",r:"chunking.py:75-100"},
+      {n:"f",t:"嵌入",d:"BGE-M3 本地 onnx 引擎(1024 维,实测 51ms/条 vs torch 142ms,输出对齐验证过);批量 embed 后 Milvus upsert+mark_embedded。",r:"build_kb.py:126-154"},
+      {n:"g",t:"对账三数",d:"syncstats:potry_total(全表)/ covered(有块的诗数)/ pending、embedded——三个数可见即一致;无参 sync 全量幂等重建(清孤儿→补切分→嵌 pending)。⚠️ milvus-lite 文件锁:重建须停服。",r:"kb_sync_api.py:102-142"},
+    ]},
+};
+
+/* 接口目录数据(节选自 TECH-REPORT §2,全量 130+ 端点) */
+const APIS = [
+  ["POST","/user/login","账号密码登录,签发用户 JWT","live","账号","UserController.java:62"],
+  ["GET","/user/getmassagebyid","查当前用户资料","live","账号","UserController.java:163"],
+  ["PUT","/user/updatemessagebyid","改个人资料(头像直传 OSS)","live","账号","UserController.java:169"],
+  ["POST","/user/register","注册(BCrypt)","live","账号","UserController.java:133"],
+  ["GET","/user/forget","重置密码 —— GET+@RequestBody 实际不可用","dead","账号","UserController.java:155"],
+  ["GET","/user/login/code","发邮箱验证码(Redis 一次性消费)","dead","账号","UserController.java:105"],
+  ["POST","/user/collect/addpem","收藏诗(查重+服务端覆写 userid)","live","收藏","UserController.java:180"],
+  ["GET","/user/collect","我的收藏详情列表","live","收藏","UserController.java:210"],
+  ["POST","/user/collect/addrhesis","收藏名句 —— userid 取自请求体,可冒名","warn","收藏","UserController.java:218"],
+  ["POST","/user/book/add","建诗集","live","诗集本","UserController.java:257"],
+  ["POST","/user/book/addpoem","加诗入书(幂等查重;bookid 无属主校验)","warn","诗集本","UserController.java:266"],
+  ["POST","/user/book/start","窗口函数 SQL 一键错峰排期","live","诗集本","UserController.java:289"],
+  ["GET","/user/book/today","今日到期复习队列(艾宾浩斯)","live","诗集本","UserController.java:334"],
+  ["GET","/user/book/showplan/{bookid}","复习曲线(服务层按日聚合)","live","诗集本","UserController.java:296"],
+  ["GET","/user/poetry/GetPoemPage","诗词分页+收藏标记","live","内容","PoetryController.java:169"],
+  ["GET","/user/poetry/GetContentById/{id}","诗详情 —— 缓存四合一样板","live","内容","PotryServiceImpl.java:144"],
+  ["GET","/user/poetry/suggest","搜索联想(ZSet 字典序前缀匹配)","live","内容","PotryServiceImpl.java:601"],
+  ["GET","/user/poetry/hotsearch","热搜 Top10(60s 去重+top1000 截断)","live","内容","PotryServiceImpl.java:645"],
+  ["GET","/user/poetry/GetPoembyTitle","标题/诗人搜索(FULLTEXT ngram,记热搜)","live","内容","PotryMapper.java:71"],
+  ["GET","/user/poetry/GetVeryGoodPoem","每日好诗(随机 id 池+挽词过滤)","live","内容","PotryServiceImpl.java:508"],
+  ["GET","/user/poetry/query","AI 出题本体 —— 死接口,线上残缺","dead","内容","PoetryController.java:394"],
+  ["GET","/user/poetry/query/end","背诵完成推进 SRS 轮次(kk 恒为 1)","live","诗集本","PoetryController.java:436"],
+  ["GET","/user/rhesis/GetRhesisByKey/{kw}","名句关键词检索","live","名句","RhesisController.java:53"],
+  ["GET","/user/writer/GetRandomWriters","随机诗人(复用随机 id 池)","live","诗人","WriterServiceImpl.java:97"],
+  ["GET","/user/writer/GetWritersByDynastyFull","朝代诗人卡片全量","live","诗人","WriterController.java:74"],
+  ["POST","/user/luntan/fabutiezi","发帖 → MQ 可靠闭环源头","live","社区","PoemLunTanServiceimpl.java:56"],
+  ["GET","/user/luntan/selecttiez","分类帖子分页","live","社区","PoemLunTanController.java:65"],
+  ["GET","/user/luntan/dianzan","帖子点赞 toggle(ZSet+明细表幂等)","live","社区","PoemLunTanServiceimpl.java:128"],
+  ["POST","/user/luntan/fabacomment","评论/回复","live","社区","PoemLunTanController.java:161"],
+  ["GET","/user/luntan/selectConmmets","两级评论组树","live","社区","PoemLunTanController.java:168"],
+  ["GET","/user/luntan/search","内容全文搜索","live","社区","PoemLunTanController.java:206"],
+  ["GET","/user/luntan/select/guanzhu","关注流 —— 判空反转,功能实际失效","dead","社区","PoemLunTanServiceimpl.java:308"],
+  ["POST","/user/Comment/addcomment","旧版发帖(可冒名)—— 全组死接口","dead","社区","CommentController.java:40"],
+  ["POST","/user/FeedBack/addfeedback","提交反馈(复用 Java 表,列名 messsage)","live","反馈","FeedBackController.java:45"],
+  ["GET","/user/FeedBack/getAllFeedBack","读全站反馈 —— 用户 token 即可,越权面","warn","反馈","FeedBackController.java:68"],
+  ["DELETE","/user/FeedBack/deletefeedback/{id}","删反馈 —— 无归属校验 IDOR","dead","反馈","FeedBackController.java:90"],
+  ["GET","/user/game/questions","答题出题(答案以 Redis key 名存放)—— 全组死接口","dead","游戏","QuestionGameController.java:43"],
+  ["GET","/user/game/score","计分(信任前端 userId,可代刷)","dead","游戏","QuestionGameController.java:103"],
+  ["POST","/notice/add","新增公告(管理端密钥)","live","公告","NoticeController.java:28"],
+  ["GET","/notice/getList","公告列表(游客白名单)","live","公告","NoticeController.java:43"],
+  ["POST","/admin/login","管理员登录(图形验证码+MD5原位升级BCrypt)","live","管理","AdminController.java:63"],
+  ["GET","/admin/getCode","图片验证码(hutool,Redis 5min)","live","管理","AdminController.java:116"],
+  ["POST","/admin/disable/{status}","启停用户账号","live","管理","AdminController.java:162"],
+  ["POST","/admin/potry/add","导入诗词 → 异步触发 KB 增量嵌入","live","管理","PotryController.java:48"],
+  ["POST","/admin/potry/delete","批量删诗 —— 前后端契约不符,实际必 400","warn","管理","PotryController.java:83"],
+  ["GET","/admin/potry/GetPoemPage","管理端诗词分页","live","管理","PotryController.java:115"],
+  ["POST","/admin/remind/trigger","手动触发背诵提醒跑批(force)","live","管理","AdminController.java:55"],
+  ["POST","/admin/command/handle","LLM 直驱诗库增删改(无确认白名单)","dead","管理","CommandServiceimpl.java:34"],
+  ["GET","/admin/log/get","操作日志分页(@AutoLog 切面)","dead","管理","LogController.java:29"],
+  ["POST","/agent/workflow","主编排入口(SSE 真流式,12 节点)","live","Agent","main.py:557"],
+  ["POST","/agent/workflow/resume","放行建单确认 —— 无鉴权,凭 sessionId 即可操作","warn","Agent","main.py:605"],
+  ["POST","/agent/chat","旧单轮 FC 对话(验签结果被丢弃,待退役)","dead","Agent","main.py:351"],
+  ["POST","/agent/feedback/negative","点踩→飞轮待审池 —— 无鉴权","warn","Agent","main.py:642"],
+  ["GET","/api/conversations","会话侧栏(验签优先,无身份 401)","live","Agent","main.py:466"],
+  ["GET","/api/admin/review","飞轮待审队列","live","Agent","review_api.py:30"],
+  ["POST","/api/admin/review/{id}/approve","审核通过→qa 块嵌入入库","live","Agent","review_api.py:47"],
+  ["GET","/api/admin/cost","按意图的 token/成本报表(直查 ClickHouse)","live","Agent","cost_api.py:102"],
+  ["GET","/api/admin/audit","工具调用审计流","live","Agent","audit_api.py:20"],
+  ["GET","/api/admin/kb/syncstats","MySQL↔Milvus 三数对账","live","Agent","kb_sync_api.py:142"],
+  ["POST","/api/admin/kb/sync","增量/全量同步(幂等三步)","live","Agent","kb_sync_api.py:170"],
+];
+const DESIGNS = [
+  {t:"MQ 可靠消息闭环",pts:[
+    "afterCommit 投递:事务真提交后才发,防消费者读脏",
+    "confirm + 本地重试 3 次退避 + DLX 死信 + 20s 补偿重投",
+    "消费端幂等键 post:notified:{bolgid}(24h)",
+    "实战:毒消息 15s 刷 40 万行日志 → 重试上限+不 requeue 根治"],
+   vs:"主流用 RocketMQ 事务消息或 Outbox 表;这是 RabbitMQ 上手搓 Outbox 的 80% 语义",r:"TECH-REPORT §4.2"},
+  {t:"缓存四合一",pts:[
+    "逻辑过期:过期不阻塞,抢互斥锁异步重建",
+    "空值缓存 2min 防穿透;TTL 10±3min 抖动防雪崩",
+    "Redis 宕机全链降级直查 DB",
+    "衍生:随机 id 池替代 ORDER BY RAND()、ZSet 联想/热搜"],
+   vs:"Spring Cache 注解给不了这套粒度;手搓才讲得出三类问题的对策",r:"TECH-REPORT §4.10"},
+  {t:"点赞幂等 toggle",pts:[
+    "ZSet 原子占位决定方向(并发首点只有一个成功)",
+    "明细表唯一约束 INSERT IGNORE = 事实源",
+    "affected>0 才动计数列 → Redis 丢数据自动拦截刷分",
+    "InnoDB 死锁:编程式事务重试 4 次;9 个单测固化分支"],
+   vs:"等价于 (user,item) 唯一约束+异步计数的主流做法,Redis 只是加速层",r:"TECH-REPORT §2.7"},
+  {t:"艾宾浩斯 SRS",pts:[
+    "窗口函数单 SQL 按组错峰排期(book/start)",
+    "CASE reviewCount 0→3d/1→7d/2→14d/3→30d/ELSE 毕业",
+    "提醒双层防重:批次锁 + 用户级,STOMP 定向推送",
+    "已知局限:固定轮次不感知正确率(kk 无真实判题)"],
+   vs:"Anki 系 SM-2/FSRS 按回忆质量自适应;本项目是规则轮次,升级路径清晰",r:"TECH-REPORT §4.4"},
+  {t:"LLM 置信度闸门",pts:[
+    "0.5·top1 + 0.3·margin + 0.2·召回条数",
+    "阈值 0.46 经金标集校准(F1 最优),非拍脑袋",
+    "不足→兜底话术+pending_questions 喂飞轮,幻觉有业务出口",
+    "trace 帧回传意图/得分/召回数,回答全程可解释"],
+   vs:"Dify/Coze 黑盒难测;纯 Function Calling 幻觉直出;FSM 骨架让每个节点可单测",r:"TECH-REPORT §4.5"},
+  {t:"真流式 SSE(2026-10-26 改造)",pts:[
+    "astream_events 事件流直驱:LLM delta 实时、工具进度实时",
+    "config 全链透传(agent→LLM、tool→BaseTool)是事件流前提",
+    "token 先于 trace 到达;前端按事件名分发零改动",
+    "实测首 token 6.2~7.9s(原=全图耗时 9~10s),429 测试全绿"],
+   vs:"OpenAI Assistants 事件协议的精简自研版,多 trace/action 两类业务帧",r:"TECH-REPORT §4.5"},
+];
+
+/* ================================================================
+   RENDER
+   ================================================================ */
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){ const e=document.createElementNS(NS,tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; }
+function nodeBox(svg, n){
+  const g = el("g", {class:"node "+(n.cls||""), "data-id":n.id}, svg);
+  el("rect",{x:n.x,y:n.y,width:n.w,height:44,rx:9},g);
+  const t1=el("text",{x:n.x+n.w/2,y:n.y+18,"text-anchor":"middle",class:"nodelabel"},g); t1.textContent=n.label;
+  const t2=el("text",{x:n.x+n.w/2,y:n.y+34,"text-anchor":"middle",class:"subt"},g); t2.textContent=n.sub;
+  return g;
+}
+function edgePath(svg, e, nodes, defs){
+  const a=nodes.find(n=>n.id===e.a), b=nodes.find(n=>n.id===e.b);
+  const x1=a.x+a.w, y1=a.y+22, x2=b.x, y2=b.y+22;
+  let d;
+  if(Math.abs(y1-y2)<6 || a.x+a.w <= b.x){          // 直线/同排
+    const mx=(x1+x2)/2; d=`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+  } else {                                           // 折线(先横后竖)
+    const mx=(x1+x2)/2; d=`M${x1},${y1} L${mx},${y1} L${mx},${y2} L${x2},${y2}`;
+  }
+  const p=el("path",{d,class:"edge"+(e.dashed?" alt":"")+(e.branch?" branch":""),id:e.id},svg);
+  el("circle",{r:3.2,cx:x2,cy:y2,fill:"var(--line)"},svg);
+  if(e.label){ const t=el("text",{x:mx0(x1,x2),y:(y1+y2)/2-5,"text-anchor":"middle",class:"subt",fill:"var(--muted)"},svg); t.textContent=e.label; }
+  return p;
+}
+function mx0(a,b){return (a+b)/2}
+function drawGraph(svgId, nodes, edges, opts={}){
+  const svg=document.getElementById(svgId); svg.innerHTML="";
+  const defs=el("defs",{},svg);
+  const marker=el("marker",{id:"arrow-"+svgId,viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:7,markerHeight:7,orient:"auto-start-reverse"},defs);
+  el("path",{d:"M0,0 L10,5 L0,10 z",fill:"var(--line)"},marker);
+  edges.forEach(e=>{const p=edgePath(svg,e,nodes); p.setAttribute("marker-end",`url(#arrow-${svgId})`);});
+  nodes.forEach(n=>nodeBox(svg,n));
+  return svg;
+}
+/* ---------- 导航 ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll("main section").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); document.getElementById("view-"+b.dataset.v).classList.add("on");
+});
+/* ---------- 总览(环境粒子) ---------- */
+drawGraph("ov-svg", OVERVIEW_NODES, OVERVIEW_EDGES);
+(function ambient(){
+  if(!window.gsap || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const loop=[["e1","#57c2c9"],["e2","#d8b34c"],["e3","#5ea0ef"],["e4","#67c784"],["e3","#5ea0ef"],["e8","#a58cf0"]];
+  const svg=document.getElementById("ov-svg");
+  loop.forEach(([edge,color],i)=>{
+    const path=svg.querySelector("#"+edge); if(!path) return;
+    const dot=el("circle",{r:3,class:"packet"},svg); dot.style.fill=color;
+    gsap.to(dot,{motionPath:{path,align:path,alignOrigin:[.5,.5]},duration:2.4+i*.3,repeat:-1,
+      ease:"none",delay:i*.8,opacity:.85});
+  });
+})();
+/* ---------- 链路播放器 ---------- */
+let curChain=null, curStep=-1, tl=null, packetEl=null;
+const chainBtns=document.getElementById("chainbtns");
+Object.keys(CHAINS).forEach((k,i)=>{
+  const c=CHAINS[k], b=document.createElement("button");
+  b.innerHTML=`${c.name}<small>${c.tag}</small>`;
+  b.onclick=()=>selectChain(k); b.dataset.k=k; chainBtns.appendChild(b);
+});
+function selectChain(k){
+  stopPlay();
+  curChain=k; curStep=-1;
+  chainBtns.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  const c=CHAINS[k];
+  drawGraph("flow-svg", c.nodes, c.edges);
+  packetEl=el("circle",{r:5.5,class:"packet",opacity:0},document.getElementById("flow-svg"));
+  renderDots(); setCaption(-1);
+  document.getElementById("btn-play").textContent="▶ 播放";
+}
+function renderDots(){
+  const dots=document.getElementById("dots"); dots.innerHTML="";
+  CHAINS[curChain].steps.forEach((_,i)=>{
+    const d=document.createElement("i");
+    if(i<curStep) d.className="done"; if(i===curStep) d.className="cur";
+    dots.appendChild(d);
+  });
+}
+function setCaption(i){
+  const cap=document.getElementById("caption");
+  if(i<0||i>=CHAINS[curChain].steps.length){
+    cap.innerHTML=`<div class="stepno">READY</div><h4>${CHAINS[curChain].name}</h4><p>点「播放」或「下一步」逐步观察数据流向;粒子=一次真实调用,金色实线=当前走的边。</p>`;
+    return;
+  }
+  const s=CHAINS[curChain].steps[i];
+  cap.innerHTML=`<div class="stepno">STEP ${i+1} / ${CHAINS[curChain].steps.length}</div>
+    <h4>${s.t}</h4><p>${s.d}</p>${(s.r||"").split("、").map(x=>`<span class="ref">${x}</span>`).join("")}`;
+}
+function highlight(stepIdx){
+  const c=CHAINS[curChain];
+  document.querySelectorAll("#flow-svg .node").forEach(g=>g.querySelector("rect").setAttribute("stroke","var(--line)"));
+  document.querySelectorAll("#flow-svg .edge").forEach(p=>p.classList.remove("active"));
+  if(stepIdx<0) return;
+  const s=c.steps[stepIdx];
+  const g=document.querySelector(`#flow-svg .node[data-id="${s.n}"]`);
+  if(g) g.querySelector("rect").setAttribute("stroke","var(--gold)");
+  const prev=c.steps[stepIdx-1];
+  if(prev){ // 高亮 prev->cur 之间的边(简单策略:包含两个节点的边)
+    const e=c.edges.find(e=>(e.a===prev.n&&e.b===s.n)||(e.a===s.n&&e.b===prev.n));
+    if(e){const p=document.querySelector("#flow-svg #"+e.id); p&&p.classList.add("active");}
+  }
+}
+function playStep(i, animate){
+  const c=CHAINS[curChain];
+  if(i>=c.steps.length){ stopPlay(); document.getElementById("btn-play").textContent="▶ 重新播放"; return; }
+  curStep=i; setCaption(i); renderDots(); highlight(i);
+  const s=c.steps[i];
+  const node=c.nodes.find(n=>n.id===s.n);
+  if(packetEl && node){
+    const prev=c.steps[i-1];
+    const e=prev?c.edges.find(e=>(e.a===prev.n&&e.b===s.n)||(e.a===s.n&&e.b===prev.n)):null;
+    const path=e?document.querySelector("#flow-svg #"+e.id):null;
+    if(animate && window.gsap && path){
+      tl=gsap.timeline();
+      tl.set(packetEl,{opacity:1})
+        .to(packetEl,{motionPath:{path,align:path,alignOrigin:[.5,.5]},duration:.9,ease:"power1.inOut"});
+    } else {
+      // 无 GSAP(离线)或无路径:直接落到目标节点,保证功能不依赖动画
+      if(window.gsap) gsap.to(packetEl,{x:node.x+node.w/2,y:node.y+22,duration:.4,ease:"power2.out",opacity:1});
+      else { packetEl.setAttribute("transform",`translate(${node.x+node.w/2},${node.y+22})`); packetEl.setAttribute("opacity",1); }
+    }
+  }
+}
+let playing=false;
+function stopPlay(){ playing=false; if(tl){tl.kill(); tl=null;}
+  document.getElementById("btn-play").textContent="▶ 播放"; }
+document.getElementById("btn-play").onclick=e=>{
+  if(playing){ stopPlay(); return; }                     // 防连点叠出双循环
+  if(curStep>=CHAINS[curChain].steps.length-1||curStep<0){ curStep=-1; }
+  playing=true; e.target.textContent="⏸ 播放中";
+  const next=()=>{ if(!playing) return;
+    if(curStep>=CHAINS[curChain].steps.length-1){ stopPlay(); e.target.textContent="▶ 重新播放"; return; }
+    playStep(curStep+1,true); setTimeout(next, 1500); };
+  next();
+};
+document.getElementById("btn-next").onclick=()=>{ stopPlay(); playStep(Math.min(curStep+1,CHAINS[curChain].steps.length-1),true); };
+document.getElementById("btn-prev").onclick=()=>{ stopPlay(); playStep(Math.max(curStep-1,0),false); };
+document.getElementById("btn-reset").onclick=()=>{ stopPlay(); curStep=-1; setCaption(-1); renderDots(); highlight(-1);
+  if(packetEl && window.gsap) gsap.set(packetEl,{opacity:0});
+  else if(packetEl){ packetEl.setAttribute("opacity",0); } };
+selectChain("read");
+/* ---------- 接口目录 ---------- */
+const DOMAINS=[["all","全部"],["账号","账号"],["收藏","收藏"],["诗集本","诗集本"],["内容","内容"],["名句","名句"],["诗人","诗人"],["社区","社区"],["反馈","反馈"],["游戏","游戏"],["公告","公告"],["管理","管理"],["Agent","Agent"]];
+let curDomain="all";
+const filterBox=document.getElementById("filters");
+DOMAINS.forEach(([k,label])=>{
+  const b=document.createElement("button"); b.textContent=label+(k==="all"?` (${APIS.length})`:` (${APIS.filter(a=>a[4]===k).length})`);
+  if(k==="all") b.classList.add("on");
+  b.onclick=()=>{curDomain=k;filterBox.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");renderApis();};
+  filterBox.appendChild(b);
+});
+function renderApis(){
+  const tb=document.getElementById("apibody"); tb.innerHTML="";
+  const rows=APIS.filter(a=>curDomain==="all"||a[4]===curDomain);
+  document.getElementById("count").textContent=`显示 ${rows.length} / ${APIS.length} 条(全项目约 150 端点,此处为代表性样本)`;
+  rows.forEach(([m,p,t,s,d])=>{
+    const tr=document.createElement("tr");
+    const stCls=s==="live"?"live":(s==="warn"?"warn":"dead");
+    const stTxt=s==="live"?"活跃":(s==="warn"?"活跃·注意":"死接口");
+    tr.innerHTML=`<td><span class="m ${m}">${m}</span></td><td><code class="path">${p}</code></td><td>${t}</td>
+      <td><span class="st ${stCls}">${stTxt}</span></td><td style="color:var(--muted)">${d}</td>`;
+    tb.appendChild(tr);
+  });
+}
+renderApis();
+/* ---------- 技术方案 ---------- */
+const dz=document.getElementById("designs");
+DESIGNS.forEach(dz2=>{
+  const c=document.createElement("div"); c.className="card";
+  c.innerHTML=`<h4>${dz2.t}</h4><ul>${dz2.pts.map(p=>`<li>${p}</li>`).join("")}</ul>
+    <div class="vs"><b>对比主流:</b>${dz2.vs} · <span style="color:var(--gold-dim)">${dz2.r}</span></div>`;
+  dz.appendChild(c);
+});
+</script>
+</body>
+</html>

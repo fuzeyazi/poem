@@ -1,0 +1,13 @@
+=== AFTER 并发 00:14 ===
+--- rhesis_random10
+== 并发压测 /user/rhesis/GetRhesisDateRondom ==
+c= 10  QPS=  812.2  avg=   12.3ms  P50=   11.3  P95=   21.9  P99=   27.9  err=0/12191
+c= 50  QPS=  970.6  avg=   50.9ms  P50=   47.7  P95=   89.2  P99=  112.6  err=0/14586
+--- poetry_writers
+== 并发压测 /user/poetry/Get?pageNum=1&pageSize=5 ==
+c= 10  QPS=  991.4  avg=   10.1ms  P50=    9.5  P95=   16.4  P99=   20.5  err=0/14877
+c= 50  QPS=  932.2  avg=   53.1ms  P50=   49.8  P95=   93.3  P99=  117.9  err=0/14013
+--- writer_randpoems
+== 并发压测 /user/writer/GetRandomPoems ==
+c= 10  QPS= 1017.4  avg=    9.8ms  P50=    9.1  P95=   16.6  P99=   21.9  err=0/15269
+c= 50  QPS= 1085.2  avg=   45.7ms  P50=   43.1  P95=   77.7  P99=   99.4  err=0/16309

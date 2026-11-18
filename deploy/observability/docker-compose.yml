@@ -1,0 +1,30 @@
+# poetry-spring2 可观测性栈: Prometheus(抓取指标) + Grafana(大盘)
+# 启动: docker compose up -d   (工作目录 deploy/observability)
+# 访问: Grafana http://localhost:3001 (admin/poetry)  Prometheus http://localhost:9091
+# 端口说明: 9090/3000 已被 Langfuse 容器映射占用(台账§5), 故固定 9091/3001
+services:
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: poetry-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: poetry-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=poetry
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped

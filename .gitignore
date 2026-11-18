@@ -1,0 +1,81 @@
+HELP.md
+target/
+
+### Python ###
+.env
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+.superpowers/
+
+# Ch03 本地产物(模型文件不入 git)
+/models/
+
+# AI 服务运行日志不入 git
+potry-ai-agent/log/
+
+# 前端依赖(pnpm 重装后产物,不再跟踪)
+frontend/node_modules/
+
+# 压测工具与产物(JMeter 发行版/日志/原始 jtl 结果)
+.tools/apache-jmeter-5.6.3/
+.tools/jmeter.log
+.tools/bench/results/
+potry-service/data/
+
+# 本地真实密钥文件(2026-10-25 密钥出库),勿提交
+application-secret.yml
+
+# Local tools, runtime files and credentials
+.tools/
+.agents/
+.serena/
+work/
+data/
+out/
+standalone/
+-m/
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+*.log
+*.bak
+*.jtl
+*.db
+*.py[cod]
+*.mp3
+.env
+.env.*
+!.env.example
+application-secret.yml

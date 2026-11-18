@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fuze.potryservice.mapper.WriterMapper">
+    <insert id="add">
+        INSERT INTO poem.writer
+        (name, headImageUrl, simpleIntro,detailIntro)
+        VALUES
+        (#{name}, #{headImageUrl}, #{simpleIntro}, #{detailIntro})
+    </insert>
+    <update id="save">
+        UPDATE poem.writer
+        SET name = #{name},
+            detailIntro = #{detailIntro},
+            headImageUrl = #{headImageUrl},
+            simpleIntro = #{simpleIntro}
+        WHERE id = #{id}
+    </update>
+    <!-- 获取诗人总数 -->
+    <select id="getWriterCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM poem.writer
+    </select>
+
+    <!-- 获取所有诗人的名称 -->
+    <select id="getAllWriterNames" resultType="java.lang.String">
+        SELECT name FROM poem.writer
+    </select>
+
+    <!-- 查询不同朝代里的诗人数量 -->
+    <select id="selectWritersByDynasty" >
+        SELECT DISTINCT writer
+        FROM poem.potry
+        WHERE dynasty = #{dynasty}
+    </select>
+
+
+    <!-- 获取某个诗人的所有古诗 -->
+    <select id="selectPoemsByWriter" resultType="com.fuze.vo.PoemDataVo">
+        SELECT id, title, dynasty, writer, content
+        FROM poem.potry
+        WHERE writer = #{writer}
+    </select>
+
+
+        <!-- 查询诗人图片和简要介绍 -->
+    <select id="selectImageAndSimpleIntroByName"  resultType="com.fuze.vo.WriterVo">
+        SELECT headImageUrl, simpleIntro
+        FROM poem.writer
+        WHERE name = #{name}
+    </select>
+
+    <!-- 查询诗人详细介绍 -->
+    <select id="selectDetailIntroByName">
+        SELECT detailIntro
+        FROM poem.writer
+        WHERE name = #{name}
+    </select>
+
+    <resultMap id="WriterWithPoemsMap" type="com.fuze.vo.WriterWithPoemsVo">
+        <!-- 将数据库中的id列映射到WriterWithPoemsVo中的id属性 -->
+        <id column="id" property="id"/>
+
+        <!-- 将数据库中的name列映射到WriterWithPoemsVo中的name属性 -->
+        <result column="name" property="name"/>
+
+        <!-- 将数据库中的head_image_url列映射到WriterWithPoemsVo中的headImageUrl属性 -->
+        <result column="head_image_url" property="headImageUrl"/>
+
+        <!-- 将数据库中的simple_intro列映射到WriterWithPoemsVo中的simpleIntro属性 -->
+        <result column="simple_intro" property="simpleIntro"/>
+
+        <!-- 处理多对一的关联映射，poems是一个列表，需要定义Collection -->
+        <collection property="poems" ofType="com.fuze.vo.PoemVo">
+            <result column="title" property="title"/>
+            <result column="content" property="content"/>
+        </collection>
+    </resultMap>
+
+
+
+    <select id="selectWriterAndPoemsById" resultMap="WriterWithPoemsMap">
+        SELECT w.id, w.name, w.headImageUrl, w.simpleIntro, p.title, p.content
+        FROM poem.writer w
+                 LEFT JOIN poem.potry p ON w.name = p.writer
+        WHERE w.id = #{id}
+    </select>
+
+    <select id="selectAllDynasties" resultType="java.lang.String">
+        SELECT DISTINCT p.dynasty
+        FROM poem.potry p
+        INNER JOIN poem.writer w ON p.writer = w.name
+
+    </select>
+
+    <select id="selectFamousLinesByWriterId" resultType="com.fuze.vo.PoemDataVo">
+        SELECT p.id, p.title, p.dynasty, p.writer, p.content
+        FROM poem.potry p
+        WHERE p.writer = (SELECT w.name FROM poem.writer w WHERE w.id = #{writerId})
+        LIMIT 1
+    </select>
+
+    <select id="selectAllWriters" resultType="com.fuze.vo.WriterVo">
+        SELECT id, name, headImageUrl, simpleIntro,detailIntro
+        FROM poem.writer
+    </select>
+
+    <select id="selectRandomWriters" resultType="com.fuze.vo.WriterVo">
+        SELECT id, name, headImageUrl, simpleIntro
+        FROM poem.writer
+        ORDER BY RAND()
+        LIMIT 5
+    </select>
+
+    <!-- 随机id池配套: 全量id装载 + 主键IN回表(替代 ORDER BY RAND() filesort) -->
+    <select id="selectAllWriterIds" resultType="java.lang.Integer">
+        SELECT id FROM poem.writer
+    </select>
+
+    <select id="selectWritersByIds" resultType="com.fuze.vo.WriterVo">
+        SELECT id, name, headImageUrl, simpleIntro
+        FROM poem.writer
+        WHERE id IN
+        <foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+    </select>
+
+    <select id="selectWriterCardsByIds" resultType="com.fuze.entity.Writer">
+        SELECT w.id, w.name, w.headImageUrl, w.simpleIntro,
+               (SELECT p.dynasty FROM poem.potry p WHERE p.writer = w.name LIMIT 1) AS dynasty
+        FROM poem.writer w
+        WHERE w.id IN
+        <foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+    </select>
+    <select id="selectWriterNamePrefix" resultType="java.lang.String">
+        SELECT name FROM poem.writer WHERE name LIKE CONCAT(#{kw}, '%') LIMIT 8
+    </select>
+
+    <!-- 朝代诗人完整卡片(一次SQL替代前端270次N+1画像请求, 2026-10-25) -->
+    <select id="selectWritersByDynastyFull" resultType="com.fuze.vo.WriterVo">
+        SELECT t.name, w.headImageUrl, w.simpleIntro
+        FROM (SELECT DISTINCT writer AS name FROM poem.potry WHERE dynasty = #{dynasty}) t
+        LEFT JOIN poem.writer w ON w.name = t.name
+    </select>
+
+    <select id="getWriterByName" resultType="com.fuze.vo.WriterVo">
+        SELECT id, name, headImageUrl, simpleIntro
+        FROM poem.writer
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+    </select>
+</mapper>

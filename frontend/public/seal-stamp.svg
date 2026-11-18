@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+  <rect x="5" y="5" width="50" height="50" fill="#a93226" rx="2">
+    <animate attributeName="transform" values="scale(0);scale(1.2);scale(1)" dur="0.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;1" dur="0.3s" repeatCount="indefinite"/>
+  </rect>
+  <text x="30" y="35" font-family="serif" font-size="20" fill="#fdfaf2" text-anchor="middle">印</text>
+</svg>

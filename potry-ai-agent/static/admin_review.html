@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青莲伴读 · 待审问题</title>
+<style>
+  :root {
+    --paper: #faf6ef;
+    --paper-deep: #f3ecdf;
+    --ink: #3a3229;
+    --ink-soft: #6b5f50;
+    --gold: #b8863b;
+    --gold-soft: #d9b978;
+    --cinnabar: #a63a2b;
+    --line: #e2d7c3;
+    --green: #5c7a4a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+    color: var(--ink);
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(184, 134, 59, .28); border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 15px 28px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(250, 246, 239, .94);
+    backdrop-filter: blur(8px);
+  }
+  .heading { display: flex; flex-direction: column; gap: 3px; }
+  .brand { font-size: 11px; letter-spacing: 3px; color: var(--ink-soft); }
+  .brand .seal { color: var(--cinnabar); }
+  h1 { font-size: 20px; font-weight: 600; letter-spacing: 6px; }
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .filter-label { font-size: 12px; letter-spacing: 2px; color: var(--ink-soft); }
+  select {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 12px;
+    outline: none;
+    cursor: pointer;
+  }
+  select:focus { border-color: var(--gold); }
+  .btn {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    transition: background .15s, opacity .15s;
+  }
+  .btn:hover:not(:disabled) { background: rgba(184, 134, 59, .12); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn.primary { background: var(--gold); color: #fffaf0; }
+  .btn.primary:hover:not(:disabled) { opacity: .88; }
+  .btn.danger { border-color: var(--cinnabar); color: var(--cinnabar); }
+  .btn.danger:hover:not(:disabled) { background: rgba(166, 58, 43, .08); }
+
+  .layout { flex: 1; display: flex; min-height: 0; }
+  .list-panel {
+    width: 360px;
+    flex: 0 0 360px;
+    overflow-y: auto;
+    padding: 18px 16px 28px;
+    border-right: 1px solid var(--line);
+    background: rgba(243, 236, 223, .55);
+  }
+  .panel-cap { margin: 2px 4px 12px; font-size: 13px; letter-spacing: 4px; color: var(--ink-soft); }
+  .list-empty {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+  }
+  .item {
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+    border-left: 2px solid transparent;
+    border-radius: 10px;
+    background: rgba(255, 253, 248, .55);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .item:hover { background: rgba(217, 185, 120, .14); }
+  .item.active {
+    border-color: var(--line);
+    border-left-color: var(--gold);
+    background: rgba(217, 185, 120, .16);
+  }
+  .item-q { font-size: 14px; line-height: 1.7; word-break: break-word; }
+  .item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 7px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+  }
+  .item-answer {
+    margin-top: 7px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .badge.pending { color: var(--gold); border-color: var(--gold-soft); background: rgba(217, 185, 120, .12); }
+  .badge.approved { color: var(--green); border-color: #b9c8ac; background: rgba(92, 122, 74, .08); }
+  .badge.rejected { color: var(--cinnabar); border-color: #e2b6ad; background: rgba(166, 58, 43, .07); }
+
+  .detail-panel { flex: 1; min-width: 0; overflow-y: auto; padding: 22px 32px 48px; }
+  .placeholder {
+    margin-top: 80px;
+    text-align: center;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+  }
+  .detail-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-head h2 { font-size: 17px; font-weight: 600; letter-spacing: 3px; }
+  .meta-line {
+    margin-bottom: 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+  }
+  .field input[type="text"],
+  .field textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 13px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input[type="text"]:focus,
+  .field textarea:focus { border-color: var(--gold); }
+  .field textarea { resize: vertical; min-height: 150px; }
+  .field .hint { margin-top: 6px; font-size: 11px; letter-spacing: 1px; color: var(--ink-soft); }
+  .section-title {
+    margin: 24px 0 10px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+  }
+  .quote {
+    margin-bottom: 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(255, 253, 248, .72);
+    overflow: hidden;
+  }
+  .quote summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .quote summary::-webkit-details-marker { display: none; }
+  .quote summary::before {
+    content: "▸";
+    flex: 0 0 auto;
+    color: var(--gold-soft);
+    font-size: 11px;
+    line-height: 2;
+    transition: transform .15s;
+  }
+  .quote[open] summary::before { transform: rotate(90deg); }
+  .q-text { flex: 1; font-size: 14px; line-height: 1.8; word-break: break-word; }
+  .q-meta {
+    flex: 0 0 auto;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    text-align: right;
+    line-height: 1.8;
+  }
+  .snapshot-wrap {
+    padding: 10px 14px 12px;
+    border-top: 1px dashed var(--line);
+    background: rgba(217, 185, 120, .05);
+  }
+  .snap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .snap-table th {
+    padding: 4px 6px;
+    text-align: left;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .snap-table td {
+    padding: 6px;
+    vertical-align: top;
+    line-height: 1.7;
+    border-bottom: 1px dashed rgba(226, 215, 195, .7);
+  }
+  .snap-table tr:last-child td { border-bottom: none; }
+  .snap-empty { font-size: 12px; letter-spacing: 1px; color: var(--ink-soft); }
+  .action-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 34px;
+    z-index: 30;
+    transform: translateX(-50%) translateY(12px);
+    padding: 10px 22px;
+    border-radius: 10px;
+    background: #3a3229;
+    color: #faf6ef;
+    font-size: 13px;
+    letter-spacing: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: .95; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 960px) {
+    body { height: auto; overflow: auto; }
+    header.top { flex-wrap: wrap; gap: 12px; }
+    .top-right { width: 100%; }
+    .layout { flex-direction: column; }
+    .list-panel {
+      width: auto;
+      flex: none;
+      max-height: 42vh;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .detail-panel { padding: 18px 18px 40px; }
+    .snapshot-wrap { overflow-x: auto; }
+    .snap-table { min-width: 460px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="heading">
+    <div class="brand"><span class="seal">青</span>莲伴读 · 审核后台</div>
+    <h1>待审问题</h1>
+  </div>
+  <div class="top-right">
+    <label class="filter-label" for="statusFilter">状态</label>
+    <select id="statusFilter">
+      <option value="pending">待审</option>
+      <option value="approved">已通过</option>
+      <option value="rejected">已驳回</option>
+    </select>
+    <button id="refreshBtn" class="btn" type="button">刷新</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="list-panel">
+    <div class="panel-cap">问题列表</div>
+    <div id="list" class="list"><div class="list-empty">载入中…</div></div>
+  </section>
+  <section id="detail" class="detail-panel">
+    <div class="placeholder">请从左侧选择一条待审问题</div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const state = { status: "pending", items: [], currentId: null };
+  const listEl = document.getElementById("list");
+  const detailEl = document.getElementById("detail");
+  const statusFilter = document.getElementById("statusFilter");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const toastEl = document.getElementById("toast");
+  let toastTimer = null;
+
+  const STATUS_LABELS = { pending: "待审", approved: "已通过", rejected: "已驳回" };
+  const ENTRY_LABELS = {
+    user_dislike: "用户点踩",
+    retrieval_gate: "检索闸拦截",
+    self_eval: "自评入池",
+  };
+
+  function toast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+  }
+
+  function fmtTime(value) {
+    if (!value) return "-";
+    return String(value).replace("T", " ").slice(0, 19);
+  }
+
+  function fmtScore(value) {
+    if (value == null || value === "") return "-";
+    const num = Number(value);
+    return Number.isNaN(num) ? String(value) : num.toFixed(2);
+  }
+
+  async function readError(resp, fallback) {
+    try {
+      const data = await resp.json();
+      if (data && data.detail && data.detail.message) return data.detail.message;
+    } catch (e) {
+      // 非 JSON 响应按兜底文案
+    }
+    return fallback;
+  }
+
+  function clearDetail(text) {
+    detailEl.innerHTML = "";
+    const tip = document.createElement("div");
+    tip.className = "placeholder";
+    tip.textContent = text;
+    detailEl.appendChild(tip);
+  }
+
+  function makeStatusBadge(status) {
+    const key = status || "pending";
+    const badge = document.createElement("span");
+    badge.className = "badge " + key;
+    badge.textContent = STATUS_LABELS[key] || key;
+    return badge;
+  }
+
+  function renderList() {
+    listEl.innerHTML = "";
+    if (!state.items.length) {
+      const empty = document.createElement("div");
+      empty.className = "list-empty";
+      empty.textContent = "暂无待审问题";
+      listEl.appendChild(empty);
+      return;
+    }
+    state.items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "item" + (item.id === state.currentId ? " active" : "");
+
+      const q = document.createElement("div");
+      q.className = "item-q";
+      q.textContent = item.standard_question || "(无标题)";
+
+      const meta = document.createElement("div");
+      meta.className = "item-meta";
+      const count = document.createElement("span");
+      count.textContent = "出现 " + (item.occurrences || 0) + " 次";
+      meta.append(count, makeStatusBadge(item.status));
+
+      const answer = document.createElement("div");
+      answer.className = "item-answer";
+      const summary = (item.example_answer || "").trim();
+      answer.textContent = summary
+        ? "示例答案:" + (summary.length > 72 ? summary.slice(0, 72) + "…" : summary)
+        : "暂无示例答案";
+
+      card.append(q, meta, answer);
+      card.addEventListener("click", () => selectReview(item.id));
+      listEl.appendChild(card);
+    });
+  }
+
+  async function loadList() {
+    refreshBtn.disabled = true;
+    try {
+      const resp = await fetch(
+        "/api/admin/review?status=" + encodeURIComponent(state.status) + "&limit=50"
+      );
+      if (!resp.ok) throw new Error(await readError(resp, "列表加载失败 " + resp.status));
+      const data = await resp.json();
+      state.items = Array.isArray(data.items) ? data.items : [];
+      if (state.currentId && !state.items.some((x) => x.id === state.currentId)) {
+        state.currentId = null;
+        clearDetail("请从左侧选择一条待审问题");
+      }
+      renderList();
+    } catch (e) {
+      listEl.innerHTML = "";
+      const err = document.createElement("div");
+      err.className = "list-empty";
+      err.textContent = "列表加载失败:" + e.message;
+      listEl.appendChild(err);
+    } finally {
+      refreshBtn.disabled = false;
+    }
+  }
+
+  async function loadDetail(id) {
+    try {
+      const resp = await fetch("/api/admin/review/" + encodeURIComponent(id));
+      if (!resp.ok) throw new Error(await readError(resp, "详情加载失败 " + resp.status));
+      const data = await resp.json();
+      renderDetail(data);
+    } catch (e) {
+      clearDetail("详情加载失败:" + e.message);
+    }
+  }
+
+  async function selectReview(id) {
+    state.currentId = id;
+    renderList();
+    await loadDetail(id);
+  }
+
+  function renderQuote(row) {
+    const box = document.createElement("details");
+    box.className = "quote";
+
+    const summary = document.createElement("summary");
+    const qText = document.createElement("div");
+    qText.className = "q-text";
+    qText.textContent = row.question || "(空问题)";
+    const qMeta = document.createElement("div");
+    qMeta.className = "q-meta";
+    const entry = ENTRY_LABELS[row.source_entry] || row.source_entry || "未知入口";
+    qMeta.textContent = entry + " · " + fmtTime(row.created_at);
+    summary.append(qText, qMeta);
+    box.appendChild(summary);
+
+    const wrap = document.createElement("div");
+    wrap.className = "snapshot-wrap";
+    const snapshot = Array.isArray(row.snapshot) ? row.snapshot.slice(0, 5) : [];
+    if (!snapshot.length) {
+      const empty = document.createElement("div");
+      empty.className = "snap-empty";
+      empty.textContent = "该轮未走检索";
+      wrap.appendChild(empty);
+    } else {
+      const table = document.createElement("table");
+      table.className = "snap-table";
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      ["标题", "作者", "朝代", "得分", "片段"].forEach((label) => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+
+      const tbody = document.createElement("tbody");
+      snapshot.forEach((hit) => {
+        const tr = document.createElement("tr");
+        const values = [
+          hit.title || "-",
+          hit.writer || "-",
+          hit.dynasty || "-",
+          fmtScore(hit.score),
+          (hit.text || "").slice(0, 120) || "-",
+        ];
+        values.forEach((value) => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.append(thead, tbody);
+      wrap.appendChild(table);
+    }
+    box.appendChild(wrap);
+    return box;
+  }
+
+  function renderActions(data, questionInput, answerInput) {
+    const bar = document.createElement("div");
+    bar.className = "action-bar";
+
+    const rejectBtn = document.createElement("button");
+    rejectBtn.type = "button";
+    rejectBtn.className = "btn danger";
+    rejectBtn.textContent = "驳回";
+
+    const approveBtn = document.createElement("button");
+    approveBtn.type = "button";
+    approveBtn.className = "btn primary";
+    approveBtn.textContent = "通过";
+
+    rejectBtn.addEventListener("click", async () => {
+      rejectBtn.disabled = true;
+      approveBtn.disabled = true;
+      try {
+        const resp = await fetch(
+          "/api/admin/review/" + encodeURIComponent(data.id) + "/reject",
+          { method: "POST" }
+        );
+        if (!resp.ok) throw new Error(await readError(resp, "驳回失败 " + resp.status));
+        toast("已驳回");
+        await loadList();
+        if (state.items.some((x) => x.id === data.id)) {
+          await loadDetail(data.id);
+        } else {
+          state.currentId = null;
+          clearDetail("该问题已处理,请从左侧继续选择");
+        }
+      } catch (e) {
+        toast("驳回失败:" + e.message);
+        rejectBtn.disabled = false;
+        approveBtn.disabled = false;
+      }
+    });
+
+    approveBtn.addEventListener("click", async () => {
+      const standard = questionInput.value.trim();
+      const answer = answerInput.value.trim();
+      if (!standard) {
+        toast("标准问题不能为空");
+        questionInput.focus();
+        return;
+      }
+      if (!answer) {
+        toast("核准答案不能为空");
+        answerInput.focus();
+        return;
+      }
+      approveBtn.disabled = true;
+      rejectBtn.disabled = true;
+      try {
+        const resp = await fetch(
+          "/api/admin/review/" + encodeURIComponent(data.id) + "/approve",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ standard_question: standard, approved_answer: answer }),
+          }
+        );
+        if (!resp.ok) throw new Error(await readError(resp, "通过失败 " + resp.status));
+        toast("已通过并写入知识库");
+        await loadList();
+        if (state.items.some((x) => x.id === data.id)) {
+          await loadDetail(data.id);
+        } else {
+          state.currentId = null;
+          clearDetail("该问题已处理,请从左侧继续选择");
+        }
+      } catch (e) {
+        toast("通过失败:" + e.message);
+        approveBtn.disabled = false;
+        rejectBtn.disabled = false;
+      }
+    });
+
+    bar.append(rejectBtn, approveBtn);
+    return bar;
+  }
+
+  function renderDetail(data) {
+    detailEl.innerHTML = "";
+
+    const head = document.createElement("div");
+    head.className = "detail-head";
+    const title = document.createElement("h2");
+    title.textContent = "问题详情";
+    head.append(title, makeStatusBadge(data.status));
+
+    const meta = document.createElement("div");
+    meta.className = "meta-line";
+    meta.textContent = "出现 " + (data.occurrences || 0) + " 次 · 关联原话 " +
+      ((data.pending || []).length) + " 条 · 更新于 " +
+      fmtTime(data.updated_at || data.created_at);
+
+    const qField = document.createElement("div");
+    qField.className = "field";
+    const qLabel = document.createElement("label");
+    qLabel.setAttribute("for", "standardQuestion");
+    qLabel.textContent = "标准问题";
+    const qInput = document.createElement("input");
+    qInput.type = "text";
+    qInput.id = "standardQuestion";
+    qInput.value = data.standard_question || "";
+    qField.append(qLabel, qInput);
+
+    const aField = document.createElement("div");
+    aField.className = "field";
+    const aLabel = document.createElement("label");
+    aLabel.setAttribute("for", "approvedAnswer");
+    aLabel.textContent = "核准答案";
+    const aArea = document.createElement("textarea");
+    aArea.id = "approvedAnswer";
+    aArea.value = data.approved_answer || data.example_answer || "";
+    aArea.placeholder = "请填写通过后写入知识库的标准答案";
+    const hint = document.createElement("div");
+    hint.className = "hint";
+    hint.textContent = "通过后将以「标准问题 + 核准答案」写入知识库并生成向量。";
+    aField.append(aLabel, aArea, hint);
+
+    detailEl.append(head, meta, qField, aField);
+
+    const pending = Array.isArray(data.pending) ? data.pending : [];
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "section-title";
+    sectionTitle.textContent = "关联用户原话(" + pending.length + ")";
+    detailEl.appendChild(sectionTitle);
+
+    if (!pending.length) {
+      const empty = document.createElement("div");
+      empty.className = "snap-empty";
+      empty.textContent = "暂无关联用户原话";
+      detailEl.appendChild(empty);
+    } else {
+      pending.forEach((row) => detailEl.appendChild(renderQuote(row)));
+    }
+
+    if (data.status === "pending") {
+      detailEl.appendChild(renderActions(data, qInput, aArea));
+    }
+  }
+
+  statusFilter.addEventListener("change", () => {
+    state.status = statusFilter.value;
+    state.currentId = null;
+    clearDetail("请从左侧选择一条待审问题");
+    loadList();
+  });
+  refreshBtn.addEventListener("click", loadList);
+
+  loadList();
+</script>
+</body>
+</html>

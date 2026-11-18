@@ -1,0 +1,21 @@
+=== BEFORE 并发基线 23:57 ===
+--- rhesis_random10
+== 并发压测 C:/Program Files/Git/user/rhesis/GetRhesisDateRondom ==
+c= 10  QPS= 9577.6  avg=   -1.0ms  P50=   -1.0  P95=   -1.0  P99=   -1.0  err=143675/143675
+c= 50  QPS= 9535.5  avg=   -1.0ms  P50=   -1.0  P95=   -1.0  P99=   -1.0  err=143078/143078
+--- poetry_writers
+== 并发压测 /user/poetry/Get?pageNum=1&pageSize=5 ==
+c= 10  QPS=  115.9  avg=   86.1ms  P50=   84.5  P95=  105.3  P99=  118.4  err=0/1745
+c= 50  QPS=  133.0  avg=  357.6ms  P50=  312.8  P95=  834.7  P99= 1309.7  err=0/2033
+--- writer_randpoems
+== 并发压测 C:/Program Files/Git/user/writer/GetRandomPoems ==
+c= 10  QPS= 9748.6  avg=   -1.0ms  P50=   -1.0  P95=   -1.0  P99=   -1.0  err=146241/146241
+c= 50  QPS= 9612.4  avg=   -1.0ms  P50=   -1.0  P95=   -1.0  P99=   -1.0  err=144229/144229
+--- rhesis_random10 (rerun)
+== 并发压测 /user/rhesis/GetRhesisDateRondom ==
+c= 10  QPS=  670.8  avg=   14.9ms  P50=   14.3  P95=   21.3  P99=   25.0  err=0/10070
+c= 50  QPS=  699.1  avg=   70.7ms  P50=   67.3  P95=  120.8  P99=  148.9  err=0/10521
+--- writer_randpoems (rerun)
+== 并发压测 /user/writer/GetRandomPoems ==
+c= 10  QPS=  908.2  avg=   11.0ms  P50=   10.7  P95=   16.7  P99=   20.5  err=0/13628
+c= 50  QPS=  917.2  avg=   54.0ms  P50=   51.5  P95=   92.5  P99=  115.6  err=0/13788

@@ -1,0 +1,6 @@
+== 目标帖子 46 ==
+[S1 丢判重] 点赞后=1, 删Redis再点后=1, 响应='点赞成功'  => 幂等OK
+[S2 并发首点 r1] 10线程barrier并发: before=1 after=1 增量=0, 点赞成功响应=5  => 未超发
+[S2 并发首点 r2] 10线程barrier并发: before=1 after=0 增量=-1, 点赞成功响应=3  => 未超发
+[S2 并发首点 r3] 10线程barrier并发: before=1 after=1 增量=0, 点赞成功响应=3  => 未超发
+[cleanup] 最终 liked=1

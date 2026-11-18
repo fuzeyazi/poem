@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青莲伴读 · 诗词伴学</title>
+<style>
+  :root {
+    --paper: #faf6ef;
+    --paper-deep: #f3ecdf;
+    --ink: #3a3229;
+    --ink-soft: #6b5f50;
+    --gold: #b8863b;
+    --gold-soft: #d9b978;
+    --cinnabar: #a63a2b;
+    --line: #e2d7c3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+    color: var(--ink);
+    height: 100vh;
+    display: flex;
+  }
+  header {
+    text-align: center;
+    padding: 22px 0 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    color: var(--ink);
+  }
+  header h1 .seal { color: var(--cinnabar); }
+  header p {
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+  }
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 26px 0;
+    scroll-behavior: smooth;
+  }
+  .row {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    padding: 0 24px;
+    display: flex;
+  }
+  .row.user { justify-content: flex-end; }
+  .row > div {
+    max-width: 78%;
+    min-width: 0;
+  }
+  .bubble {
+    width: fit-content;
+    padding: 13px 18px;
+    line-height: 1.9;
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .row.user .bubble {
+    margin-left: auto;
+  }
+  .row.assistant .bubble {
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px 14px 14px 14px;
+    box-shadow: 0 1px 4px rgba(90, 70, 40, .06);
+  }
+  .row.user .bubble {
+    background: #f4e3c8;
+    border: 1px solid var(--gold-soft);
+    border-radius: 14px 3px 14px 14px;
+    color: #4a3a22;
+  }
+  .who {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+  .row.user .who { text-align: right; }
+  .typing::after {
+    content: "▍";
+    color: var(--cinnabar);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .error .bubble {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+    background: #fdf1ee;
+  }
+  /* 回答来源标识:回答有没有查库,一眼可辨;点开可看查了什么 */
+  .source-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    cursor: pointer;
+    user-select: none;
+  }
+  .source-chip .mark {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+  }
+  .source-chip.db {
+    border: 1px solid var(--gold);
+    background: rgba(184, 134, 59, .12);
+    color: var(--gold);
+  }
+  .source-chip.db .mark { background: var(--gold); }
+  .source-chip.mind {
+    border: 1px dashed var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+  }
+  .source-chip.mind .mark {
+    background: transparent;
+    border: 1px solid var(--ink-soft);
+  }
+  .source-chip.error {
+    border: 1px solid var(--cinnabar);
+    background: #fdf1ee;
+    color: var(--cinnabar);
+  }
+  .source-chip.error .mark { background: var(--cinnabar); }
+  .source-chip .caret {
+    margin-left: 2px;
+    font-size: 10px;
+    opacity: .7;
+    transition: transform .15s;
+  }
+  .source-chip.open .caret { transform: rotate(90deg); }
+  .source-detail {
+    display: none;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-left: 2px solid var(--gold-soft);
+    background: rgba(217, 185, 120, .08);
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    letter-spacing: .5px;
+  }
+  .source-detail.open { display: block; }
+  .source-detail .kv b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* 编排轨迹:复用来源标识的展开区(默认收起),保持页面克制 */
+  .trace-block {
+    margin-top: 10px;
+    border-top: 1px dashed var(--line);
+    padding-top: 8px;
+  }
+  .trace-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+  }
+  .step .badge {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+  .step .node {
+    flex: 0 0 auto;
+    min-width: 68px;
+    color: var(--ink);
+    font-size: 12px;
+  }
+  .step .val {
+    flex: 1 1 auto;
+    color: var(--ink-soft);
+    font-size: 12px;
+  }
+  .step.focus .node { color: var(--gold); }
+  .step.focus .badge { border-color: var(--gold-soft); color: var(--gold); }
+  .actions { display: flex; gap: 8px; margin-top: 8px; }
+  .action-btn {
+    border: 1px solid var(--gold);
+    background: rgba(184, 134, 59, .12);
+    color: var(--gold);
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    cursor: pointer;
+  }
+  .action-btn:hover { opacity: .85; }
+  .action-btn:disabled { opacity: .4; cursor: default; }
+  /* 气泡反馈:赞/踩,比操作按钮更轻,无填充、淡金描边 */
+  .feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .feedback-btn {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    transition: border-color .15s, color .15s;
+  }
+  .feedback-btn:hover:not(:disabled) {
+    border-color: var(--gold-soft);
+    color: var(--gold);
+    opacity: 1;
+  }
+  .feedback-btn:disabled { opacity: .5; cursor: default; }
+  .feedback-note {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+  }
+  .ticket-card {
+    margin-top: 10px;
+    border: 1px solid var(--gold);
+    background: #fffdf8;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .ticket-card .ticket-title {
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .ticket-card .ticket-row {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink);
+    margin-top: 4px;
+  }
+  .ticket-card .ticket-label { color: var(--ink-soft); min-width: 64px; }
+  .ticket-card .row-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .cand-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .cand-card {
+    border: 1px solid var(--line);
+    background: #fffdf8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    transition: border-color .15s, background .15s;
+  }
+  .cand-card:hover { border-color: var(--gold); background: rgba(217, 185, 120, .14); }
+  .cand-card .title { font-size: 15px; color: var(--ink); }
+  .cand-card .meta { font-size: 12px; color: var(--ink-soft); letter-spacing: 1px; }
+  .cand-card .score { margin-left: auto; font-size: 11px; color: var(--gold-soft); }
+  .correction-form {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    background: rgba(250, 246, 239, .8);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .correction-form .cap { font-size: 12px; letter-spacing: 2px; color: var(--ink-soft); }
+  .correction-form select,
+  .correction-form textarea {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fffdf8;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .correction-form textarea { resize: vertical; min-height: 56px; }
+  .correction-form select:focus,
+  .correction-form textarea:focus { border-color: var(--gold); }
+  .correction-form .row-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 16px 24px 22px;
+    background: rgba(250, 246, 239, .9);
+  }
+  .composer {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  textarea {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fffdf8;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 11px 14px;
+    outline: none;
+    max-height: 140px;
+  }
+  textarea:focus { border-color: var(--gold); }
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    background: var(--cinnabar);
+    color: #fff7ec;
+    transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  button:disabled { opacity: .45; cursor: default; }
+  .hint {
+    max-width: 720px;
+    margin: 8px auto 0;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  #app { display: flex; flex: 1; min-height: 0; }
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #sidebar {
+    width: 240px; flex: 0 0 240px; display: flex; flex-direction: column;
+    border-right: 1px solid var(--line); background: rgba(243, 236, 223, .72);
+  }
+  .side-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 14px 12px; border-bottom: 1px solid var(--line);
+  }
+  .side-head span { font-size: 14px; letter-spacing: 4px; color: var(--ink-soft); }
+  #newChat {
+    padding: 6px 12px; font-size: 12px; letter-spacing: 2px;
+    border: 1px solid var(--gold); background: transparent; color: var(--gold);
+    border-radius: 8px;
+  }
+  .conv-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .conv-item {
+    padding: 9px 10px; border-radius: 8px; cursor: pointer;
+    border-left: 2px solid transparent; margin-bottom: 4px;
+  }
+  .conv-item:hover { background: rgba(217, 185, 120, .12); }
+  .conv-item.active { border-left-color: var(--gold); background: rgba(217, 185, 120, .16); }
+  .conv-preview {
+    font-size: 13px; line-height: 1.6; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .conv-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 3px; font-size: 11px; color: var(--ink-soft);
+  }
+  .conv-tag {
+    padding: 1px 6px; border: 1px solid var(--gold-soft); border-radius: 4px;
+    color: var(--gold); letter-spacing: 1px;
+  }
+  .conv-empty { padding: 18px 10px; font-size: 12px; color: var(--ink-soft); text-align: center; }
+  .side-toggle {
+    display: none; position: absolute; left: 12px; top: 16px;
+    padding: 4px 10px; background: transparent; color: var(--ink-soft); font-size: 16px;
+  }
+  header { position: relative; }
+  @media (max-width: 900px) {
+    #sidebar { position: absolute; z-index: 5; height: 100%; left: 0; top: 0; background: var(--paper); }
+    #sidebar.hidden { display: none; }
+    .side-toggle { display: inline-block; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="side-head"><span>对话</span><button id="newChat">新对话</button></div>
+    <div id="convList" class="conv-list"><div class="conv-empty">载入中…</div></div>
+  </aside>
+  <main id="main">
+    <header>
+      <button id="toggleSidebar" class="side-toggle">☰</button>
+      <h1><span class="seal">青</span>莲伴读</h1>
+      <p>以诗人之眼 · 陪你读千年诗心</p>
+    </header>
+    <div id="messages">
+      <div class="row assistant">
+        <div><div class="who">青莲</div><div class="bubble">你好,我是青莲。想读哪首诗,或聊哪句词,我都在。</div></div>
+      </div>
+    </div>
+    <footer>
+      <div class="composer">
+        <textarea id="input" rows="1" placeholder="问我一首诗,或说说你最近读到的句子……"></textarea>
+        <button id="send">寄 出</button>
+      </div>
+      <div class="hint">Enter 发送 · Shift+Enter 换行 · 对话按会话续接</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+  const messagesEl = document.getElementById("messages");
+  const inputEl = document.getElementById("input");
+  const sendBtn = document.getElementById("send");
+  const GREETING = "你好,我是青莲。想读哪首诗,或聊哪句词,我都在。";
+  const userId = (() => {
+    let value = localStorage.getItem("poetryUserId");
+    if (!value) {
+      value = crypto.randomUUID();
+      localStorage.setItem("poetryUserId", value);
+    }
+    return value;
+  })();
+  let sessionId = crypto.randomUUID().replace(/-/g, "");
+  let conversations = [];
+  let switching = false;
+  const sidebarEl = document.getElementById("sidebar");
+  const convListEl = document.getElementById("convList");
+  let sending = false;
+  let pendingConfirm = false;   // 建单预览等待确认:期间锁输入
+
+  // 工具中文名映射(与后端 @tool 注册名一一对应)
+  const TOOL_LABELS = {
+    query_poem: "查诗词",
+    query_poet: "查诗人",
+    query_dynasty_poems: "查朝代",
+  };
+
+  // 可选操作的中文名(与后端 action 标识一一对应)
+  const ACTION_LABELS = { handoff: "转人工", feedback: "提交反馈" };
+  let lastUserText = "";   // 供「提交反馈」落库用
+  let lastTrace = null;    // 本轮编排轨迹(trace 帧),供来源标识展开区展示
+
+  function escapeHtml(text) {
+    return String(text || "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  function renderConversations() {
+    convListEl.innerHTML = "";
+    if (!conversations.length) {
+      convListEl.innerHTML = '<div class="conv-empty">还没有对话</div>';
+      return;
+    }
+    conversations.forEach((conv) => {
+      const item = document.createElement("div");
+      item.className = "conv-item" + (conv.sessionId === sessionId ? " active" : "");
+      item.innerHTML =
+        '<div class="conv-preview">' + escapeHtml(conv.preview || "新对话") + "</div>" +
+        '<div class="conv-meta"><span>' + escapeHtml(conv.updatedAt || "") + "</span>" +
+        (conv.summarized ? '<span class="conv-tag">已摘要</span>' : "") + "</div>";
+      item.addEventListener("click", () => switchConversation(conv.sessionId));
+      convListEl.appendChild(item);
+    });
+  }
+
+  async function loadConversations() {
+    try {
+      const resp = await fetch("/api/conversations?userId=" + encodeURIComponent(userId));
+      if (!resp.ok) throw new Error("status " + resp.status);
+      conversations = await resp.json();
+      renderConversations();
+    } catch (e) {
+      console.warn("会话侧栏加载失败,静默降级:", e.message);
+      if (convListEl.querySelector(".conv-empty")) convListEl.innerHTML = "";
+    }
+  }
+
+  async function switchConversation(id) {
+    if (sending || switching || id === sessionId) return;
+    switching = true;
+    try {
+      const resp = await fetch(
+        "/api/conversations/" + encodeURIComponent(id) + "/messages?userId=" + encodeURIComponent(userId)
+      );
+      if (!resp.ok) throw new Error("status " + resp.status);
+      const rows = await resp.json();
+      sessionId = id;
+      lastTrace = null;
+      messagesEl.innerHTML = "";
+      if (!rows.length) addRow("assistant", GREETING);
+      rows.forEach((row) => addRow(row.role, row.content));
+      renderConversations();
+    } catch (e) {
+      console.warn("会话回载失败,保持当前会话:", e.message);
+    } finally {
+      switching = false;
+    }
+  }
+
+  function newConversation() {
+    if (sending) return;
+    sessionId = crypto.randomUUID().replace(/-/g, "");
+    lastTrace = null;
+    messagesEl.innerHTML = "";
+    addRow("assistant", GREETING);
+    conversations.unshift({ sessionId, preview: "新对话", updatedAt: "", summarized: false });
+    renderConversations();
+    inputEl.focus();
+  }
+
+  document.getElementById("newChat").addEventListener("click", newConversation);
+  document.getElementById("toggleSidebar").addEventListener("click", () => {
+    sidebarEl.classList.toggle("hidden");
+  });
+
+  function toolArgText(args) {
+    // 取第一个参数值作简述,如「静夜思」
+    const values = Object.values(args || {});
+    return values.length ? values[0] : "";
+  }
+
+  // 来源标识:每条回答都标明「查库作答」还是「凭模型知识作答」,点开看明细
+  function ensureSourceEls(bubble) {
+    const wrap = bubble.parentElement;
+    let chip = wrap.querySelector(".source-chip");
+    let detail = wrap.querySelector(".source-detail");
+    if (!chip) {
+      chip = document.createElement("div");
+      chip.className = "source-chip";
+      chip.innerHTML = '<span class="mark"></span><span class="text"></span><span class="caret">▸</span>';
+      chip.addEventListener("click", () => {
+        chip.classList.toggle("open");
+        detail.classList.toggle("open");
+      });
+      wrap.insertBefore(chip, bubble);
+    }
+    if (!detail) {
+      detail = document.createElement("div");
+      detail.className = "source-detail";
+      wrap.insertBefore(detail, bubble);
+    }
+    return { chip, detail };
+  }
+
+  function renderSource(bubble, toolCalls) {
+    const { chip, detail } = ensureSourceEls(bubble);
+    const text = chip.querySelector(".text");
+    chip.classList.remove("db", "mind", "error");
+    if (toolCalls.length === 0) {
+      chip.classList.add("mind");
+      text.textContent = "凭模型知识作答 · 未查库";
+      detail.innerHTML = '<div class="kv">这轮没有调用查询工具,回答来自模型自身知识,可能不准确。</div>';
+      return;
+    }
+    const t = toolCalls[toolCalls.length - 1];
+    const label = TOOL_LABELS[t.tool] || t.tool;
+    const argText = toolArgText(t.args);
+    const argShow = argText ? " · " + argText : "";
+    if (t.status === "calling") {
+      chip.classList.add("db");
+      text.textContent = "查库中 · " + label + argShow;
+      detail.innerHTML = '<div class="kv">正在查询诗词资料库……</div>';
+    } else if (t.status === "error") {
+      chip.classList.add("error");
+      text.textContent = "查询失败 · " + label + argShow + " · 转模型知识兜底";
+      detail.innerHTML = '<div class="kv"><b>工具:</b> ' + label + "(" + t.tool + ")<br><b>参数:</b> " + (argText || "-") + "<br><b>结果:</b> 查询执行失败,以下回答基于模型知识,可能不准确。</div>";
+    } else {
+      chip.classList.add("db");
+      text.textContent = "已查库作答 · " + label + argShow;
+      detail.innerHTML = '<div class="kv"><b>来源:</b> 诗词资料库(MySQL · potry/writer 表)<br><b>工具:</b> ' + label + "(" + t.tool + ")<br><b>参数:</b> " + (argText || "-") + "<br><b>耗时:</b> " + (t.durationMs != null ? t.durationMs + "ms" : "-") + "<br>以下回答基于查询结果组织。</div>";
+    }
+  }
+
+  function addRow(role, text) {
+    const row = document.createElement("div");
+    row.className = "row " + role;
+    const who = role === "user" ? "你" : "青莲";
+    row.innerHTML = '<div><div class="who">' + who + '</div><div class="bubble"></div></div>';
+    row.querySelector(".bubble").textContent = text || "";
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return row.querySelector(".bubble");
+  }
+
+  // 气泡反馈:👍 只在前端致谢;👎 把该气泡对应的问题送入待审池(同一气泡仅一次)
+  function attachFeedback(bubble, question) {
+    const wrap = bubble.parentElement;
+    if (!wrap || wrap.querySelector(".feedback-row")) return;
+    const row = document.createElement("div");
+    row.className = "feedback-row";
+    const up = document.createElement("button");
+    up.type = "button";
+    up.className = "feedback-btn";
+    up.textContent = "👍 有用";
+    const down = document.createElement("button");
+    down.type = "button";
+    down.className = "feedback-btn";
+    down.textContent = "👎 没解决";
+    const note = document.createElement("span");
+    note.className = "feedback-note";
+
+    function lock(text) {
+      up.disabled = true;
+      down.disabled = true;
+      note.textContent = text;
+    }
+
+    up.addEventListener("click", () => {
+      // 满意无需回传后端,仅就地致谢
+      lock("感谢反馈");
+    });
+
+    down.addEventListener("click", async () => {
+      up.disabled = true;
+      down.disabled = true;
+      const message = question || lastUserText || "";
+      try {
+        const resp = await fetch("/agent/feedback/negative", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sessionId, message }),
+        });
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          throw new Error((data.detail && data.detail.message) || ("提交失败 " + resp.status));
+        }
+        lock("已反馈,会尽快改进");
+      } catch (e) {
+        lock("反馈失败,请稍后再试");
+      }
+    });
+
+    row.append(up, down, note);
+    wrap.appendChild(row);
+  }
+
+  // 按后端给出的来源标识定格 chip:preset/fallback/tool/model
+  function renderSourceBySource(bubble, source, toolCalls) {
+    if (!source) { renderSource(bubble, toolCalls); return; }
+    const { chip, detail } = ensureSourceEls(bubble);
+    const text = chip.querySelector(".text");
+    chip.classList.remove("db", "mind", "error");
+    if (source === "preset") {
+      chip.classList.add("mind");
+      text.textContent = "预设话术 · 未调模型";
+      detail.innerHTML = '<div class="kv">这轮走的是固定话术,没有调用模型与工具。</div>';
+    } else if (source === "fallback") {
+      chip.classList.add("error");
+      text.textContent = "资料不足 · 已转兜底";
+      detail.innerHTML = '<div class="kv">检索证据不足,已给出兜底答复并记入待处理问题。</div>';
+    } else if (source === "tool") {
+      renderSource(bubble, toolCalls);
+    } else if (source === "rag") {
+      chip.classList.add("db");
+      text.textContent = "已检索资料作答 · 未调工具";
+      detail.innerHTML = '<div class="kv">回答基于知识库检索到的原文片段组织(未调用查询工具)。</div>';
+    } else {
+      chip.classList.add("mind");
+      text.textContent = "凭模型知识作答 · 未查库";
+      detail.innerHTML = '<div class="kv">这轮没有调用查询工具,回答来自模型自身知识,可能不准确。</div>';
+    }
+  }
+
+  // 编排轨迹:把 trace 帧翻成八行调用链,只展示本轮真实走过的节点
+  const ROUTE_LABELS = {
+    knowledge: "知识类", business: "业务类", ruling: "判定类",
+    complaint: "投诉类", chitchat: "闲聊类", other: "其他类",
+  };
+
+  function traceRows(trace, toolCalls) {
+    const route = trace.route || "";
+    const isKnowledge = route === "knowledge";
+    const scoreText = trace.score == null ? "-" : trace.score.toFixed(4);
+    const usedTools = (toolCalls || []).filter((c) => c.status !== "calling");
+    // 「没进 Agent」和「进了但没调工具」必须分开说,否则轨迹会误导:
+    // 投诉/闲聊是预设话术直接收尾;知识类证据不足是被闸拦下;agent_error/触上限是跑未收敛。
+    const diverged = {
+      agent_error: "未完成 · 模型调用失败,已兜底",
+      max_iter: "ReAct " + (trace.iters || 0) + " 圈 · 触迭代上限,强制作答",
+      max_tokens: "ReAct " + (trace.iters || 0) + " 圈 · 触 token 上限,强制作答",
+    };
+    let agentText;
+    if (route === "complaint" || route === "chitchat") {
+      agentText = "未进入 · 预设话术直接收尾";
+    } else if (trace.gate === "insufficient") {
+      agentText = "未进入 · 证据不足已兜底";
+    } else if (diverged[trace.fallbackReason]) {
+      agentText = diverged[trace.fallbackReason];
+    } else {
+      agentText = "ReAct " + (trace.iters || 0) + " 圈" +
+        (usedTools.length ? " · " + usedTools.map((c) => c.tool).join(" + ") : " · 无工具调用");
+    }
+    const resolveText = trace.queryChanged ? "已改写 · 结合上轮指代" : "透传 · 未改写";
+    const subflowText = trace.subflowKind
+      ? (trace.subflowKind === "meter" ? "格律合规" : "校勘核对") + " · 条款 " + (trace.policyCount || 0) + " 条"
+      : "未进入";
+    return [
+      ["指代消解", resolveText],
+      ["意图识别", (trace.intent || "-") + (trace.confidence != null ? " · conf " + trace.confidence.toFixed(2) : "")],
+      ["意图分流", (ROUTE_LABELS[route] || "-") + " · 硬编码查表"],
+      ["判定子流程", subflowText],
+      ["知识检索", isKnowledge ? (trace.retrievedCount || 0) + " 条 · top " + scoreText : "跳过 · 不预检索"],
+      ["置信度闸", isKnowledge ? (trace.gate === "pass" ? "pass · 证据充足" : "insufficient · 已走兜底") : "跳过"],
+      ["主力 Agent", agentText],
+      ["日志记录", "落 messages 表 · " + (trace.tokens || 0) + " tokens" +
+        (trace.elapsedMs != null ? " · " + trace.elapsedMs + "ms" : "")],
+    ];
+  }
+
+  function appendTracePanel(bubble, trace, toolCalls) {
+    if (!trace) return;
+    const { detail } = ensureSourceEls(bubble);
+    const block = document.createElement("div");
+    block.className = "trace-block";
+    const title = document.createElement("div");
+    title.className = "trace-title";
+    title.textContent = "编排轨迹";
+    block.appendChild(title);
+    const list = document.createElement("ol");
+    list.className = "steps";
+    traceRows(trace, toolCalls).forEach(([node, val], i) => {
+      const li = document.createElement("li");
+      li.className = "step" + (i === 6 ? " focus" : "");
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = String(i + 1);
+      const nodeEl = document.createElement("span");
+      nodeEl.className = "node";
+      nodeEl.textContent = node;
+      const valEl = document.createElement("span");
+      valEl.className = "val";
+      valEl.textContent = val;
+      li.appendChild(badge);
+      li.appendChild(nodeEl);
+      li.appendChild(valEl);
+      list.appendChild(li);
+    });
+    block.appendChild(list);
+    detail.appendChild(block);
+  }
+
+  // 来源标识 + 轨迹统一刷新:先按来源定格 chip,再把本轮轨迹追加进展开区
+  function refreshSource(bubble, source, toolCalls) {
+    if (source) renderSourceBySource(bubble, source, toolCalls);
+    else renderSource(bubble, toolCalls);
+    appendTracePanel(bubble, lastTrace, toolCalls);
+  }
+
+  // 兼容三类 action 帧:{"actions":[...]} / {"action":"pick_poem"} / {"action":"open_correction_form"}
+  function handleActionFrame(bubble, payload) {
+    if (payload.actions) {
+      renderActions(bubble.parentElement, payload.actions);
+      return;
+    }
+    if (payload.action === "pick_poem") {
+      renderPoemCards(bubble, payload.candidates || []);
+      return;
+    }
+    if (payload.action === "open_correction_form") {
+      renderCorrectionForm(bubble, payload.categories || []);
+    }
+    if (payload.action === "confirm_ticket") {
+      renderTicketPreview(bubble, payload.preview || {}, payload.toolCallId);
+      return;
+    }
+    if (payload.action === "forum_draft") {
+      renderForumDraft(bubble, payload.draft || {});
+    }
+  }
+
+  // 文坛草稿卡(Ch09):只读预览 + 一键复制;正式发布在文坛页完成(写走 Java)
+  function renderForumDraft(bubble, draft) {
+    if (!draft.title && !draft.content) return;
+    const wrap = document.createElement("div");
+    wrap.className = "cand-cards";
+    const card = document.createElement("div");
+    card.className = "cand-card";
+    card.style.maxWidth = "420px";
+    const t = document.createElement("div");
+    t.style.fontWeight = "600";
+    t.style.marginBottom = "6px";
+    t.textContent = (draft.tag ? "[" + draft.tag + "] " : "") + draft.title;
+    const c = document.createElement("div");
+    c.style.whiteSpace = "pre-wrap";
+    c.style.fontSize = "13px";
+    c.style.color = "#4b5563";
+    c.textContent = draft.content;
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.textContent = "复制草稿";
+    btn.onclick = () => {
+      navigator.clipboard.writeText((draft.title || "") + "
+
+" + (draft.content || ""))
+        .then(() => { btn.textContent = "已复制"; btn.disabled = true; });
+    };
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = "为你起草的文坛帖子(发布请在文坛页进行):";
+    card.appendChild(t); card.appendChild(c); card.appendChild(btn);
+    wrap.appendChild(cap); wrap.appendChild(card);
+    bubble.parentElement.appendChild(wrap);
+  }
+
+  // 诗词卡片选择器:缺槽位时下发候选,点选后自动回填并把流程接着走完
+  function renderPoemCards(bubble, candidates) {
+    if (!candidates.length) return;
+    const wrap = document.createElement("div");
+    wrap.className = "cand-cards";
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = "点选一首,我接着判定:";
+    wrap.appendChild(cap);
+    candidates.forEach((c) => {
+      const card = document.createElement("div");
+      card.className = "cand-card";
+      const title = document.createElement("span");
+      title.className = "title";
+      title.textContent = "《" + (c.title || "未题") + "》";
+      const meta = document.createElement("span");
+      meta.className = "meta";
+      meta.textContent = (c.writer || "-") + " · " + (c.dynasty || "-");
+      const score = document.createElement("span");
+      score.className = "score";
+      score.textContent = c.score != null ? c.score.toFixed(2) : "";
+      card.append(title, meta, score);
+      card.addEventListener("click", () => pickPoem(c, wrap));
+      wrap.appendChild(card);
+    });
+    bubble.parentElement.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  async function pickPoem(candidate, wrap) {
+    if (sending || switching || pendingConfirm) return;
+    sending = true;
+    sendBtn.disabled = true;
+    wrap.remove();                                   // 选过即收起卡片
+    const poemText = "《" + (candidate.title || "未题") + "》";
+    addRow("user", poemText);
+    lastUserText = poemText;                         // 续跑回复沿用这次选择作为问题
+    lastTrace = null;
+    try {
+      await streamReply("", { selectedPoemId: candidate.poemId });
+    } finally {
+      sending = false;
+      if (!pendingConfirm) {
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+      loadConversations();
+    }
+  }
+
+  // 纠错/复核单:类目下拉 + 补充说明;提交后落 corrections 表
+  function renderCorrectionForm(bubble, categories) {
+    if (!categories.length) return;
+    const form = document.createElement("div");
+    form.className = "correction-form";
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = "发现数据有误?可提交纠错单";
+    const select = document.createElement("select");
+    categories.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      select.appendChild(opt);
+    });
+    const detail = document.createElement("textarea");
+    detail.placeholder = "补充说明(可选)";
+    const btns = document.createElement("div");
+    btns.className = "row-btns";
+    const submit = document.createElement("button");
+    submit.className = "action-btn";
+    submit.textContent = "提交纠错单";
+    submit.addEventListener("click", async () => {
+      submit.disabled = true;
+      try {
+        const resp = await fetch("/agent/correction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: sessionId,
+            poemId: (lastTrace && lastTrace.poemId) || null,
+            category: select.value,
+            detail: detail.value.trim() || null,
+          }),
+        });
+        if (!resp.ok) throw new Error("提交失败 " + resp.status);
+        form.replaceWith(document.createTextNode("已提交,感谢指正。"));
+      } catch (e) {
+        submit.disabled = false;
+        addRow("assistant", "纠错单提交失败:" + e.message);
+      }
+    });
+    btns.appendChild(submit);
+    form.append(cap, select, detail, btns);
+    bubble.parentElement.appendChild(form);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // 建单预览卡:确认/取消都走 resume 接口,回复进新助手气泡
+  function renderTicketPreview(bubble, preview, toolCallId) {
+    const card = document.createElement("div");
+    card.className = "ticket-card";
+    card.dataset.toolCallId = toolCallId || "";
+    const title = document.createElement("div");
+    title.className = "ticket-title";
+    title.textContent = "工单预览";
+    const typeRow = document.createElement("div");
+    typeRow.className = "ticket-row";
+    typeRow.innerHTML = '<span class="ticket-label">工单类型</span><span>' +
+      escapeHtml(preview.ticketType || "-") + "</span>";
+    const descRow = document.createElement("div");
+    descRow.className = "ticket-row";
+    descRow.innerHTML = '<span class="ticket-label">问题描述</span><span>' +
+      escapeHtml(preview.description || "-") + "</span>";
+    const btns = document.createElement("div");
+    btns.className = "row-btns";
+    const ok = document.createElement("button");
+    ok.className = "action-btn";
+    ok.textContent = "确认提交";
+    ok.addEventListener("click", () => resumeTicket(true, card));
+    const cancel = document.createElement("button");
+    cancel.className = "action-btn";
+    cancel.textContent = "取消";
+    cancel.addEventListener("click", () => resumeTicket(false, card));
+    btns.append(ok, cancel);
+    card.append(title, typeRow, descRow, btns);
+    bubble.parentElement.appendChild(card);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  async function resumeTicket(confirmed, card) {
+    if (sending || switching) return;
+    sending = true;
+    pendingConfirm = false;
+    card.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+    card.replaceWith(document.createTextNode(confirmed ? "已确认,正在提交…" : "已取消,正在处理…"));
+    inputEl.disabled = true;
+    sendBtn.disabled = true;
+    lastTrace = null;
+    try {
+      await streamReply("", null, confirmed);
+    } finally {
+      sending = false;
+      if (!pendingConfirm) {
+        inputEl.disabled = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+      loadConversations();
+    }
+  }
+
+  // 「转人工」「提交反馈」两个独立按钮:互不绑定,点击结果各自独立
+  function renderActions(container, actions) {
+    const existing = container.querySelector(".actions");
+    if (existing) existing.remove();
+    const wrap = document.createElement("div");
+    wrap.className = "actions";
+    actions.forEach((action) => {
+      const btn = document.createElement("button");
+      btn.className = "action-btn";
+      btn.textContent = ACTION_LABELS[action] || action;
+      btn.addEventListener("click", () => handleAction(action, btn));
+      wrap.appendChild(btn);
+    });
+    container.appendChild(wrap);
+  }
+
+  async function handleAction(action, btn) {
+    btn.disabled = true;
+    if (action === "handoff") {
+      // 纯前端模拟:不对接真人客服,仅展示转接提示 + 青莲版问候
+      addRow("assistant", "已转接人工客服\n\n您好,我是青莲,请问有什么可以帮您的");
+      return;
+    }
+    if (action === "feedback") {
+      try {
+        const resp = await fetch("/agent/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sessionId, message: lastUserText }),
+        });
+        if (!resp.ok) throw new Error("提交失败 " + resp.status);
+        addRow("assistant", "已提交,感谢反馈。");
+      } catch (e) {
+        addRow("assistant", "反馈提交失败:" + e.message);
+      }
+    }
+  }
+
+  // 流式请求 + SSE 解析(main / 续跑 / 建单 resume 共用)
+  async function streamReply(userText, extra, resumeConfirmed) {
+    const bubble = addRow("assistant", "");
+    bubble.classList.add("typing");
+    const isResume = resumeConfirmed !== undefined;
+    const body = isResume
+      ? { sessionId: sessionId, confirmed: resumeConfirmed }
+      : Object.assign({ sessionId: sessionId, userId: userId, message: userText }, extra || {});
+    const url = isResume ? "/agent/workflow/resume" : "/agent/workflow";
+    let acc = "";
+    const toolCalls = [];
+    let finalSource = null;
+    let failed = false;
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error((err.detail && err.detail.message) || ("请求失败 " + resp.status));
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split("\n\n");
+        buffer = chunks.pop();
+        for (const chunk of chunks) {
+          const lines = chunk.split("\n");
+          let event = "message";
+          let data = "";
+          for (const line of lines) {
+            if (line.startsWith("event: ")) event = line.slice(7).trim();
+            else if (line.startsWith("data: ")) data += line.slice(6);
+          }
+          if (!data) continue;
+          const payload = JSON.parse(data);
+          if (event === "meta") {
+            sessionId = payload.sessionId;
+          } else if (event === "tool_status") {
+            const idx = toolCalls.findIndex((c) => c.tool === payload.tool && c.status === "calling");
+            if (payload.status === "calling" || idx === -1) toolCalls.push(payload);
+            else toolCalls[idx] = payload;
+            refreshSource(bubble, finalSource, toolCalls);
+          } else if (event === "token") {
+            acc += payload.content;
+            bubble.textContent = acc;
+          } else if (event === "trace") {
+            lastTrace = payload;
+          } else if (event === "action") {
+            handleActionFrame(bubble, payload);
+          } else if (event === "done") {
+            finalSource = payload.source || null;
+            if (payload.status === "awaiting_confirmation") {
+              pendingConfirm = true;
+              inputEl.disabled = true;
+              sendBtn.disabled = true;
+              bubble.textContent = acc || "请确认下面的工单信息:";
+            }
+            refreshSource(bubble, finalSource, toolCalls);
+          } else if (event === "error") {
+            throw new Error(payload.message || "上游出错");
+          }
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      }
+      if (!pendingConfirm) bubble.textContent = acc || "(空回复)";
+      refreshSource(bubble, finalSource, toolCalls);
+    } catch (e) {
+      failed = true;
+      bubble.classList.remove("typing");
+      bubble.parentElement.parentElement.classList.add("error");
+      bubble.textContent = "出错了:" + e.message;
+    } finally {
+      bubble.classList.remove("typing");
+      // 等工单确认期间不挂反馈(确认后会另起一条回复气泡)
+      if (!failed && !pendingConfirm) attachFeedback(bubble, userText || lastUserText);
+    }
+  }
+
+  async function send() {
+    const text = inputEl.value.trim();
+    if (!text || sending || switching || pendingConfirm) return;
+    sending = true;
+    sendBtn.disabled = true;
+    inputEl.value = "";
+    inputEl.style.height = "auto";
+    addRow("user", text);
+    lastUserText = text;
+    lastTrace = null;
+    try {
+      await streamReply(text, null);
+    } finally {
+      sending = false;
+      if (!pendingConfirm) {
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+      loadConversations();
+    }
+  }
+
+  sendBtn.addEventListener("click", send);
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+  inputEl.addEventListener("input", () => {
+    inputEl.style.height = "auto";
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + "px";
+  });
+
+  loadConversations();
+</script>
+</body>
+</html>

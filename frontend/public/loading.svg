@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+  <defs>
+    <filter id="loadingBlur">
+      <feGaussianBlur stdDeviation="0.5" />
+    </filter>
+    <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="360%" y2="0%">
+      <stop offset="0%" stop-color="#a93226" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#b08d57" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#a93226" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+  <g animation="spin 1.5s linear infinite">
+    <circle cx="30" cy="30" r="24" fill="none" stroke="url(#loadingGradient)" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 80" filter="url(#loadingBlur)"/>
+  </g>
+  <circle cx="30" cy="30" r="12" fill="#f7f2e8"/>
+  <text x="30" y="35" font-family="serif" font-size="16" font-weight="500" fill="#3d3a35" text-anchor="middle" dominant-baseline="middle">诗</text>
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    g { animation: spin 1.5s linear infinite; }
+  </style>
+</svg>

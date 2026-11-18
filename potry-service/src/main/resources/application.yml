@@ -1,0 +1,164 @@
+server:
+  port: 8081
+  address: 0.0.0.0
+  tomcat:
+    threads:
+      max: 200          # 工作线程上限(默认200,显式声明便于运维)
+      min-spare: 20      # 空闲保底线程,避免突发流量时现场建线程
+    accept-count: 200    # 线程满时的等待队列(默认100)
+    max-connections: 8192
+
+spring:
+  application:
+    name: potry-service
+  # 真实密钥在 application-secret.yml(gitignored);缺失时本文件仅含空占位,需先建 secret 文件或注入环境变量
+  config:
+    import: optional:classpath:application-secret.yml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+  profiles:
+    active: dev
+  websocket:
+    stomp:
+      client:
+        library: web-socket-client-spring
+      socket-timeout: 60000
+    sockjs:
+      enabled: true
+      url: /sockjs
+      allowed-origins: "*"
+
+
+  ai:
+    openai:
+      api-key: ${SPRING_AI_API_KEY:}
+      base-url: https://xiaoai.plus
+
+
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    # 统一使用本机 MySQL(库 poem);dev profile 同样指向它
+    url: jdbc:mysql://localhost:3306/poem?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # 之前未配置走默认10连接,压测显示QPS钉死在~700(10连接/15ms查询);DB为本机MySQL,提到20
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 3000   # 获取连接最多等3秒,快速失败而不是拖满30s
+      max-lifetime: 1800000      # 30分钟回收,低于MySQL wait_timeout
+  sql:
+    init:
+      # 数据已导入 MySQL,禁止再执行 H2 初始化脚本(poemmax-h2.sql 含 DROP TABLE,会清空语料)
+      mode: never
+
+
+  mail:
+    host: smtp.qq.com
+    username: 347185605@qq.com
+    password: ${MAIL_PASSWORD:}
+    default-encoding: utf-8
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          timeout: 3000
+          connection-timeout: 3000
+          writetimeout: 5000
+          ssl:
+            enable: true
+          auth: true
+          starttls:
+            enable: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          port: 465
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      #命令/连接超时:Redis宕机时快速失败触发降级(Lettuce默认60s会把降级拖成雪崩)
+      timeout: 500ms
+      connect-timeout: 500ms
+      lettuce:
+        pool:
+          # 原配置 max-idle:0 + min-idle:100 自相矛盾(最多保0个空闲却要预热100个),改为常规值
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 2000
+    redisson:
+      config:
+        single-server-config:
+          address: "redis://localhost"
+          password: ""  # 无密码
+
+
+mybatis:
+  mapper-locations: classpath:Mapper/**/*.xml
+  type-aliases-package: com.fuze.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+
+logging:
+  level:
+    com:
+      fuze:
+        mapper: trace
+        service: info
+        controller: info
+  # traceId 由 TraceIdFilter 从网关透传头写入MDC,全链路(网关->服务->MQ消费者)日志可串联
+  pattern:
+    level: "%5p [%X{traceId:-}]"
+
+management:
+  # 邮件为异步旁路能力,其SMTP连通性不作为服务健康判定(否则health整体DOWN误导)
+  health:
+    mail:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      # 默认只发count/sum/max,开启直方图分桶后 Prometheus 端才能 histogram_quantile 算 P95/P99
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: [0.95, 0.99]
+
+sky:
+  alioss:
+    endpoint: ${ALIOSS_ENDPOINT:oss-cn-hangzhou.aliyuncs.com}
+    access-key-id: ${ALIOSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIOSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${ALIOSS_BUCKET_NAME:webxiangmu}
+  jwt:
+    # 真实密钥在 application-secret.yml;环境变量注入用于生产轮换
+    admin-secret-key: ${JWT_ADMIN_SECRET:}
+    admin-legacy-secret-keys: ${JWT_ADMIN_LEGACY_KEYS:}
+    admin-ttl: 119200000
+    admin-token-name: token
+    userSecretKey: ${JWT_USER_SECRET:}
+    user-legacy-secret-keys: ${JWT_USER_LEGACY_KEYS:}
+    userTtl: 119200000
+    userTokenName: token
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql

@@ -1,0 +1,6 @@
+1. STOMP 已订阅 /topic/review.77
+2. remindcount = 3 (期望3)
+3. 手动触发: 到期用户1人, 推送1人
+4. STOMP 收到推送: {"date":"2026-10-25","count":3,"type":"review_remind"}
+5. 防重(二次触发后新消息数应为0): 新增=0, 触发返回='到期用户1人, 推送0人'
+6. remindlog = [{'date': '2026-10-25', 'count': 3}]

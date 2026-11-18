@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="bookmarkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b08d57"/>
+      <stop offset="100%" stop-color="#a93226"/>
+    </linearGradient>
+    <filter id="bookmarkShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#3d3a35" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <g filter="url(#bookmarkShadow)">
+    <path d="M24,4 L40,16 L40,44 L8,44 L8,16 Z" fill="url(#bookmarkGrad)" rx="2"/>
+    <path d="M24,4 L40,16 L24,12 L8,16 Z" fill="#fdfaf2" opacity="0.2"/>
+    <text x="24" y="28" font-family="serif" font-size="14" font-weight="500" fill="#fdfaf2" text-anchor="middle" dominant-baseline="middle">藏</text>
+  </g>
+</svg>

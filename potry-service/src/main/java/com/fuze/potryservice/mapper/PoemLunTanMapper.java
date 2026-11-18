@@ -1,0 +1,104 @@
+package com.fuze.potryservice.mapper;
+
+import com.fuze.dto.*;
+import com.fuze.vo.*;
+import com.github.pagehelper.Page;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
+
+@Mapper
+public interface PoemLunTanMapper {
+
+
+    void fabu1(Integer blogid,PoemBlogDto poemBlogDto, Integer idd);
+@Select("select * from poem.poem_blog where id=#{blogid}")
+PoemBlogDtoSuper selectxiangxi(Integer blogid);
+@Update("update poem.poem_blog set liked=liked+1 where id=#{blogid}")
+    void updatedianzan(Integer blogid);
+    @Update("update poem.poem_blog set liked=liked-1 where id=#{blogid} and liked>0")
+    void updatequxiaodianzan(Integer blogid);
+    /** 点赞明细(复合主键)为幂等事实源: INSERT IGNORE 命中主键则 affected=0 */
+    @Insert("INSERT IGNORE INTO poem.blog_like (user_id, blog_id) VALUES (#{userid}, #{blogid})")
+    int insertBlogLike(@Param("userid") Integer userid, @Param("blogid") Integer blogid);
+    @Delete("DELETE FROM poem.blog_like WHERE user_id=#{userid} AND blog_id=#{blogid}")
+    int deleteBlogLike(@Param("userid") Integer userid, @Param("blogid") Integer blogid);
+@Insert("insert into poem.tb_follow(user_Id,follow_user_id) values(#{userid},#{followUserid})")
+    void insertguanzhu(Integer followUserid, Integer userid);
+@Delete("delete from poem.tb_follow where user_Id=#{userid} and follow_user_id=#{followUserid}")
+    void deleteguanzhu(Integer followUserid, Integer userid);
+
+
+@Select("SELECT * FROM poem.tb_follow WHERE follow_user_id=#{followUserid} and user_Id=#{userid}")
+    Integer isfrend1(Integer followUserid, Integer userid);
+@Select("select b.*,u.touxiang,u.username from poem.poem_blog b, poem.user u  where type like CONCAT('%',#{type},'%') and u.id=b.user_id ")
+    Page<PoemBlogVo> GetPoemPage(String type);
+@Select("select * from poem.user where username=#{username}")
+    BlogUserVo getByUsername();
+@Select("select * from poem.user where id=#{followid}")
+    BlogUserVo getByUsername1(Integer followid);
+@Select("select * from poem.poem_blog where user_id=#{followid}")
+    Page<UserBlogListVo> selecttiezi(Integer followid);
+@Select("select user_id from poem.tb_follow where follow_user_id=#{id}")
+    List<Integer> getuseridbylistid(Integer id);
+@Select("select max(id)from poem.poem_blog where user_id=#{id}")
+    Integer fabu(Integer id);
+    @Insert("INSERT INTO poem.poem_blog(user_id, title, images, content, type, poem_id, poem_word) VALUES(" +
+            "#{userid}, #{title}, #{images}, #{content}, #{type}, #{poemId}, #{poemWord})")
+    @Options(useGeneratedKeys = true, keyProperty = "bolgid")
+    void fabu12(PoemBlogDtoPlus poemBlogDtoPlus);
+@Select("select * from poem.poem_blog where id in (#{ids}) order by field(id,#{ids})  ")
+    List<PoemBlogVo> selecttieziy(List<Long> ids);
+@Insert("INSERT INTO poem.forum_comment(blog_id, user_id, context, parent_id, tagerr_name, reply_to_user) " +
+        "values(#{d.blogId},#{id},#{d.context},#{d.parentId},#{d.tagerrName},#{replyToUser})")
+    void fabucomment(@Param("d") FourmCommentDto fourmCommentDto, @Param("id") Integer id, @Param("replyToUser") Integer replyToUser);
+@Update("update poem.poem_blog set conmments=conmments+1 where id=#{blogId}")
+    void addblogcomment(Integer blogId);
+@Select("select id, user_id as userId, parent_id as parentId from poem.forum_comment where id=#{id}")
+    FabaCommnetVo getCommentById(Integer id);
+
+@Select("SELECT parent_id,conment FROM  poem.forum_comment WHERE blog_id=#{blogid}")
+    List<FourmCommentDto> selectConmmet(Integer blogid);
+@Select("SELECT * FROM  poem.forum_comment WHERE blog_id=#{blogid}")
+    List<FourCommentDtoPlus> selectConmme1t(Integer blogid);
+@Select("SELECT b.*,u.touxiang,u.name from poem.forum_comment b ,poem.user u where blog_id=#{blogid} and u.id=b.user_id")
+    List<FabaCommnetVo> selectConmme1t1(Integer blogid);
+@Update("update poem.forum_comment set conment=conment+1 where id=#{parentId}")
+    void addcomment(Integer parentId);
+@Select("select user_id from poem.poem_blog where id=#{blogid}")
+    Integer getUserid(Integer blogid);
+@Update("update poem.user set fans=fans+1 where id=#{followUserid}")
+    void addfans(Integer followUserid);
+@Update("update poem.user set fans=fans-1 where id=#{followUserid}")
+    void deletefans(Integer followUserid);
+@Select("SELECT * FROM poem.tb_follow WHERE follow_user_id=#{followUserid} and user_Id=#{userid}")
+    List<Integer> isfrend11(Integer followUserid, Integer userid);
+@Update("update poem.forum_comment set  liked=liked+1 where id=#{commentid}")
+    void updatedianzan1(Integer commentid);
+@Update("update poem.forum_comment set  liked=liked-1 where id=#{commentid} and liked>0")
+    void updatequxiaodianzan1(Integer commentid);
+    @Insert("INSERT IGNORE INTO poem.comment_like (user_id, comment_id) VALUES (#{userid}, #{commentid})")
+    int insertCommentLike(@Param("userid") Integer userid, @Param("commentid") Integer commentid);
+    @Delete("DELETE FROM poem.comment_like WHERE user_id=#{userid} AND comment_id=#{commentid}")
+    int deleteCommentLike(@Param("userid") Integer userid, @Param("commentid") Integer commentid);
+@Select("SELECT b.*,u.touxiang,u.name from poem.forum_comment b ,poem.user u where blog_id=#{blogid} and u.id=b.user_id")
+    Page<FabaCommnetVo> selectConmme1t11(Integer blogid);
+
+    List<FabaCommnetVo> selectMainComments(Integer blogid);
+
+    List<FabaCommnetVo> selectChildComments(List<Integer> mainCommentIds);
+@Select("select * from poem.poem_blog where id order by rand() limit 5")
+    List<BlogVO> selectforum1();
+
+@Select("select id from poem.poem_blog")
+    List<Integer> GetAllBlogIds();
+
+    @Delete("<script>delete from poem.forum_comment where id in " +
+            "<foreach collection='ids' item='i' open='(' separator=',' close=')'>#{i}</foreach></script>")
+    void deleteComments(@Param("ids") List<Integer> ids);
+
+@Select("<script>select * from poem.poem_blog where id in " +
+        "<foreach collection='ids' item='i' open='(' separator=',' close=')'>#{i}</foreach>" +
+        "</script>")
+    List<BlogVO> GetBlogsByIds(@Param("ids") List<Integer> ids);
+}

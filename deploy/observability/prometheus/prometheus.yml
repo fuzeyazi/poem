@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 30s
+
+scrape_configs:
+  # 两个 Java 服务的 /actuator/prometheus 端点
+  # host.docker.internal: 容器访问宿主机服务(Docker Desktop 内置解析)
+  - job_name: potry-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+
+  - job_name: poetry-gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:9080']
+
+  - job_name: potry-ai-agent
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['host.docker.internal:8000']

@@ -1,0 +1,7 @@
+== 单次延迟基线 (BASE=http://127.0.0.1:8081) ==
+rhesis_random10    n=30  median=   9.00ms  p95=  10.70ms  min=8.00  max=11.00  bytes=1084
+rhesis_today1      n=30  median=   9.00ms  p95=  11.00ms  min=7.00  max=11.00  bytes=125
+poetry_writers     n=30  median=  37.09ms  p95=  43.56ms  min=32.51  max=44.01  bytes=3536
+writer_randpoems   n=30  median=   7.11ms  p95=  12.98ms  min=5.00  max=14.94  bytes=3413
+writer_rand5       n=30  median=   5.01ms  p95=   7.00ms  min=3.94  max=7.74  bytes=3014
+luntan_rand5       n=30  median=   5.00ms  p95=   6.03ms  min=3.00  max=7.00  bytes=13569

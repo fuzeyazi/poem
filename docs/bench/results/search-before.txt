@@ -1,0 +1,11 @@
+== 搜索接口单次延迟 (BASE=http://127.0.0.1:8081) ==
+title_黄鹤楼      n=30  median=  16.07ms  p95=  22.14ms  min=14.51  max=26.09  hits=6  bytes=17976
+title_静夜思      n=30  median=  15.63ms  p95=  23.01ms  min=14.00  max=25.65  hits=1  bytes=4186
+title_春        n=30  median=  10.00ms  p95=  12.16ms  min=7.00  max=14.01  hits=476  bytes=7363
+title_杜甫       n=30  median=  10.09ms  p95=  18.52ms  min=8.04  max=20.35  hits=100  bytes=103531
+forum_月光       n=30  median=  16.66ms  p95=  21.59ms  min=15.51  max=22.17  hits=27  bytes=16535
+forum_江南       n=30  median=  22.51ms  p95=  40.24ms  min=19.04  max=41.53  hits=187  bytes=152254
+--- conc 黄鹤楼
+== 并发压测 GetPoembyTitle kw=黄鹤楼 ==
+c= 10  QPS=  274.7  avg=   36.4ms  P50=   35.0  P95=   51.2  P99=   64.3  err=0/4127
+c= 50  QPS=  341.9  avg=  140.2ms  P50=  118.0  P95=  281.8  P99=  528.6  err=0/5153

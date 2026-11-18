@@ -1,0 +1,11 @@
+=== AFTER-final repro ===
+== 目标帖子 46 ==
+[S1 丢判重] 点赞后=1, 删Redis再点后=1, 响应='点赞成功'  => 幂等OK
+[S2 并发首点 r1] 10线程barrier并发: before=1 after=0 增量=-1, 点赞成功响应=4  => 未超发
+[S2 并发首点 r2] 10线程barrier并发: before=1 after=1 增量=0, 点赞成功响应=4  => 未超发
+[S2 并发首点 r3] 10线程barrier并发: before=1 after=1 增量=0, 点赞成功响应=1  => 未超发
+[cleanup] 最终 liked=0
+=== AFTER-final bench ===
+== 点赞toggle写路径压测 blogid=46 ==
+c= 10  QPS=  858.6  avg=   11.6ms  P50=   10.1  P95=   22.0  P99=   34.5  err=0/12891
+c= 50  QPS= 1005.4  avg=   49.3ms  P50=   45.9  P95=   87.0  P99=  114.0  err=9/15111

@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    # 统一使用本机 MySQL(库 poem):语料 potry/writer 与应用表均已导入;密码在 application-secret.yml
+    url: jdbc:mysql://localhost:3306/poem?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      # 数据已导入 MySQL,禁止再执行 H2 初始化脚本(poemmax-h2.sql 含 DROP TABLE,会清空语料)
+      mode: never
+# sky.alioss 真实 AK/SK 已迁移至 application-secret.yml(2026-10-25 密钥出库)

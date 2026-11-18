@@ -1,0 +1,90 @@
+server:
+  port: 9080
+
+spring:
+  application:
+    name: poetry-gateway
+  # 真实密钥在 application-secret.yml(gitignored);缺失时占位为空,需先建 secret 文件或注入环境变量
+  config:
+    import: optional:classpath:application-secret.yml
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      # 全局限流:Redis 令牌桶,按来源IP;replenishRate=每秒放行,burstCapacity=桶容量(允许的突发)
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 2000
+            redis-rate-limiter.burstCapacity: 4000
+            redis-rate-limiter.requestedTokens: 1
+            key-resolver: "#{@ipKeyResolver}"
+      # 路由到 Nacos 中注册的服务名（lb:// 表示走负载均衡）
+      routes:
+        # ---------- Java 业务服务 potry-service ----------
+        - id: poetry-service-user
+          uri: lb://potry-service
+          predicates:
+            - Path=/user/**
+        - id: poetry-service-admin
+          uri: lb://potry-service
+          predicates:
+            - Path=/admin/**
+        - id: poetry-service-notice
+          uri: lb://potry-service
+          predicates:
+            - Path=/notice/**
+        - id: poetry-service-ai
+          uri: lb://potry-service
+          predicates:
+            - Path=/ai/**
+        # WebSocket(STOMP): 诗坛实时推送/复习提醒 —— lb:ws 前缀,SCG 原生 WS 转发;
+        # 鉴权过滤器只拦 /user /ai,/ws 直通(连接级鉴权由订阅端与业务接口承担)
+        - id: poetry-service-ws
+          uri: lb:ws://potry-service
+          predicates:
+            - Path=/ws/**
+        # ---------- Python AI 服务 potry-ai-agent，待第 4 步启用 ----------
+        - id: poetry-ai-agent
+          uri: lb://potry-ai-agent
+          predicates:
+            - Path=/agent/**
+      # 统一跨域处理（原来在 Java 侧配置的 CORS 上提到网关层）
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+logging:
+  level:
+    org.springframework.cloud.gateway: info
+
+# 与 potry-service 两端 JWT 同密钥:用户端验/user与/ai与/agent,管理端验/admin与/notice(角色隔离)
+gateway:
+  jwt:
+    # 真实密钥在 application-secret.yml(gitignored);轮换时与potry-service同源变量同步换+legacy过渡
+    secret: ${JWT_USER_SECRET:}
+    admin-secret: ${JWT_ADMIN_SECRET:}
+    user-legacy-secrets: ${JWT_USER_LEGACY_KEYS:}
+    admin-legacy-secrets: ${JWT_ADMIN_LEGACY_KEYS:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: [0.95, 0.99]

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="arrowLeftGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#6b665e"/>
+      <stop offset="100%" stop-color="#3d3a35"/>
+    </linearGradient>
+  </defs>
+  <line x1="8" y1="12" x2="20" y2="12" stroke="url(#arrowLeftGrad)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10,8 L4,12 L10,16" fill="none" stroke="url(#arrowLeftGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

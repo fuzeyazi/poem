@@ -1,0 +1,41 @@
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+nacos-sdk-python==1.0.0
+langchain-core==1.6.10
+langchain-openai==1.7.1
+python-dotenv==1.2.4
+sqlalchemy==2.0.43
+pymysql==1.1.1
+# JWT 鉴权(auth.py)与可观测(observability.py/workflow),运行时硬依赖,此前缺失
+PyJWT==2.15.1
+langfuse==5.0.4
+
+# dev / test 依赖
+pytest==9.1.1
+pytest-asyncio==1.4.0
+httpx==0.28.1
+requests==2.34.2
+
+# Ch04 LangGraph 编排依赖(版本与 langchain-core 1.6.10 实测兼容)
+langgraph==1.2.16
+langgraph-checkpoint-sqlite==3.1.2
+aiosqlite==0.22.1
+
+# Ch07 工具系统:MCP Server/Client 与 JSON Schema 校验
+mcp==1.30.0
+langchain-mcp-adapters==0.3.2
+jsonschema==4.26.0
+
+# Ch03 知识库与向量语义检索依赖
+pymilvus==3.0.2
+milvus-lite==3.2.2
+apscheduler==3.11.3
+# onnx 嵌入引擎(embeddings.py EMBEDDING_ENGINE=onnx 默认路径)
+onnxruntime==1.31.0
+FlagEmbedding==1.4.2
+# 以下三个是 FlagEmbedding 的重依赖,版本直接影响 BGE-M3 语义,显式钉住防漂移
+sentence-transformers==6.1.0
+torch==2.14.1
+transformers==5.19.0
+prometheus-client>=0.20

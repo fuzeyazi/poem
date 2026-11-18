@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古韵传习堂 · 运维导航台</title>
+<style>
+  :root{
+    --bg:#14161a;--card:#1e2229;--card-hover:#262b34;--line:#2e3440;
+    --ink:#e8e6e3;--muted:#9aa3ad;--accent:#d4a056;--green:#5cb87a;--blue:#6a9fd8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei",system-ui,sans-serif;padding:32px 24px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:22px;font-weight:600;letter-spacing:2px}
+  h1 .seal{display:inline-block;background:var(--accent);color:#14161a;font-size:12px;padding:2px 8px;border-radius:3px;margin-right:10px;vertical-align:3px;letter-spacing:1px}
+  .sub{color:var(--muted);font-size:13px;margin:8px 0 28px}
+  h2{font-size:14px;color:var(--accent);letter-spacing:3px;margin:26px 0 12px;font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-decoration:none;color:var(--ink);transition:all .15s}
+  a.card:hover{background:var(--card-hover);border-color:var(--accent);transform:translateY(-1px)}
+  .card .name{font-size:15px;font-weight:600;margin-bottom:4px}
+  .card .name .port{font-size:11px;color:var(--accent);background:rgba(212,160,86,.12);padding:1px 6px;border-radius:3px;margin-left:6px;font-weight:400}
+  .card .desc{font-size:12px;color:var(--muted);line-height:1.5}
+  .cred{margin-top:30px;padding:14px 16px;background:var(--card);border:1px dashed var(--line);border-radius:8px;font-size:12px;color:var(--muted);line-height:2}
+  .cred b{color:var(--ink);font-weight:600}
+  .tag{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .g{background:var(--green)}.b{background:var(--blue)}.o{background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="seal">运维</span>古韵传习堂 · 管理导航台</h1>
+  <div class="sub">监控观测 / 后台管理 / 服务健康 —— 一页直达（本地环境，2026-10-25）</div>
+
+  <h2><span class="tag o"></span>监控观测</h2>
+  <div class="grid">
+    <a class="card" href="http://localhost:3001" target="_blank">
+      <div class="name">Grafana 大盘<span class="port">:3001</span></div>
+      <div class="desc">Java×2 + Agent 三服务 QPS/P95/连接池/JVM 同屏（admin / poetry）</div>
+    </a>
+    <a class="card" href="http://localhost:9091/targets" target="_blank">
+      <div class="name">Prometheus<span class="port">:9091</span></div>
+      <div class="desc">指标采集源与抓取目标状态、即席查询</div>
+    </a>
+    <a class="card" href="http://localhost:15672" target="_blank">
+      <div class="name">RabbitMQ 管理台<span class="port">:15672</span></div>
+      <div class="desc">队列深度/消费者/死信查看（guest / guest）</div>
+    </a>
+    <a class="card" href="http://localhost:3000" target="_blank">
+      <div class="name">Langfuse 观测台<span class="port">:3000</span></div>
+      <div class="desc">Agent LLM 调用 trace 与成本（密码见 E:\javatexts\langfuse\.env；依赖 Docker，未启动时打不开）</div>
+    </a>
+  </div>
+
+  <h2><span class="tag b"></span>后台管理</h2>
+  <div class="grid">
+    <a class="card" href="http://localhost:5173/console" target="_blank">
+      <div class="name">Vue 管理工作台<span class="port">:5173</span></div>
+      <div class="desc">管理员验证码登录；飞轮审核/成本/审计三合一（asdfg / 123456）</div>
+    </a>
+    <a class="card" href="http://localhost:8000/admin/review" target="_blank">
+      <div class="name">数据飞轮审核<span class="port">:8000</span></div>
+      <div class="desc">低置信/负反馈问题池，人工审核回流知识库</div>
+    </a>
+    <a class="card" href="http://localhost:8000/admin/cost" target="_blank">
+      <div class="name">LLM 成本报表<span class="port">:8000</span></div>
+      <div class="desc">按意图 token 用量与美元成本</div>
+    </a>
+    <a class="card" href="http://localhost:8000/chat" target="_blank">
+      <div class="name">Agent 调试页<span class="port">:8000</span></div>
+      <div class="desc">青莲对话/工作流编排轨迹联调（管理 API 需 admin token）</div>
+    </a>
+  </div>
+
+  <h2><span class="tag g"></span>服务健康</h2>
+  <div class="grid">
+    <a class="card" href="http://localhost:8081/actuator/health" target="_blank">
+      <div class="name">potry-service<span class="port">:8081</span></div>
+      <div class="desc">主服务健康聚合（DB/Redis/MQ 纳入判定）</div>
+    </a>
+    <a class="card" href="http://localhost:9080/actuator/health" target="_blank">
+      <div class="name">poetry-gateway<span class="port">:9080</span></div>
+      <div class="desc">统一入口网关健康</div>
+    </a>
+    <a class="card" href="http://localhost:8000/metrics" target="_blank">
+      <div class="name">Agent metrics<span class="port">:8000</span></div>
+      <div class="desc">FastAPI Prometheus 原始指标</div>
+    </a>
+    <a class="card" href="http://localhost:8848/nacos" target="_blank">
+      <div class="name">Nacos 控制台<span class="port">:8848</span></div>
+      <div class="desc">服务注册/配置（默认 nacos/nacos）</div>
+    </a>
+  </div>
+
+  <div class="cred">
+    <b>凭据速查：</b>Grafana admin/poetry ｜ RabbitMQ guest/guest ｜ Nacos nacos/nacos ｜
+    管理台 asdfg/123456 ｜ Langfuse 密码见 langfuse/.env<br>
+    <b>启停：</b>全栈 start-all.bat / stop-all.bat（仓库根）；观测栈 deploy\observability\start-obs.bat；
+    Agent 慢启动属正常（KB/Milvus 初始化 ~50s）
+  </div>
+</div>
+</body>
+</html>

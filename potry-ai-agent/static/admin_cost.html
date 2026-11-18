@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成本报表 · potry-ai-agent</title>
+<style>
+  body { font-family: system-ui, "Microsoft YaHei", sans-serif; margin: 0; background: #f6f7fb; color: #1f2430; }
+  header { background: #fff; border-bottom: 1px solid #e5e8f0; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header a { color: #4f6ef7; text-decoration: none; font-size: 14px; }
+  main { padding: 24px; max-width: 980px; margin: 0 auto; }
+  .controls { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; font-size: 14px; }
+  .controls select { padding: 4px 8px; }
+  .summary { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .card { background: #fff; border: 1px solid #e5e8f0; border-radius: 10px; padding: 14px 20px; min-width: 160px; }
+  .card .k { font-size: 12px; color: #6b7280; }
+  .card .v { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e5e8f0; border-radius: 10px; overflow: hidden; }
+  th, td { padding: 10px 14px; text-align: right; font-size: 14px; border-bottom: 1px solid #f0f2f7; }
+  th { background: #fafbfe; color: #6b7280; font-weight: 500; }
+  td:first-child, th:first-child { text-align: left; }
+  .err { color: #b42318; background: #fef3f2; border: 1px solid #fecdca; padding: 12px 16px; border-radius: 8px; }
+  .hint { color: #6b7280; font-size: 12px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>按意图成本报表</h1>
+  <a href="/admin/review">→ 审核后台</a>
+  <a href="/chat">→ 聊天页</a>
+</header>
+<main>
+  <div class="controls">
+    <label>统计窗口
+      <select id="days">
+        <option value="1">近 1 天</option>
+        <option value="7" selected>近 7 天</option>
+        <option value="30">近 30 天</option>
+        <option value="90">近 90 天</option>
+      </select>
+    </label>
+    <button id="refresh">刷新</button>
+  </div>
+  <div class="summary" id="summary"></div>
+  <div id="content"><p style="color:#6b7280">加载中…</p></div>
+  <p class="hint">数据源:Langfuse ClickHouse(GENERATION 观测);价格表维护于 cost_api.py(DeepSeek 官方高峰价,USD/百万 token)。未匹配模型的调用只计数不计价。</p>
+</main>
+<script>
+async function load() {
+  const days = document.getElementById('days').value;
+  const content = document.getElementById('content');
+  const summary = document.getElementById('summary');
+  content.innerHTML = '<p style="color:#6b7280">加载中…</p>';
+  summary.innerHTML = '';
+  try {
+    const r = await fetch(`/api/admin/cost?days=${days}`);
+    const d = await r.json();
+    if (!r.ok) throw new Error((d.detail && d.detail.message) || r.status);
+    const t = d.total;
+    summary.innerHTML = `
+      <div class="card"><div class="k">LLM 调用</div><div class="v">${t.calls}</div></div>
+      <div class="card"><div class="k">总 token</div><div class="v">${t.tokens.toLocaleString()}</div></div>
+      <div class="card"><div class="k">总成本(USD)</div><div class="v">$${t.costUsd.toFixed(4)}</div></div>`;
+    if (!d.rows.length) { content.innerHTML = '<p style="color:#6b7280">窗口内暂无 LLM 调用。</p>'; return; }
+    content.innerHTML = `<table>
+      <thead><tr><th>意图</th><th>模型</th><th>调用数</th><th>输入tok</th><th>缓存命中tok</th><th>输出tok</th><th>成本USD</th></tr></thead>
+      <tbody>${d.rows.map(r => `<tr>
+        <td>${r.intent}</td><td>${r.model}</td><td>${r.calls}</td>
+        <td>${r.input.toLocaleString()}</td><td>${r.input_cache_read.toLocaleString()}</td>
+        <td>${r.output.toLocaleString()}</td><td>$${r.costUsd.toFixed(4)}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch (e) {
+    content.innerHTML = `<div class="err">加载失败:${e.message}(Langfuse 未就绪?)</div>`;
+  }
+}
+document.getElementById('refresh').onclick = load;
+document.getElementById('days').onchange = load;
+load();
+</script>
+</body>
+</html>

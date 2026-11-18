@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fuze.potryservice.mapper.PoemLunTanMapper">
+    <!--<insert id="fabu12" parameterType="com.fuze.dto.PoemBlogDtoPlus" useGeneratedKeys="true" keyProperty="bolgid">
+        insert into poem.poem_blog(user_id, title, images, content, type, poem_id, poem_word) values(
+                                                                                                     #{userid},
+                                                                                                     #{title},
+                                                                                                     #{images},
+                                                                                                     #{content},
+                                                                                                     #{type},
+                                                                                                     #{poemId},
+                                                                                                     #{poemWord}
+                                                                                                  )
+    </insert>-->
+    <select id="selectMainComments" resultType="com.fuze.vo.FabaCommnetVo">
+        SELECT b.*, u.touxiang, u.name
+        FROM poem.forum_comment b
+        JOIN poem.user u ON u.id = b.user_id
+    WHERE b.blog_id = #{blogid} AND b.parent_id = -1
+    ORDER BY b.create_tiem DESC
+    LIMIT 20
+    </select>
+    <select id="selectChildComments" resultType="com.fuze.vo.FabaCommnetVo">
+    SELECT b.*, u.touxiang, u.name, ru.name AS replyToUserName
+    FROM poem.forum_comment b
+    JOIN poem.user u ON u.id = b.user_id
+    LEFT JOIN poem.user ru ON ru.id = b.reply_to_user
+    WHERE b.parent_id IN <foreach item="id" collection="mainCommentIds" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+    ORDER BY b.create_tiem ASC
+</select>
+</mapper>

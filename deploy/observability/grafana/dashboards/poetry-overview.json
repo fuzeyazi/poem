@@ -1,0 +1,89 @@
+{
+  "title": "poetry-spring2 服务总览",
+  "uid": "poetry-overview",
+  "schemaVersion": 39,
+  "editable": true,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "HTTP QPS (按服务)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (application)", "legendFormat": "{{application}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "potry-service HTTP 延迟 P95/P99 (按 uri)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"potry-service\"}[5m])) by (le, uri))", "legendFormat": "P95 {{uri}}" },
+        { "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"potry-service\"}[5m])) by (le, uri))", "legendFormat": "P99 {{uri}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "HikariCP 连接池 (active/idle/pending)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "hikaricp_connections_active{application=\"potry-service\"}", "legendFormat": "active" },
+        { "expr": "hikaricp_connections_idle{application=\"potry-service\"}", "legendFormat": "idle" },
+        { "expr": "hikaricp_connections_pending{application=\"potry-service\"}", "legendFormat": "pending" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Tomcat 工作线程 (busy)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "executor_busy_threads_threads{application=\"potry-service\", name=\"tomcat\"}", "legendFormat": "busy" },
+        { "expr": "executor_pool_size_threads{application=\"potry-service\", name=\"tomcat\"}", "legendFormat": "pool" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "JVM 堆内存 used / max",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "sum(jvm_memory_used_bytes{application=\"potry-service\", area=\"heap\"})", "legendFormat": "used" },
+        { "expr": "sum(jvm_memory_max_bytes{application=\"potry-service\", area=\"heap\"})", "legendFormat": "max" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] }
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "GC 暂停 (每秒耗时)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        { "expr": "sum(rate(jvm_gc_pause_seconds_sum{application=\"potry-service\"}[5m])) by (cause)", "legendFormat": "{{cause}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "错误率 (5xx/s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[1m])) by (application)", "legendFormat": "{{application}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "agent(FastAPI) QPS / P95延迟",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+      "targets": [
+        { "expr": "sum(rate(http_request_duration_seconds_count[1m]))", "legendFormat": "QPS" },
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[2m])) by (le))", "legendFormat": "P95(s)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 8, "type": "timeseries", "title": "进程 CPU 使用率",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        { "expr": "process_cpu_usage{application=\"potry-service\"}", "legendFormat": "potry-service" },
+        { "expr": "process_cpu_usage{application=\"poetry-gateway\"}", "legendFormat": "gateway" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] }
+    }
+  ]
+}

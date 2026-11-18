@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#efe7d5"/>
+      <stop offset="100%" stop-color="#e8dfc8"/>
+    </linearGradient>
+    <filter id="avatarShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#3d3a35" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <g filter="url(#avatarShadow)">
+    <circle cx="40" cy="40" r="36" fill="url(#avatarGrad)" stroke="#c9bb98" stroke-width="2"/>
+    <circle cx="40" cy="35" r="12" fill="#b08d57" opacity="0.3"/>
+    <path d="M28,50 Q32,45 40,45 Q48,45 52,50" stroke="#3d3a35" stroke-width="2" fill="none"/>
+    <path d="M32,56 Q40,62 48,56" stroke="#3d3a35" stroke-width="1.5" fill="none"/>
+    <circle cx="34" cy="38" r="2" fill="#3d3a35"/>
+    <circle cx="46" cy="38" r="2" fill="#3d3a35"/>
+    <circle cx="40" cy="28" r="8" fill="#b08d57" opacity="0.2"/>
+  </g>
+</svg>
